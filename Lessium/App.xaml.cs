@@ -1,6 +1,8 @@
-﻿using Lessium.Views;
+﻿using Lessium.ViewModels;
+using Lessium.Views;
 using Prism.Ioc;
 using Prism.Modularity;
+using Prism.Mvvm;
 using System.Windows;
 
 namespace Lessium
@@ -17,7 +19,8 @@ namespace Lessium
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+            // Registers "MainWindow" as key for navigation.
+            containerRegistry.RegisterForNavigation<MainWindow>();
         }
     }
 }
