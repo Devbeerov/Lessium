@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LessonsHeader" xml:space="preserve">
-    <value>Уроки</value>
+  <data name="LessonHeader" xml:space="preserve">
+    <value>Урок</value>
   </data>
-  <data name="MaterialsHeader" xml:space="preserve">
-    <value>Материалы</value>
+  <data name="MaterialHeader" xml:space="preserve">
+    <value>Материал</value>
   </data>
-  <data name="TestsHeader" xml:space="preserve">
-    <value>Тесты</value>
+  <data name="TestHeader" xml:space="preserve">
+    <value>Тест</value>
   </data>
 </root>

@@ -61,29 +61,29 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Lessons.
+        ///   Ищет локализованную строку, похожую на Lesson.
         /// </summary>
-        public static string LessonsHeader {
+        public static string LessonHeader {
             get {
-                return ResourceManager.GetString("LessonsHeader", resourceCulture);
+                return ResourceManager.GetString("LessonHeader", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Materials.
+        ///   Ищет локализованную строку, похожую на Material.
         /// </summary>
-        public static string MaterialsHeader {
+        public static string MaterialHeader {
             get {
-                return ResourceManager.GetString("MaterialsHeader", resourceCulture);
+                return ResourceManager.GetString("MaterialHeader", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Tests.
+        ///   Ищет локализованную строку, похожую на Test.
         /// </summary>
-        public static string TestsHeader {
+        public static string TestHeader {
             get {
-                return ResourceManager.GetString("TestsHeader", resourceCulture);
+                return ResourceManager.GetString("TestHeader", resourceCulture);
             }
         }
     }

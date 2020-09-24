@@ -9,8 +9,8 @@ namespace Lessium.Models
 
         // Tabs
 
-        public string LessonsHeader = Resources.LessonsHeader;
-        public string MaterialsHeader = Resources.MaterialsHeader;
-        public string TestsHeader = Resources.TestsHeader;
+        public string LessonHeader = Resources.LessonHeader;
+        public string MaterialHeader = Resources.MaterialHeader;
+        public string TestHeader = Resources.TestHeader;
     }
 }
