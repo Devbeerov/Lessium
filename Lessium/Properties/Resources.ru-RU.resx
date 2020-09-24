@@ -118,12 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LessonsHeader" xml:space="preserve">
-    <value>Lessons</value>
+    <value>Уроки</value>
   </data>
   <data name="MaterialsHeader" xml:space="preserve">
-    <value>Materials</value>
+    <value>Материалы</value>
   </data>
   <data name="TestsHeader" xml:space="preserve">
-    <value>Tests</value>
+    <value>Тесты</value>
   </data>
 </root>

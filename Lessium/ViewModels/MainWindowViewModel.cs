@@ -13,6 +13,15 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.title, value); }
         }
 
+        public string LessonsHeader
+        {
+            get { return model.LessonsHeader; }
+            set { model.LessonsHeader = value; }
+        }
+
+
+
+
         // Constructs ViewModel with Model as parameter.
         public MainWindowViewModel(MainWindowModel model = null)
         {
@@ -21,7 +30,6 @@ namespace Lessium.ViewModels
             if(model == null)
             {
                 model = new MainWindowModel();
-                return;
             }
 
             this.model = model;
