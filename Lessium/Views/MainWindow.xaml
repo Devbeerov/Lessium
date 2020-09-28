@@ -2,8 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:converters="clr-namespace:Lessium.Converters"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
+    </Window.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal">
             <!-- Not used yet <ContentControl prism:RegionManager.RegionName="ContentRegion" /> -->
@@ -12,13 +17,14 @@
 
             <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <MenuItem Header="{Binding LessonHeader}">
-                    <MenuItem Header="{Binding EditHeader}" />
-                    <MenuItem Header="{Binding UndoChangesHeader}" />
+                    <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}"/>
+                    <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
                     <Separator />
                     <MenuItem Header="{Binding RecentHeader}" />
                     <Separator />
-                    <MenuItem Header="{Binding NewLessonHeader}" />
-                    <MenuItem Header="{Binding SaveLessonHeader}" />
+                    <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
+                    <!-- There's no need to do conditions for IsEnabled, because Command already handles it. -->
+                    <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" />
                     <MenuItem Header="{Binding LoadLessonHeader}" />
                     <MenuItem Header="{Binding CloseLessonHeader}" />
                     <Separator />
@@ -29,7 +35,7 @@
             </Menu>
 
             <!-- Tabs -->
-            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top" >
             
                 <!-- Material -->
                 <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
