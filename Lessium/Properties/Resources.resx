@@ -117,13 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CloseLessonHeader" xml:space="preserve">
+    <value>Close Lesson</value>
+  </data>
+  <data name="EditHeader" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="ExitHeader" xml:space="preserve">
+    <value>Exit</value>
+  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Lesson</value>
+  </data>
+  <data name="LoadLessonHeader" xml:space="preserve">
+    <value>Load</value>
   </data>
   <data name="MaterialHeader" xml:space="preserve">
     <value>Material</value>
   </data>
+  <data name="NewLessonHeader" xml:space="preserve">
+    <value>New Lesson</value>
+  </data>
+  <data name="PrintLessonHeader" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="RecentHeader" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="SaveLessonHeader" xml:space="preserve">
+    <value>Save</value>
+  </data>
   <data name="TestHeader" xml:space="preserve">
     <value>Test</value>
+  </data>
+  <data name="UndoChangesHeader" xml:space="preserve">
+    <value>Undo Changes</value>
   </data>
 </root>

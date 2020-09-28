@@ -5,28 +5,40 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
     <Grid>
-        <!-- Not used yet <ContentControl prism:RegionManager.RegionName="ContentRegion" /> -->
+        <StackPanel Orientation="Horizontal">
+            <!-- Not used yet <ContentControl prism:RegionManager.RegionName="ContentRegion" /> -->
 
-        <!-- Lesson Menu -->
+            <!-- Lesson Menu -->
 
-        <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <MenuItem Header="{Binding LessonHeader}">
-                <MenuItem Header="Edit">
-
+            <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <MenuItem Header="{Binding LessonHeader}">
+                    <MenuItem Header="{Binding EditHeader}" />
+                    <MenuItem Header="{Binding UndoChangesHeader}" />
+                    <Separator />
+                    <MenuItem Header="{Binding RecentHeader}" />
+                    <Separator />
+                    <MenuItem Header="{Binding NewLessonHeader}" />
+                    <MenuItem Header="{Binding SaveLessonHeader}" />
+                    <MenuItem Header="{Binding LoadLessonHeader}" />
+                    <MenuItem Header="{Binding CloseLessonHeader}" />
+                    <Separator />
+                    <MenuItem Header="{Binding PrintLessonHeader}" />
+                    <Separator />
+                    <MenuItem Header="{Binding ExitHeader}" />
                 </MenuItem>
-            </MenuItem>
-        </Menu>
+            </Menu>
 
-        <!-- Tabs -->
-        <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <!-- Tabs -->
+            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top">
             
-            <!-- Material -->
-            <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
-                <StackPanel>
-                    <Button Content="test2" Width="50" Height="20" />
-                </StackPanel>
-            </TabItem>
+                <!-- Material -->
+                <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
+                    <StackPanel>
+                        <Button Content="test2" Width="50" Height="20" />
+                    </StackPanel>
+                </TabItem>
                 
-        </TabControl>
+            </TabControl>
+        </StackPanel>
     </Grid>
 </Window>

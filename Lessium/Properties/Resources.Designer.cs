@@ -61,11 +61,47 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Close Lesson.
+        /// </summary>
+        public static string CloseLessonHeader {
+            get {
+                return ResourceManager.GetString("CloseLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Edit.
+        /// </summary>
+        public static string EditHeader {
+            get {
+                return ResourceManager.GetString("EditHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Exit.
+        /// </summary>
+        public static string ExitHeader {
+            get {
+                return ResourceManager.GetString("ExitHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Lesson.
         /// </summary>
         public static string LessonHeader {
             get {
                 return ResourceManager.GetString("LessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Load.
+        /// </summary>
+        public static string LoadLessonHeader {
+            get {
+                return ResourceManager.GetString("LoadLessonHeader", resourceCulture);
             }
         }
         
@@ -79,11 +115,56 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на New Lesson.
+        /// </summary>
+        public static string NewLessonHeader {
+            get {
+                return ResourceManager.GetString("NewLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Print.
+        /// </summary>
+        public static string PrintLessonHeader {
+            get {
+                return ResourceManager.GetString("PrintLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Recent.
+        /// </summary>
+        public static string RecentHeader {
+            get {
+                return ResourceManager.GetString("RecentHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Save.
+        /// </summary>
+        public static string SaveLessonHeader {
+            get {
+                return ResourceManager.GetString("SaveLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Test.
         /// </summary>
         public static string TestHeader {
             get {
                 return ResourceManager.GetString("TestHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Undo Changes.
+        /// </summary>
+        public static string UndoChangesHeader {
+            get {
+                return ResourceManager.GetString("UndoChangesHeader", resourceCulture);
             }
         }
     }

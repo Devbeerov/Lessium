@@ -7,10 +7,23 @@ namespace Lessium.Models
 
         public string title = "Lessium";
 
-        // Tabs
+        // Lesson Menu
 
         public string LessonHeader = Resources.LessonHeader;
+        public string EditHeader = Resources.EditHeader;
+        public string UndoChangesHeader = Resources.UndoChangesHeader;
+        public string RecentHeader = Resources.RecentHeader;
+        public string NewLessonHeader = Resources.NewLessonHeader;
+        public string SaveLessonHeader = Resources.SaveLessonHeader;
+        public string LoadLessonHeader = Resources.LoadLessonHeader;
+        public string CloseLessonHeader = Resources.CloseLessonHeader;
+        public string PrintLessonHeader = Resources.PrintLessonHeader;
+        public string ExitHeader = Resources.ExitHeader;
+
+        // Tabs
+
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestHeader = Resources.TestHeader;
+
     }
 }
