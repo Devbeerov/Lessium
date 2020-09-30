@@ -61,6 +61,24 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Add.
+        /// </summary>
+        public static string ButtonAddHeader {
+            get {
+                return ResourceManager.GetString("ButtonAddHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Remove.
+        /// </summary>
+        public static string ButtonRemoveHeader {
+            get {
+                return ResourceManager.GetString("ButtonRemoveHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Close Lesson.
         /// </summary>
         public static string CloseLessonHeader {
@@ -151,11 +169,11 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Test.
+        ///   Ищет локализованную строку, похожую на Tests.
         /// </summary>
-        public static string TestHeader {
+        public static string TestsHeader {
             get {
-                return ResourceManager.GetString("TestHeader", resourceCulture);
+                return ResourceManager.GetString("TestsHeader", resourceCulture);
             }
         }
         

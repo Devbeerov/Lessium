@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
@@ -10,9 +11,23 @@
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     </Window.Resources>
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <!-- Not used yet <ContentControl prism:RegionManager.RegionName="ContentRegion" /> -->
+        <!-- Rows (percentage space) -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4*"/> <!-- Menu -->
+            <RowDefinition Height="6*"/> <!-- Buttons, Pages -->
+            <RowDefinition Height="90*"/> <!-- Content (material/test) -->
+        </Grid.RowDefinitions>
 
+
+        <!-- Columns (percentage space) -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80*"/> <!-- Left part of UI -->
+            <ColumnDefinition Width="20*"/> <!-- Right part of UI (pages, settings) -->
+        </Grid.ColumnDefinitions>
+        
+        
+        <!-- 0 Row - Menu -->
+        <StackPanel Orientation="Horizontal">
             <!-- Lesson Menu -->
 
             <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -35,16 +50,38 @@
             </Menu>
 
             <!-- Tabs -->
-            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top" >
-            
+            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top">
+
                 <!-- Material -->
                 <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
-                    <StackPanel>
-                        <Button Content="test2" Width="50" Height="20" />
-                    </StackPanel>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="GotFocus">
+                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </TabItem>
                 
+                <!-- Tests -->
+                <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="GotFocus">
+                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TabItem>
+
             </TabControl>
         </StackPanel>
+        
+        <!-- 1 Row - Buttons, Pages -->
+
+        <Button Grid.Row="1" Width="80" Height="20" HorizontalAlignment="Left" VerticalAlignment="Bottom" Content="{Binding ButtonAddHeader}">
+
+        </Button>
+        
+        <!-- 2 Row - Content -->
+        
+        
+        
     </Grid>
 </Window>

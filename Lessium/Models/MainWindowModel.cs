@@ -30,7 +30,12 @@ namespace Lessium.Models
         // Tabs
 
         public string MaterialHeader = Resources.MaterialHeader;
-        public string TestHeader = Resources.TestHeader;
+        public string TestsHeader = Resources.TestsHeader;
+
+        // Buttons
+
+        public string ButtonAddHeader = Resources.ButtonAddHeader;
+        public string ButtonRemoveHeader = Resources.ButtonRemoveHeader;
 
     }
 }

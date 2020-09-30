@@ -1,7 +1,9 @@
 ﻿using Lessium.Models;
+using Lessium.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Lessium.ViewModels
@@ -10,7 +12,7 @@ namespace Lessium.ViewModels
     {
         #region Private properties
 
-        private MainWindowModel model;
+        private readonly MainWindowModel model;
 
         #endregion
 
@@ -115,10 +117,26 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.MaterialHeader, value); }
         }
 
-        public string TestHeader
+        public string TestsHeader
         {
-            get { return model.TestHeader; }
-            set { SetProperty(ref model.TestHeader, value); }
+            get { return model.TestsHeader; }
+            set { SetProperty(ref model.TestsHeader, value); }
+        }
+
+        #endregion
+
+        #region Buttons
+
+        public string ButtonAddHeader
+        {
+            get { return model.ButtonAddHeader; }
+            set { SetProperty(ref model.ButtonAddHeader, value); }
+        }
+
+        public string ButtonRemoveHeader
+        {
+            get { return model.ButtonRemoveHeader; }
+            set { SetProperty(ref model.ButtonRemoveHeader, value); }
         }
 
         #endregion
@@ -148,7 +166,9 @@ namespace Lessium.ViewModels
 
         private DelegateCommand Lesson_EditCommand;
         public DelegateCommand Lesson_Edit =>
-            Lesson_EditCommand ?? (Lesson_EditCommand = new DelegateCommand(ExecuteLesson_Edit, CanExecuteLesson_Edit));
+            Lesson_EditCommand ?? (Lesson_EditCommand = new DelegateCommand(ExecuteLesson_Edit, CanExecuteLesson_Edit)
+            .ObservesProperty(() => ReadOnly)
+            );
 
         void ExecuteLesson_Edit()
         {
@@ -165,7 +185,9 @@ namespace Lessium.ViewModels
 
         private DelegateCommand Lesson_UndoChangesCommand;
         public DelegateCommand Lesson_UndoChanges =>
-            Lesson_UndoChangesCommand ?? (Lesson_UndoChangesCommand = new DelegateCommand(ExecuteLesson_UndoChanges, CanExecuteLesson_UndoChanges));
+            Lesson_UndoChangesCommand ?? (Lesson_UndoChangesCommand = new DelegateCommand(ExecuteLesson_UndoChanges, CanExecuteLesson_UndoChanges)
+            .ObservesProperty(() => HasChanges)
+            );
 
         void ExecuteLesson_UndoChanges()
         {
@@ -181,7 +203,10 @@ namespace Lessium.ViewModels
 
         private DelegateCommand Lesson_SaveCommand;
         public DelegateCommand Lesson_Save =>
-            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand(ExecuteLesson_Save, CanExecuteLesson_Save));
+            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand(ExecuteLesson_Save, CanExecuteLesson_Save)
+            .ObservesProperty(() => ReadOnly) // We don't check for !bool, because we observe property change, not property value.
+            .ObservesProperty(() => HasChanges)
+            );
 
         void ExecuteLesson_Save()
         {
@@ -205,6 +230,22 @@ namespace Lessium.ViewModels
             // TODO: Implement new lesson
             HasChanges = true;
         }
+
+        #endregion
+
+        #region EventsCommands
+
+        // OnTabChanged
+
+        private DelegateCommand<string> OnTabChangedCommand;
+        public DelegateCommand<string> OnTabChanged =>
+            OnTabChangedCommand ?? (OnTabChangedCommand = new DelegateCommand<string>(ExecuteOnTabChanged));
+
+        void ExecuteOnTabChanged(string param)
+        {
+            System.Windows.MessageBox.Show(param);
+        }
+
 
         #endregion
     }

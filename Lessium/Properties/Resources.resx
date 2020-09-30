@@ -117,8 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ButtonAddHeader" xml:space="preserve">
+    <value>Add</value>
+    <comment>Buttons</comment>
+  </data>
+  <data name="ButtonRemoveHeader" xml:space="preserve">
+    <value>Remove</value>
+  </data>
   <data name="CloseLessonHeader" xml:space="preserve">
     <value>Close Lesson</value>
+    <comment>Menu</comment>
   </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Edit</value>
@@ -147,8 +155,8 @@
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="TestHeader" xml:space="preserve">
-    <value>Test</value>
+  <data name="TestsHeader" xml:space="preserve">
+    <value>Tests</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Undo Changes</value>
