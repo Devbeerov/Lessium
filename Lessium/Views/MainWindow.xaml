@@ -6,82 +6,112 @@
         xmlns:converters="clr-namespace:Lessium.Converters"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
+    
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     </Window.Resources>
+
     <Grid>
+        
         <!-- Rows (percentage space) -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="4*"/> <!-- Menu -->
-            <RowDefinition Height="6*"/> <!-- Buttons, Pages -->
-            <RowDefinition Height="90*"/> <!-- Content (material/test) -->
+            <RowDefinition Height="5*"/> <!-- UI above content -->
+            <RowDefinition Height="95*"/> <!-- Content (materials/tests) -->
         </Grid.RowDefinitions>
-
 
         <!-- Columns (percentage space) -->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="80*"/> <!-- Left part of UI -->
-            <ColumnDefinition Width="20*"/> <!-- Right part of UI (pages, settings) -->
+            <ColumnDefinition Width="20*"/> <!-- Content sections -->
+            <ColumnDefinition Width="80*"/> <!-- Content, settings, pages -->
         </Grid.ColumnDefinitions>
         
-        
-        <!-- 0 Row - Menu -->
-        <StackPanel Orientation="Horizontal">
-            <!-- Lesson Menu -->
+        <!-- Row 0 - Menu, UI above content -->
 
-            <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <MenuItem Header="{Binding LessonHeader}">
-                    <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}"/>
-                    <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
-                    <Separator />
-                    <MenuItem Header="{Binding RecentHeader}" />
-                    <Separator />
-                    <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
-                    <!-- There's no need to do conditions for IsEnabled, because Command already handles it. -->
-                    <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" />
-                    <MenuItem Header="{Binding LoadLessonHeader}" />
-                    <MenuItem Header="{Binding CloseLessonHeader}" />
-                    <Separator />
-                    <MenuItem Header="{Binding PrintLessonHeader}" />
-                    <Separator />
-                    <MenuItem Header="{Binding ExitHeader}" />
-                </MenuItem>
-            </Menu>
+        <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <MenuItem Width="40" Height="25" Header="{Binding LessonHeader}">
+                <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}"/>
+                <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
+                <Separator />
+                <MenuItem Header="{Binding RecentHeader}" />
+                <Separator />
+                <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
+                <!-- There's no need to do checks for IsEnabled, because Command already handles it. -->
+                <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" />
+                <MenuItem Header="{Binding LoadLessonHeader}" />
+                <MenuItem Header="{Binding CloseLessonHeader}" />
+                <Separator />
+                <MenuItem Header="{Binding PrintLessonHeader}" />
+                <Separator />
+                <MenuItem Header="{Binding ExitHeader}" />
+            </MenuItem>
+        </Menu>
 
-            <!-- Tabs -->
-            <TabControl Name="Tabs" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <!-- Settings, child window OnClick. TODO: Add credits to Settings -->
 
-                <!-- Material -->
-                <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="GotFocus">
-                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </TabItem>
-                
-                <!-- Tests -->
-                <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="GotFocus">
-                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </TabItem>
-
-            </TabControl>
-        </StackPanel>
-        
-        <!-- 1 Row - Buttons, Pages -->
-
-        <Button Grid.Row="1" Width="80" Height="20" HorizontalAlignment="Left" VerticalAlignment="Bottom" Content="{Binding ButtonAddHeader}">
+        <Button Content="{StaticResource ResourceKey=SettingsIcon}"
+                Grid.Column="1" Width="32" Height="25"
+                HorizontalAlignment="Right" VerticalAlignment="Top">
+            <!-- Same size as Menu Header -->
 
         </Button>
+
+        <!-- 1 Row - Tabs and Content -->
+
+        <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Margin="10,0,10,10">
+
+            <!-- Material -->
+            <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
+                
+                <!-- Interaction -->
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+                <TextBlock Text="123123123123123" HorizontalAlignment="Stretch" Padding="15" />
+
+            </TabItem>
+
+            <!-- Tests -->
+            <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
+                
+                <!-- Interaction -->
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+            </TabItem>
+
+        </TabControl>
+
+        <!-- Border serves as separator between sections and content -->
+
+        <Border BorderBrush="DarkGray" BorderThickness="1"
+                Grid.Row="1" Margin="11,22,0,11"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         
-        <!-- 2 Row - Content -->
+        <!-- Content -->
+
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
+            
+            
+        </StackPanel>
         
-        
-        
+        <!-- Pages -->
+
+        <Border BorderBrush="Black" BorderThickness="1"
+                Width="Auto" Height="15" Grid.Row="1" Grid.Column="1" Margin="11"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <TextBlock Text="1/1" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        </Border>
+
     </Grid>
 </Window>

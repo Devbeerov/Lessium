@@ -1,7 +1,7 @@
 TODO (in order):
 - Materials
 - Tests
-- Page Selection
 - Settings (child) Window
+  - Credits
 - Menu
 COMPLETED:
