@@ -1,0 +1,19 @@
+﻿<Lesson Title="Петр 1">
+	<Materials>
+		<Section Title="Реформы Петра">
+			<Text Text="Петр 1 ввел следующие реформы..." />
+			<Image Source="Reforms.jpg" />
+		</Section>
+	</Materials>
+	<Tests>
+		<Section Title="Тест Реформы Петра">
+			<SimpleTest>
+				<Question Title="В чем заключалась реформа армии?">
+					<StringAnswer Title="В изменении внешней политики">
+					<StringAnswer Title="В новом вооружении">
+					<StringAnswer Title="Ничего из предложенного">
+				</Question>
+			</SimpleTest>
+		</Section>
+	</Tests>
+</Lesson>

@@ -1,4 +1,7 @@
-﻿using Lessium.Properties;
+﻿using Lessium.Classes;
+using Lessium.Properties;
+using System.Collections.Generic;
+
 namespace Lessium.Models
 {
     public class MainWindowModel
@@ -31,6 +34,7 @@ namespace Lessium.Models
 
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestsHeader = Resources.TestsHeader;
+        public Dictionary<string, Section> Sections;
 
         // Buttons
 

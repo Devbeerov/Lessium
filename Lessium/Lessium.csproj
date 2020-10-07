@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ContentControls\MaterialControls\Text.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="IconDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -71,6 +75,14 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ContentControls\Section.cs" />
+    <Compile Include="Interfaces\TestControl.cs" />
+    <Compile Include="Interfaces\MaterialControl.cs" />
+    <Compile Include="Interfaces\ContentControl.cs" />
+    <Compile Include="Classes\Section.cs" />
+    <Compile Include="ContentControls\MaterialControls\Text.xaml.cs">
+      <DependentUpon>Text.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
@@ -128,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Lessium.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ContentControls\TestControls\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

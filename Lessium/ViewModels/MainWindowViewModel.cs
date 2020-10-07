@@ -1,8 +1,11 @@
-﻿using Lessium.Models;
+﻿using Lessium.Classes;
+using Lessium.Models;
 using Lessium.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -121,6 +124,12 @@ namespace Lessium.ViewModels
         {
             get { return model.TestsHeader; }
             set { SetProperty(ref model.TestsHeader, value); }
+        }
+
+        public Dictionary<string, Section> Sections
+        {
+            get { return model.Sections; }
+            set { SetProperty(ref model.Sections, value); }
         }
 
         #endregion

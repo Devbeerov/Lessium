@@ -4,6 +4,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
+        xmlns:controls="clr-namespace:Lessium.ContentControls"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
     
@@ -91,13 +92,27 @@
             </TabItem>
 
         </TabControl>
+        
+        <!-- Sections -->
+
+        <ListBox x:Name="Sections" BorderThickness="1" BorderBrush="DarkGray"
+            Grid.Row="1" Margin="11,22,0,11"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            ItemsSource="{Binding Sections}">
+
+        </ListBox>
+
+        <!--<controls:Section Title="Testing">
+            <TextBlock Text="123" />
+            <RadioButton Content="test" />
+        </controls:Section>-->
 
         <!-- Border serves as separator between sections and content -->
 
-        <Border BorderBrush="DarkGray" BorderThickness="1"
+        <!--<Border BorderBrush="DarkGray" BorderThickness="1"
                 Grid.Row="1" Margin="11,22,0,11"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />-->
+
         <!-- Content -->
 
         <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
