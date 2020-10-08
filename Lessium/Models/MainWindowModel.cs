@@ -1,6 +1,7 @@
-﻿using Lessium.Classes;
+﻿using Lessium.ContentControls;
 using Lessium.Properties;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Lessium.Models
 {
@@ -34,12 +35,23 @@ namespace Lessium.Models
 
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestsHeader = Resources.TestsHeader;
-        public Dictionary<string, Section> Sections;
+
+        public ObservableDictionary<string, Section> Sections = new ObservableDictionary<string, Section>();
+        public string CurrentSection;
 
         // Buttons
 
         public string ButtonAddHeader = Resources.ButtonAddHeader;
         public string ButtonRemoveHeader = Resources.ButtonRemoveHeader;
+        public string AddSectionText = Resources.AddSectionText;
+        public string NewSection = Resources.NewSection;
+
+        // Messages
+
+        public string Message_NotEnabledInReadOnly = Resources.Message_NotEnabledInReadOnly;
+
+
+
 
     }
 }

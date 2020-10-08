@@ -11,6 +11,15 @@
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
+        <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
+            <Border Opacity="80" Background="LightSteelBlue"
+                    HorizontalAlignment="Stretch" Height="Auto">
+                <StackPanel Orientation="Horizontal">
+                    <Image x:Name="plusIcon" Source="{StaticResource ResourceKey=PlusIcon}" Margin="5,5,5,5"/>
+                    <TextBlock x:Name="addSection" Text="{Binding AddSectionText}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20,0,20,0"/>
+                </StackPanel>
+            </Border>
+        </ControlTemplate>
     </Window.Resources>
 
     <Grid>
@@ -67,14 +76,12 @@
             <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
                 
                 <!-- Interaction -->
-                
+
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
                         <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-
-                <TextBlock Text="123123123123123" HorizontalAlignment="Stretch" Padding="15" />
 
             </TabItem>
 
@@ -92,31 +99,46 @@
             </TabItem>
 
         </TabControl>
-        
-        <!-- Sections -->
 
-        <ListBox x:Name="Sections" BorderThickness="1" BorderBrush="DarkGray"
+        <!-- Border serves as separator of Sections and (selected) Section content 
+             Also used as container for Sections and AddSectionButton -->
+        <Border BorderThickness="1" BorderBrush="DarkGray"
             Grid.Row="1" Margin="11,22,0,11"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-            ItemsSource="{Binding Sections}">
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <StackPanel Orientation="Vertical">
+                <!-- Sections Headers -->
+                <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
+                         ItemsSource="{Binding Sections}" SelectedValuePath="Key">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Key}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
 
-        </ListBox>
+                    <ListBox.Style>
+                        <Style TargetType="{x:Type ListBox}">
+                            <Style.Triggers>
+                                <Trigger Property="HasItems" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.Style>
 
-        <!--<controls:Section Title="Testing">
-            <TextBlock Text="123" />
-            <RadioButton Content="test" />
-        </controls:Section>-->
+                </ListBox>
 
-        <!-- Border serves as separator between sections and content -->
+                <!-- Add Section -->
 
-        <!--<Border BorderBrush="DarkGray" BorderThickness="1"
-                Grid.Row="1" Margin="11,22,0,11"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />-->
+                <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
+                        Command="{Binding AddSection}">
 
-        <!-- Content -->
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Section's Content -->
 
         <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-            
             
         </StackPanel>
         

@@ -76,11 +76,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Classes\ObservableDictionary.cs" />
     <Compile Include="ContentControls\Section.cs" />
     <Compile Include="Interfaces\TestControl.cs" />
     <Compile Include="Interfaces\MaterialControl.cs" />
     <Compile Include="Interfaces\ContentControl.cs" />
-    <Compile Include="Classes\Section.cs" />
     <Compile Include="ContentControls\MaterialControls\Text.xaml.cs">
       <DependentUpon>Text.xaml</DependentUpon>
     </Compile>
@@ -143,6 +143,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ContentControls\TestControls\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\plus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

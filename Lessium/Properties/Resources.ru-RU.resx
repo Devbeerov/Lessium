@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddSectionText" xml:space="preserve">
+    <value>Добавить раздел</value>
+  </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Добавить</value>
     <comment>Кнопки</comment>
@@ -143,8 +146,15 @@
   <data name="MaterialHeader" xml:space="preserve">
     <value>Материал</value>
   </data>
+  <data name="Message_NotEnabledInReadOnly" xml:space="preserve">
+    <value>Не поддерживается в режиме "Для чтения".
+Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по  "Редактировать".</value>
+  </data>
   <data name="NewLessonHeader" xml:space="preserve">
     <value>Новый Урок</value>
+  </data>
+  <data name="NewSection" xml:space="preserve">
+    <value>Раздел</value>
   </data>
   <data name="PrintLessonHeader" xml:space="preserve">
     <value>Печать</value>

@@ -3,6 +3,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:Lessium">
 
+    <!-- Images -->
+    
     <Image x:Key="SettingsIcon" Source="Resources/gear.png" />
+    
+    <!-- BitmapImages -->
+    
+    <BitmapImage x:Key="PlusIcon" UriSource="Resources/plus.png" />
 
 </ResourceDictionary>

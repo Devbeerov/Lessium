@@ -1,13 +1,10 @@
-﻿using Lessium.Classes;
+﻿using Lessium.ContentControls;
 using Lessium.Models;
-using Lessium.Views;
 using Prism.Commands;
 using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace Lessium.ViewModels
 {
@@ -126,10 +123,16 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.TestsHeader, value); }
         }
 
-        public Dictionary<string, Section> Sections
+        public ObservableDictionary<string, Section> Sections
         {
             get { return model.Sections; }
             set { SetProperty(ref model.Sections, value); }
+        }
+
+        public string CurrentSection
+        {
+            get { return model.CurrentSection; }
+            set { SetProperty(ref model.CurrentSection, value); }
         }
 
         #endregion
@@ -146,6 +149,12 @@ namespace Lessium.ViewModels
         {
             get { return model.ButtonRemoveHeader; }
             set { SetProperty(ref model.ButtonRemoveHeader, value); }
+        }
+
+        public string AddSectionText
+        {
+            get { return model.AddSectionText; }
+            set { SetProperty(ref model.AddSectionText, value); }
         }
 
         #endregion
@@ -167,9 +176,47 @@ namespace Lessium.ViewModels
             this.model = model;
         }
 
+        #region Section
+
+        /// <summary>
+        /// We put methods below in ViewModel to access it's functionality, instead of just Section's own methods.
+        /// </summary>
+        /// 
+        private void SetSectionVisibility(Section section, Visibility visibility)
+        {
+            section.Visibility = visibility;
+        }
+
+        private void ShowSection(Section section)
+        {
+            SetSectionVisibility(section, Visibility.Visible);
+        }
+
+        private void CollapseSection(Section section)
+        {
+            SetSectionVisibility(section, Visibility.Collapsed);
+        }
+
+        private void SelectSection(string key)
+        {
+            if (!string.IsNullOrEmpty(CurrentSection))
+            {
+                CollapseSection(Sections[CurrentSection]);
+            }
+
+            var section = Sections[key];
+            ShowSection(section);
+
+            section.Focus();
+        }
+
+        #endregion
+
         #endregion
 
         #region Commands
+
+        #region Lesson Commands
 
         // Lesson_EditCommand
 
@@ -242,7 +289,51 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region EventsCommands
+        #region UI Commands
+
+        // AddSectionCommand
+
+        private DelegateCommand AddSectionCommand;
+        public DelegateCommand AddSection =>
+            AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection));
+            /* It's not practically to put condition here, because it's hard to imagine that Capacity
+            * will grow above highest possible, and checking condition will reduce perfomance slightly. */
+
+        void ExecuteAddSection()
+        {
+            if(ReadOnly)
+            {
+                MessageBox.Show(model.Message_NotEnabledInReadOnly);
+                return;
+            }
+
+            int repeatingIndex = 1;
+            string sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
+
+            while (Sections.ContainsKey(sectionTitle))
+            {
+                repeatingIndex++;
+                sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
+            }
+
+            var newSection = new Section();
+            Section.SetTitle(newSection, sectionTitle);
+
+            Sections.Add(sectionTitle, newSection);
+            SelectSection(sectionTitle);
+
+            HasChanges = true;
+        }
+
+        #endregion
+
+        #region Event-Commands 
+
+        /*
+         * Event-Commands handles WPF Events and execute binded Commands instead of EventHandlers.
+         * This is used to avoid code-behind and put event handling at ViewModel.
+         */
+
 
         // OnTabChanged
 
@@ -252,9 +343,21 @@ namespace Lessium.ViewModels
 
         void ExecuteOnTabChanged(string param)
         {
-            System.Windows.MessageBox.Show(param);
+            MessageBox.Show(param);
         }
 
+        // OnSectionChanged
+
+        private DelegateCommand<string> OnSectionChangedCommand;
+        public DelegateCommand<string> OnSectionChanged =>
+            OnSectionChangedCommand ?? (OnSectionChangedCommand = new DelegateCommand<string>(ExecuteOnSectionChanged));
+
+        void ExecuteOnSectionChanged(string newSectionKey)
+        {
+            SelectSection(newSectionKey);
+        }
+
+        #endregion
 
         #endregion
     }
