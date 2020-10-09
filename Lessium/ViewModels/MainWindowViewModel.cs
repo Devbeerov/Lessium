@@ -1,10 +1,13 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Models;
+using Lessium.Utility.Extension;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Lessium.ViewModels
 {
@@ -129,10 +132,21 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.Sections, value); }
         }
 
-        public string CurrentSection
+        public Section CurrentSection
         {
             get { return model.CurrentSection; }
             set { SetProperty(ref model.CurrentSection, value); }
+        }
+
+        public string CurrentSectionTitle
+        {
+            // If CurrentSection is null, returns null (empty string) without throwing exception.
+            get { return model.CurrentSection?.GetTitle(); }
+        }
+
+        public UIElementCollection CurrentSectionItems
+        {
+            get { return model.CurrentSection?.GetItems(); }
         }
 
         #endregion
@@ -197,14 +211,30 @@ namespace Lessium.ViewModels
             SetSectionVisibility(section, Visibility.Collapsed);
         }
 
+        private void TryCollapseCurrentSection()
+        {
+            if (!string.IsNullOrEmpty(CurrentSectionTitle))
+            {
+                CollapseSection(Sections[CurrentSectionTitle]);
+            }
+        }
+
         private void SelectSection(string key)
         {
-            if (!string.IsNullOrEmpty(CurrentSection))
-            {
-                CollapseSection(Sections[CurrentSection]);
-            }
+            TryCollapseCurrentSection();
 
             var section = Sections[key];
+            CurrentSection = section;
+            ShowSection(section);
+
+            section.Focus();
+        }
+
+        private void SelectSection(Section section)
+        {
+            TryCollapseCurrentSection();
+
+            CurrentSection = section;
             ShowSection(section);
 
             section.Focus();
@@ -317,10 +347,19 @@ namespace Lessium.ViewModels
             }
 
             var newSection = new Section();
-            Section.SetTitle(newSection, sectionTitle);
+            newSection.Name = "test";
+            newSection.SetTitle(sectionTitle);
 
-            Sections.Add(sectionTitle, newSection);
-            SelectSection(sectionTitle);
+            // For testing purposes
+            var textblock = new TextBlock();
+            textblock.Text = "123";
+            newSection.Add(textblock);
+
+            // Adds newSection to Sections dictionary using extension method.
+            Sections.AddSection(newSection);
+
+            // Also executes OnSectionChanged command.
+            OnSectionChanged.Execute(sectionTitle);
 
             HasChanges = true;
         }

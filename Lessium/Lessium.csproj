@@ -78,6 +78,7 @@
     </Compile>
     <Compile Include="Classes\ObservableDictionary.cs" />
     <Compile Include="ContentControls\Section.cs" />
+    <Compile Include="Converters\NotNullConverter.cs" />
     <Compile Include="Interfaces\TestControl.cs" />
     <Compile Include="Interfaces\MaterialControl.cs" />
     <Compile Include="Interfaces\ContentControl.cs" />
@@ -92,6 +93,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Utility\Extension\ObservableDictionaryExtensions.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

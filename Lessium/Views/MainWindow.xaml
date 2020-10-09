@@ -5,12 +5,14 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
         xmlns:controls="clr-namespace:Lessium.ContentControls"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
     
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
+        <converters:NotNullConverter x:Key="NotNullConverter" />
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
             <Border Opacity="80" Background="LightSteelBlue"
                     HorizontalAlignment="Stretch" Height="Auto">
@@ -108,7 +110,7 @@
             <StackPanel Orientation="Vertical">
                 <!-- Sections Headers -->
                 <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
-                         ItemsSource="{Binding Sections}" SelectedValuePath="Key">
+                         ItemsSource="{Binding Sections}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Path=Key}" />
@@ -138,10 +140,43 @@
 
         <!-- Section's Content -->
 
-        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-            
-        </StackPanel>
-        
+        <ItemsControl x:Name="SectionContent" HorizontalAlignment="Left" BorderThickness="0"
+                      Grid.Row="1" Grid.Column="1">
+
+            <!-- Style enables binding only if current section isn't empty -->
+            <ItemsControl.Style>
+                <Style TargetType="{x:Type ItemsControl}">
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}">
+                            <!-- Code never reach here -->
+                            <DataTrigger.Setters>
+                                <Setter Property="ItemsSource" Value="{Binding wtf, diag:PresentationTraceSources.TraceLevel=High}" />
+                            </DataTrigger.Setters>
+                            <!--<Setter Property="BorderBrush" Value="Aqua" />
+                            <Setter Property="BorderThickness" Value="10" />
+                            <Setter Property="Width" Value="200"/>
+                            <Setter Property="Height" Value="100"/>
+                            <Setter Property="Grid.Row" Value="0"/>
+                            <Setter Property="Grid.Column" Value="0"/>
+                            <Setter Property="Tag" Value="lul"/>-->
+                            <!--<Setter Property="ItemsSource" Value="{Binding CurrentSectionItems, diag:PresentationTraceSources.TraceLevel=High}"/>-->
+                        </DataTrigger>
+                    </Style.Triggers>
+
+                </Style>
+
+
+            </ItemsControl.Style>
+
+            <!--<ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentPresenter x:Name="SectionPresenter" Content="{Binding Value.Items}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>-->
+
+        </ItemsControl>
+
         <!-- Pages -->
 
         <Border BorderBrush="Black" BorderThickness="1"

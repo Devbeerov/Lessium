@@ -37,7 +37,7 @@ namespace Lessium.Models
         public string TestsHeader = Resources.TestsHeader;
 
         public ObservableDictionary<string, Section> Sections = new ObservableDictionary<string, Section>();
-        public string CurrentSection;
+        public Section CurrentSection;
 
         // Buttons
 
