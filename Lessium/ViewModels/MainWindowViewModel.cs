@@ -5,6 +5,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -187,7 +188,7 @@ namespace Lessium.ViewModels
                 model = new MainWindowModel();
             }
 
-            this.model = model;
+            this.model = model; 
         }
 
         #region Section
@@ -226,8 +227,6 @@ namespace Lessium.ViewModels
             var section = Sections[key];
             CurrentSection = section;
             ShowSection(section);
-
-            section.Focus();
         }
 
         private void SelectSection(Section section)
@@ -236,8 +235,6 @@ namespace Lessium.ViewModels
 
             CurrentSection = section;
             ShowSection(section);
-
-            section.Focus();
         }
 
         #endregion
@@ -347,12 +344,13 @@ namespace Lessium.ViewModels
             }
 
             var newSection = new Section();
-            newSection.Name = "test";
             newSection.SetTitle(sectionTitle);
 
             // For testing purposes
-            var textblock = new TextBlock();
-            textblock.Text = "123";
+            var textblock = new TextBlock
+            {
+                Text = "123"
+            };
             newSection.Add(textblock);
 
             // Adds newSection to Sections dictionary using extension method.
@@ -369,9 +367,9 @@ namespace Lessium.ViewModels
         #region Event-Commands 
 
         /*
-         * Event-Commands handles WPF Events and execute binded Commands instead of EventHandlers.
-         * This is used to avoid code-behind and put event handling at ViewModel.
-         */
+        * Event-Commands handles WPF Events and execute binded Commands instead of EventHandlers.
+        * This is used to avoid code-behind and put event handling at ViewModel.
+        */
 
 
         // OnTabChanged
@@ -395,6 +393,20 @@ namespace Lessium.ViewModels
         {
             SelectSection(newSectionKey);
         }
+
+        //// OnSectionsUIUpdated
+
+        //private DelegateCommand OnSectionsUIUpdatedCommand;
+        //public DelegateCommand OnSectionsUIUpdated =>
+        //    OnSectionsUIUpdatedCommand ?? (OnSectionsUIUpdatedCommand = new DelegateCommand(ExecuteOnSectionsUIUpdated));
+
+        ///// <summary>
+        ///// This method focuses (new) CurrentSection, which was selected after collection changed.
+        ///// </summary>
+        //void ExecuteOnSectionsUIUpdated()
+        //{
+        //    CurrentSection.Focus();
+        //}
 
         #endregion
 

@@ -9,6 +9,8 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
     
+    <!--#region Resources -->
+    
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
@@ -24,6 +26,8 @@
         </ControlTemplate>
     </Window.Resources>
 
+    <!--#endregion-->
+    
     <Grid>
         
         <!-- Rows (percentage space) -->
@@ -38,8 +42,10 @@
             <ColumnDefinition Width="80*"/> <!-- Content, settings, pages -->
         </Grid.ColumnDefinitions>
         
-        <!-- Row 0 - Menu, UI above content -->
-
+        <!--#region Row 0 - Menu, UI -->
+        
+        <!--#region Menu-->
+        
         <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuItem Width="40" Height="25" Header="{Binding LessonHeader}">
                 <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}"/>
@@ -58,6 +64,10 @@
                 <MenuItem Header="{Binding ExitHeader}" />
             </MenuItem>
         </Menu>
+        
+        <!--#endregion-->
+        
+        <!--#region UI -->
 
         <!-- Settings, child window OnClick. TODO: Add credits to Settings -->
 
@@ -67,9 +77,15 @@
             <!-- Same size as Menu Header -->
 
         </Button>
+        
+        <!--#endregion-->
+        
+        <!--#endregion-->
 
-        <!-- 1 Row - Tabs and Content -->
+        <!--#region Row 1 - Tabs and Content -->
 
+        <!--#region Tabs -->
+        
         <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Margin="10,0,10,10">
@@ -101,6 +117,10 @@
             </TabItem>
 
         </TabControl>
+        
+        <!--#endregion-->
+        
+        <!--#region Left part UI (border, buttons) -->
 
         <!-- Border serves as separator of Sections and (selected) Section content 
              Also used as container for Sections and AddSectionButton -->
@@ -110,7 +130,9 @@
             <StackPanel Orientation="Vertical">
                 <!-- Sections Headers -->
                 <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
-                         ItemsSource="{Binding Sections}">
+                         ItemsSource="{Binding Sections}"
+                         SelectedItem="{Binding CurrentSection, diag:PresentationTraceSources.TraceLevel=High}">
+                    
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Path=Key}" />
@@ -137,30 +159,24 @@
                 </Button>
             </StackPanel>
         </Border>
+        
+        <!--#endregion-->
+        
+        <!--#region Section's Content -->
 
-        <!-- Section's Content -->
-
-        <ItemsControl x:Name="SectionContent" HorizontalAlignment="Left" BorderThickness="0"
-                      Grid.Row="1" Grid.Column="1">
+        <ItemsControl x:Name="SectionContent" BorderThickness="0"
+                      Grid.Row="1" Grid.Column="1" Margin="0,22,0,11"
+                      HorizontalAlignment="Left">
 
             <!-- Style enables binding only if current section isn't empty -->
             <ItemsControl.Style>
                 <Style TargetType="{x:Type ItemsControl}">
 
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}">
-                            <!-- Code never reach here -->
+                        <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
                             <DataTrigger.Setters>
-                                <Setter Property="ItemsSource" Value="{Binding wtf, diag:PresentationTraceSources.TraceLevel=High}" />
+                                <Setter Property="ItemsSource" Value="{Binding CurrentSectionItems}"/>
                             </DataTrigger.Setters>
-                            <!--<Setter Property="BorderBrush" Value="Aqua" />
-                            <Setter Property="BorderThickness" Value="10" />
-                            <Setter Property="Width" Value="200"/>
-                            <Setter Property="Height" Value="100"/>
-                            <Setter Property="Grid.Row" Value="0"/>
-                            <Setter Property="Grid.Column" Value="0"/>
-                            <Setter Property="Tag" Value="lul"/>-->
-                            <!--<Setter Property="ItemsSource" Value="{Binding CurrentSectionItems, diag:PresentationTraceSources.TraceLevel=High}"/>-->
                         </DataTrigger>
                     </Style.Triggers>
 
@@ -169,21 +185,21 @@
 
             </ItemsControl.Style>
 
-            <!--<ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <ContentPresenter x:Name="SectionPresenter" Content="{Binding Value.Items}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>-->
-
         </ItemsControl>
+        
+        <!--#endregion-->
 
-        <!-- Pages -->
+        <!--#region Pages -->
 
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="15" Grid.Row="1" Grid.Column="1" Margin="11"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom">
-            <TextBlock Text="1/1" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            <TextBlock Text="1/1" VerticalAlignment="Bottom" />
         </Border>
 
+        <!--#endregion-->
+        
+        <!--#endregion-->
+        
     </Grid>
 </Window>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Lessium.ContentControls
 {
@@ -14,8 +15,7 @@ namespace Lessium.ContentControls
             Orientation = Orientation.Vertical;
             Width = double.NaN;
             Height = double.NaN;
-            
-            InternalChildren.Add(new TextBlock() { Text = "123" });
+
             SetItems(InternalChildren);
         }
 
