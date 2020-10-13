@@ -6,7 +6,9 @@ using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,6 +19,7 @@ namespace Lessium.ViewModels
         #region Private properties
 
         private readonly MainWindowModel model;
+        private string selectedTab = "Materials";
 
         #endregion
 
@@ -129,31 +132,52 @@ namespace Lessium.ViewModels
 
         public ObservableDictionary<string, Section> Sections
         {
-            get { return model.Sections; }
-            set { SetProperty(ref model.Sections, value); }
+            get { return model.Sections[selectedTab]; }
+            set
+            {
+                SetDictionaryProperty(ref model.Sections, selectedTab, value);
+            }
         }
 
         public Section CurrentSection
         {
-            get { return model.CurrentSection; }
-            set { SetProperty(ref model.CurrentSection, value); }
+            get { return model.CurrentSection[selectedTab]; }
+            set
+            {
+                SetDictionaryProperty(ref model.CurrentSection, selectedTab, value);
+            }
         }
 
         public string CurrentSectionTitle
         {
             // If CurrentSection is null, returns null (empty string) without throwing exception.
-            get { return model.CurrentSection?.GetTitle(); }
+            get { return CurrentSection?.GetTitle(); }
         }
 
         public UIElementCollection CurrentSectionItems
         {
-            get { return model.CurrentSection?.GetItems(); }
+            get { return CurrentSection?.GetItems(); }
         }
 
         public int CurrentSectionID
         {
-            get { return model.CurrentSectionID; }
-            set { SetProperty(ref model.CurrentSectionID, value); }
+            get { return model.CurrentSectionID[selectedTab]; }
+            set
+            {
+                SetDictionaryProperty(ref model.CurrentSectionID, selectedTab, value);
+            }
+        }
+
+        private void SetDictionaryProperty<TValue> (ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
+        {
+            object currentValueObject = dictionary[key];
+            object newValueObject = newValue;
+
+            if(currentValueObject != newValueObject)
+            {
+                dictionary[key] = newValue;
+                RaisePropertyChanged(name);
+            }
         }
 
         #endregion
@@ -194,7 +218,7 @@ namespace Lessium.ViewModels
                 model = new MainWindowModel();
             }
 
-            this.model = model; 
+            this.model = model;
         }
 
         #region Section
@@ -226,25 +250,35 @@ namespace Lessium.ViewModels
             }
         }
 
-        private void SelectSection(string key)
+        private void RaiseCurrentSectionChanged()
         {
-            TryCollapseCurrentSection();
-
-            var section = Sections[key];
-            CurrentSection = section;
-            ShowSection(section);
-
-            CurrentSectionID = Sections.GetSectionID(section);
+            RaisePropertyChanged("CurrentSection");
+            RaisePropertyChanged("CurrentSectionID");
+            RaisePropertyChanged("CurrentSectionTitle");
+            RaisePropertyChanged("CurrentSectionItems");
         }
 
         private void SelectSection(Section section)
         {
+            if(CurrentSection == section) { return; }
+
             TryCollapseCurrentSection();
 
             CurrentSection = section;
-            ShowSection(section);
 
-            CurrentSectionID = Sections.GetSectionID(section);
+            if (section != null)
+            {
+                ShowSection(section);
+                CurrentSectionID = Sections.GetSectionID(section);
+            }
+
+            else
+            {
+                CurrentSectionID = -1;
+            }
+
+            RaiseCurrentSectionChanged();
+
         }
 
         #endregion
@@ -366,8 +400,7 @@ namespace Lessium.ViewModels
             // Adds newSection to Sections dictionary using extension method.
             Sections.AddSection(newSection);
 
-            // Also executes OnSectionChanged command.
-            OnSectionChanged.Execute(sectionTitle);
+            SelectSection(newSection);
 
             HasChanges = true;
         }
@@ -381,7 +414,6 @@ namespace Lessium.ViewModels
         * This is used to avoid code-behind and put event handling at ViewModel.
         */
 
-
         // OnTabChanged
 
         private DelegateCommand<string> OnTabChangedCommand;
@@ -390,33 +422,33 @@ namespace Lessium.ViewModels
 
         void ExecuteOnTabChanged(string param)
         {
-            MessageBox.Show(param);
+            selectedTab = param;
+
+            RaisePropertyChanged("Sections");
+            RaiseCurrentSectionChanged();
         }
 
         // OnSectionChanged
 
-        private DelegateCommand<string> OnSectionChangedCommand;
-        public DelegateCommand<string> OnSectionChanged =>
-            OnSectionChangedCommand ?? (OnSectionChangedCommand = new DelegateCommand<string>(ExecuteOnSectionChanged));
+        private DelegateCommand<Section> OnSectionChangedCommand;
+        public DelegateCommand<Section> OnSectionChanged =>
+            OnSectionChangedCommand ?? (OnSectionChangedCommand = new DelegateCommand<Section>(ExecuteOnSectionChanged));
 
-        void ExecuteOnSectionChanged(string newSectionKey)
+        void ExecuteOnSectionChanged(Section newSection)
         {
-            SelectSection(newSectionKey);
+            SelectSection(newSection);
         }
 
-        //// OnSectionsUIUpdated
+        // OnSectionContentUpdated
 
-        //private DelegateCommand OnSectionsUIUpdatedCommand;
-        //public DelegateCommand OnSectionsUIUpdated =>
-        //    OnSectionsUIUpdatedCommand ?? (OnSectionsUIUpdatedCommand = new DelegateCommand(ExecuteOnSectionsUIUpdated));
+        private DelegateCommand OnSectionContentUpdatedCommand;
+        public DelegateCommand OnSectionContentUpdated =>
+            OnSectionContentUpdatedCommand ?? (OnSectionContentUpdatedCommand = new DelegateCommand(ExecuteOnSectionContentUpdated));
 
-        ///// <summary>
-        ///// This method focuses (new) CurrentSection, which was selected after collection changed.
-        ///// </summary>
-        //void ExecuteOnSectionsUIUpdated()
-        //{
-        //    CurrentSection.Focus();
-        //}
+        void ExecuteOnSectionContentUpdated()
+        {
+            SelectSection(CurrentSection);
+        }
 
         #endregion
 

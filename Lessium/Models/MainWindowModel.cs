@@ -36,9 +36,27 @@ namespace Lessium.Models
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestsHeader = Resources.TestsHeader;
 
-        public ObservableDictionary<string, Section> Sections = new ObservableDictionary<string, Section>();
-        public Section CurrentSection;
-        public int CurrentSectionID = -1;
+        /// This could look confusing, but it's simple.
+        /// To access section with key "Section 1" in "Materials" we can do this:
+        /// Section section = Sections["Materials"]["Section 1"];
+        public Dictionary<string, ObservableDictionary<string, Section>> Sections =
+            new Dictionary<string, ObservableDictionary<string, Section>>()
+            {
+                { "Materials", new ObservableDictionary<string, Section>() }, 
+                { "Tests", new ObservableDictionary<string, Section>() }
+            };
+
+        public Dictionary<string, Section> CurrentSection = new Dictionary<string, Section>()
+        {
+            { "Materials", null },
+            { "Tests", null }
+        };
+
+        public Dictionary<string, int> CurrentSectionID = new Dictionary<string, int>()
+        {
+            { "Materials", -1 },
+            { "Tests", -1 }
+        };
 
         // Buttons
 
