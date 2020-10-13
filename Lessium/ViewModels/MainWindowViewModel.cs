@@ -150,6 +150,12 @@ namespace Lessium.ViewModels
             get { return model.CurrentSection?.GetItems(); }
         }
 
+        public int CurrentSectionID
+        {
+            get { return model.CurrentSectionID; }
+            set { SetProperty(ref model.CurrentSectionID, value); }
+        }
+
         #endregion
 
         #region Buttons
@@ -227,6 +233,8 @@ namespace Lessium.ViewModels
             var section = Sections[key];
             CurrentSection = section;
             ShowSection(section);
+
+            CurrentSectionID = Sections.GetSectionID(section);
         }
 
         private void SelectSection(Section section)
@@ -235,6 +243,8 @@ namespace Lessium.ViewModels
 
             CurrentSection = section;
             ShowSection(section);
+
+            CurrentSectionID = Sections.GetSectionID(section);
         }
 
         #endregion

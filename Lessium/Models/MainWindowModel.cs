@@ -38,6 +38,7 @@ namespace Lessium.Models
 
         public ObservableDictionary<string, Section> Sections = new ObservableDictionary<string, Section>();
         public Section CurrentSection;
+        public int CurrentSectionID = -1;
 
         // Buttons
 
