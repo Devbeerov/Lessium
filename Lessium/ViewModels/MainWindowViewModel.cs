@@ -5,9 +5,6 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -145,20 +142,21 @@ namespace Lessium.ViewModels
             set
             {
                 SetDictionaryProperty(ref model.CurrentSection, selectedTab, value);
+
+                if (CurrentSection == null)
+                {
+                    CurrentSectionID = -1;
+                }
+
+                else
+                {
+                    CurrentSectionID = Sections.GetSectionID(value);
+                }
+
             }
         }
 
-        public string CurrentSectionTitle
-        {
-            // If CurrentSection is null, returns null (empty string) without throwing exception.
-            get { return CurrentSection?.GetTitle(); }
-        }
-
-        public UIElementCollection CurrentSectionItems
-        {
-            get { return CurrentSection?.GetItems(); }
-        }
-
+        // Used for binding.
         public int CurrentSectionID
         {
             get { return model.CurrentSectionID[selectedTab]; }
@@ -220,7 +218,7 @@ namespace Lessium.ViewModels
 
             this.model = model;
         }
-
+        
         #region Section
 
         /// <summary>
@@ -244,41 +242,24 @@ namespace Lessium.ViewModels
 
         private void TryCollapseCurrentSection()
         {
-            if (!string.IsNullOrEmpty(CurrentSectionTitle))
+            if (CurrentSection != null)
             {
-                CollapseSection(Sections[CurrentSectionTitle]);
+                CollapseSection(CurrentSection);
             }
-        }
-
-        private void RaiseCurrentSectionChanged()
-        {
-            RaisePropertyChanged("CurrentSection");
-            RaisePropertyChanged("CurrentSectionID");
-            RaisePropertyChanged("CurrentSectionTitle");
-            RaisePropertyChanged("CurrentSectionItems");
         }
 
         private void SelectSection(Section section)
         {
             if(CurrentSection == section) { return; }
 
-            TryCollapseCurrentSection();
-
-            CurrentSection = section;
+            TryCollapseCurrentSection(); // colapses old selected section
 
             if (section != null)
             {
                 ShowSection(section);
-                CurrentSectionID = Sections.GetSectionID(section);
             }
 
-            else
-            {
-                CurrentSectionID = -1;
-            }
-
-            RaiseCurrentSectionChanged();
-
+            CurrentSection = section;
         }
 
         #endregion
@@ -405,6 +386,17 @@ namespace Lessium.ViewModels
             HasChanges = true;
         }
 
+        // TrySelectSection
+
+        private DelegateCommand<Section> TrySelectSectionCommand;
+        public DelegateCommand<Section> TrySelectSection =>
+            TrySelectSectionCommand ?? (TrySelectSectionCommand = new DelegateCommand<Section>(ExecuteTrySelectSection));
+
+        void ExecuteTrySelectSection(Section newSection)
+        {
+            SelectSection(newSection);
+        }
+
         #endregion
 
         #region Event-Commands 
@@ -424,30 +416,8 @@ namespace Lessium.ViewModels
         {
             selectedTab = param;
 
-            RaisePropertyChanged("Sections");
-            RaiseCurrentSectionChanged();
-        }
-
-        // OnSectionChanged
-
-        private DelegateCommand<Section> OnSectionChangedCommand;
-        public DelegateCommand<Section> OnSectionChanged =>
-            OnSectionChangedCommand ?? (OnSectionChangedCommand = new DelegateCommand<Section>(ExecuteOnSectionChanged));
-
-        void ExecuteOnSectionChanged(Section newSection)
-        {
-            SelectSection(newSection);
-        }
-
-        // OnSectionContentUpdated
-
-        private DelegateCommand OnSectionContentUpdatedCommand;
-        public DelegateCommand OnSectionContentUpdated =>
-            OnSectionContentUpdatedCommand ?? (OnSectionContentUpdatedCommand = new DelegateCommand(ExecuteOnSectionContentUpdated));
-
-        void ExecuteOnSectionContentUpdated()
-        {
-            SelectSection(CurrentSection);
+            RaisePropertyChanged("Sections"); // Sections[selectedTab]
+            RaisePropertyChanged("CurrentSection");
         }
 
         #endregion

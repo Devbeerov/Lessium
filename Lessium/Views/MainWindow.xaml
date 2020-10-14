@@ -156,7 +156,7 @@
 
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding OnSectionChanged}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue.Value, diag:PresentationTraceSources.TraceLevel=High}" />
+                            <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue.Value}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
 
@@ -186,21 +186,14 @@
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
                             <DataTrigger.Setters>
-                                <Setter Property="ItemsSource" Value="{Binding CurrentSectionItems, Mode=OneWay, NotifyOnTargetUpdated=True}"/>
+                                <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
                             </DataTrigger.Setters>
                         </DataTrigger>
                     </Style.Triggers>
 
                 </Style>
 
-
             </ItemsControl.Style>
-
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="TargetUpdated">
-                    <i:InvokeCommandAction Command="{Binding OnSectionContentUpdated}" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
 
         </ItemsControl>
         

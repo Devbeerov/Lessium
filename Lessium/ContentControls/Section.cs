@@ -7,7 +7,6 @@ namespace Lessium.ContentControls
 {
     public class Section : StackPanel
     {
-        
         public Section() : base()
         {
             HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -16,8 +15,10 @@ namespace Lessium.ContentControls
             Width = double.NaN;
             Height = double.NaN;
 
-            SetItems(InternalChildren);
+            SetItems(items);
         }
+
+        private readonly ObservableCollection<UIElement> items = new ObservableCollection<UIElement>();
 
         #region Dependency Properties Methods
 
@@ -41,22 +42,22 @@ namespace Lessium.ContentControls
             SetTitle(this, title);
         }
 
-        public static UIElementCollection GetItems(DependencyObject obj)
+        public static ObservableCollection<UIElement> GetItems(DependencyObject obj)
         {
-            return (UIElementCollection)obj.GetValue(Items);
+            return (ObservableCollection<UIElement>)obj.GetValue(Items);
         }
 
-        protected static void SetItems(DependencyObject obj, UIElementCollection items)
+        protected static void SetItems(DependencyObject obj, ObservableCollection<UIElement> items)
         {
             obj.SetValue(Items, items);
         }
 
-        public UIElementCollection GetItems()
+        public ObservableCollection<UIElement> GetItems()
         {
-            return GetItems(this);
+             return GetItems(this);
         }
 
-        protected void SetItems(UIElementCollection items)
+        protected void SetItems(ObservableCollection<UIElement> items)
         {
             SetItems(this, items);
         }
@@ -65,12 +66,12 @@ namespace Lessium.ContentControls
 
         public void Add(UIElement element)
         {
-            InternalChildren.Add(element);
+            items.Add(element);
         }
 
         public void Remove(UIElement element)
         {
-            InternalChildren.Remove(element);
+            items.Remove(element);
         }
 
         #region Dependency Properties
@@ -81,7 +82,8 @@ namespace Lessium.ContentControls
 
         // Used externally.
         public static readonly DependencyProperty Items =
-            DependencyProperty.RegisterAttached("Items", typeof(UIElementCollection), typeof(Section), new PropertyMetadata(null));
+            DependencyProperty.Register("Items", typeof(ObservableCollection<UIElement>),
+                typeof(Section), new PropertyMetadata(null));
 
         #endregion
 
