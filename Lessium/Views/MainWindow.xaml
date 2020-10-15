@@ -134,12 +134,13 @@
                 <!-- Sections Headers -->
                 <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
                          ItemsSource="{Binding Sections}"
-                         SelectedIndex="{Binding CurrentSectionID}"
-                         SelectionChanged="Sections_SelectionChanged">
+                         SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                         SelectionChanged="Sections_SelectionChanged"
+                         IsSynchronizedWithCurrentItem="True">
                     
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Key}" />
+                            <TextBlock Text="{Binding Path=Title}" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
 
@@ -156,7 +157,7 @@
 
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue.Value}" />
+                            <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
 
@@ -177,7 +178,8 @@
 
         <ItemsControl x:Name="SectionContent" BorderThickness="0"
                       Grid.Row="1" Grid.Column="1" Margin="0,22,0,11"
-                      HorizontalAlignment="Left">
+                      HorizontalAlignment="Left"
+                      Focusable="False">
 
             <!-- Style enables binding only if current section isn't empty -->
             <ItemsControl.Style>

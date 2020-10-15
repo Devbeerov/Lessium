@@ -39,11 +39,11 @@ namespace Lessium.Models
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:
         /// Section section = Sections["Materials"]["Section 1"];
-        public Dictionary<string, ObservableDictionary<string, Section>> Sections =
-            new Dictionary<string, ObservableDictionary<string, Section>>()
+        public Dictionary<string, ObservableCollection<Section>> Sections =
+            new Dictionary<string, ObservableCollection<Section>>()
             {
-                { "Materials", new ObservableDictionary<string, Section>() }, 
-                { "Tests", new ObservableDictionary<string, Section>() }
+                { "Materials", new ObservableCollection<Section>() }, 
+                { "Tests", new ObservableCollection<Section>() }
             };
 
         public Dictionary<string, Section> CurrentSection = new Dictionary<string, Section>()
@@ -51,7 +51,6 @@ namespace Lessium.Models
             { "Materials", null },
             { "Tests", null }
         };
-
         public Dictionary<string, int> CurrentSectionID = new Dictionary<string, int>()
         {
             { "Materials", -1 },

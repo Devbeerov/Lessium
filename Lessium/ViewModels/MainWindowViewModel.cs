@@ -1,6 +1,5 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Models;
-using Lessium.Utility.Extension;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
 
 namespace Lessium.ViewModels
 {
@@ -127,7 +127,7 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.TestsHeader, value); }
         }
 
-        public ObservableDictionary<string, Section> Sections
+        public ObservableCollection<Section> Sections
         {
             get { return model.Sections[selectedTab]; }
             set
@@ -141,32 +141,35 @@ namespace Lessium.ViewModels
             get { return model.CurrentSection[selectedTab]; }
             set
             {
-                SetDictionaryProperty(ref model.CurrentSection, selectedTab, value);
-
-                if (CurrentSection == null)
+                if(SetDictionaryProperty(ref model.CurrentSection, selectedTab, value))
                 {
-                    CurrentSectionID = -1;
-                }
+                    if (CurrentSection == null)
+                    {
+                        CurrentSectionID = -1;
+                    }
 
-                else
-                {
-                    CurrentSectionID = Sections.GetSectionID(value);
+                    else
+                    {
+                        CurrentSectionID = Sections.IndexOf(value);
+                    }
                 }
-
             }
         }
 
-        // Used for binding.
+        // Should be used exclusively for binding!
         public int CurrentSectionID
         {
-            get { return model.CurrentSectionID[selectedTab]; }
+            get
+            {
+                return model.CurrentSectionID[selectedTab];
+            }
             set
             {
                 SetDictionaryProperty(ref model.CurrentSectionID, selectedTab, value);
             }
         }
 
-        private void SetDictionaryProperty<TValue> (ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
+        private bool SetDictionaryProperty<TValue> (ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
         {
             object currentValueObject = dictionary[key];
             object newValueObject = newValue;
@@ -175,7 +178,10 @@ namespace Lessium.ViewModels
             {
                 dictionary[key] = newValue;
                 RaisePropertyChanged(name);
+                return true;
             }
+
+            return false;
         }
 
         #endregion
@@ -362,8 +368,10 @@ namespace Lessium.ViewModels
             int repeatingIndex = 1;
             string sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
 
-            while (Sections.ContainsKey(sectionTitle))
+            while (Sections.Any(section => section.GetTitle() == sectionTitle)) 
             {
+                // While Sections contains section with Title equal to sectionTitle
+
                 repeatingIndex++;
                 sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
             }
@@ -379,7 +387,7 @@ namespace Lessium.ViewModels
             newSection.Add(textblock);
 
             // Adds newSection to Sections dictionary using extension method.
-            Sections.AddSection(newSection);
+            Sections.Add(newSection);
 
             SelectSection(newSection);
 
@@ -414,10 +422,18 @@ namespace Lessium.ViewModels
 
         void ExecuteOnTabChanged(string param)
         {
+            TryCollapseCurrentSection();
+
             selectedTab = param;
 
             RaisePropertyChanged("Sections"); // Sections[selectedTab]
             RaisePropertyChanged("CurrentSection");
+            RaisePropertyChanged("CurrentSectionID"); // Binds to (new) CurrentSectionID based on tab.
+
+            if (CurrentSection != null)
+            {
+                ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
+            }
         }
 
         #endregion
