@@ -174,31 +174,100 @@
         
         <!--#endregion-->
         
-        <!--#region Section's Content -->
+        <!--#region Content Region -->
 
-        <ItemsControl x:Name="SectionContent" BorderThickness="0"
-                      Grid.Row="1" Grid.Column="1" Margin="0,22,0,11"
-                      HorizontalAlignment="Left"
-                      Focusable="False">
-
-            <!-- Style enables binding only if current section isn't empty -->
-            <ItemsControl.Style>
-                <Style TargetType="{x:Type ItemsControl}">
-
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
-                            <DataTrigger.Setters>
-                                <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
-                            </DataTrigger.Setters>
-                        </DataTrigger>
-                    </Style.Triggers>
-
-                </Style>
-
-            </ItemsControl.Style>
-
-        </ItemsControl>
+        <!-- StackPanel for SelectedSection and UI (below)! -->
         
+        <StackPanel Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Orientation="Vertical">
+
+            <!--#region Section's Content -->
+
+            <ItemsControl x:Name="SectionContent" BorderThickness="0">
+
+                <!-- Style enables binding only if current section isn't empty -->
+                <ItemsControl.Style>
+                    <Style TargetType="{x:Type ItemsControl}">
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
+                                <DataTrigger.Setters>
+                                    <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
+                                </DataTrigger.Setters>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding ElementName=SectionContent, Path=Items.IsEmpty}" Value="True">
+                                <DataTrigger.Setters>
+                                    <Setter Property="Focusable" Value="False"/>
+                                </DataTrigger.Setters>
+                            </DataTrigger>
+                        </Style.Triggers>
+
+                    </Style>
+
+                </ItemsControl.Style>
+
+            </ItemsControl>
+
+            <!--#endregion-->
+            
+            <!--#region Add Content -->
+
+            <Menu>
+                <Menu.Resources>
+                    <Style x:Key="ContentItem" TargetType="MenuItem">
+                        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}, Path=Header}" />
+                        <Style.Triggers>
+                            
+                            <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
+                                <DataTrigger.Setters>
+                                    <Setter Property="Command" Value="{Binding AddMaterial}" />
+                                </DataTrigger.Setters>
+                            </DataTrigger>
+                            
+                            <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
+                                <DataTrigger.Setters>
+                                    <Setter Property="Command" Value="{Binding AddTest}" />
+                                </DataTrigger.Setters>
+                            </DataTrigger>
+                            
+                        </Style.Triggers>
+                    </Style>
+                </Menu.Resources>
+                
+                <MenuItem Header="Add" Background="LightBlue">
+                    
+                    <MenuItem.Style>
+                        <Style TargetType="{x:Type MenuItem}">
+                            <Style.Triggers>
+                                <Trigger Property="Role" Value="TopLevelHeader">
+                                    <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                        
+                    </MenuItem.Style>
+                    
+                    <!-- Items -->
+                    
+                    <MenuItem Header="text" Style="{StaticResource ContentItem}" />
+
+                </MenuItem>
+                
+
+                <!--<i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>-->
+
+            </Menu>
+            
+            <!--#endregion-->
+
+        </StackPanel>
+
         <!--#endregion-->
 
         <!--#region Pages -->

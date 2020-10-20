@@ -33,8 +33,15 @@ namespace Lessium.Models
 
         // Tabs
 
+        public enum Tab
+        {
+            Materials, Tests
+        }
+
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestsHeader = Resources.TestsHeader;
+
+        public string SelectedTab = Tab.Materials.ToString();
 
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:

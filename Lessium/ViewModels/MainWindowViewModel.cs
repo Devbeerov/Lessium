@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
+using System;
 
 namespace Lessium.ViewModels
 {
@@ -16,7 +17,6 @@ namespace Lessium.ViewModels
         #region Private properties
 
         private readonly MainWindowModel model;
-        private string selectedTab = "Materials";
 
         #endregion
 
@@ -127,21 +127,27 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.TestsHeader, value); }
         }
 
+        public string SelectedTab
+        {
+            get { return model.SelectedTab; }
+            set { SetProperty(ref model.SelectedTab, value); }
+        }
+
         public ObservableCollection<Section> Sections
         {
-            get { return model.Sections[selectedTab]; }
+            get { return model.Sections[SelectedTab]; }
             set
             {
-                SetDictionaryProperty(ref model.Sections, selectedTab, value);
+                SetDictionaryProperty(ref model.Sections, SelectedTab, value);
             }
         }
 
         public Section CurrentSection
         {
-            get { return model.CurrentSection[selectedTab]; }
+            get { return model.CurrentSection[SelectedTab]; }
             set
             {
-                if(SetDictionaryProperty(ref model.CurrentSection, selectedTab, value))
+                if(SetDictionaryProperty(ref model.CurrentSection, SelectedTab, value))
                 {
                     if (CurrentSection == null)
                     {
@@ -161,11 +167,11 @@ namespace Lessium.ViewModels
         {
             get
             {
-                return model.CurrentSectionID[selectedTab];
+                return model.CurrentSectionID[SelectedTab];
             }
             set
             {
-                SetDictionaryProperty(ref model.CurrentSectionID, selectedTab, value);
+                SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value);
             }
         }
 
@@ -405,6 +411,28 @@ namespace Lessium.ViewModels
             SelectSection(newSection);
         }
 
+        // AddMaterial
+
+        private DelegateCommand<string> AddMaterialCommand;
+        public DelegateCommand<string> AddMaterial =>
+            AddMaterialCommand ?? (AddMaterialCommand = new DelegateCommand<string>(ExecuteAddMaterial));
+
+        void ExecuteAddMaterial(string MaterialName)
+        {
+            
+        }
+
+        // AddTest
+
+        private DelegateCommand<string> AddTestCommand;
+        public DelegateCommand<string> AddTest =>
+            AddTestCommand ?? (AddTestCommand = new DelegateCommand<string>(ExecuteAddTest));
+
+        void ExecuteAddTest(string TestName)
+        {
+
+        }
+
         #endregion
 
         #region Event-Commands 
@@ -424,9 +452,9 @@ namespace Lessium.ViewModels
         {
             TryCollapseCurrentSection();
 
-            selectedTab = param;
+            SelectedTab = param;
 
-            RaisePropertyChanged("Sections"); // Sections[selectedTab]
+            RaisePropertyChanged("Sections"); // Sections[SelectedTab]
             RaisePropertyChanged("CurrentSection");
             RaisePropertyChanged("CurrentSectionID"); // Binds to (new) CurrentSectionID based on tab.
 
