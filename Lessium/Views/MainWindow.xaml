@@ -18,6 +18,7 @@
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
         <converters:NotNullConverter x:Key="NotNullConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /> <!-- Built-in converter -->
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
             <Border Opacity="80" Background="LightSteelBlue"
                     HorizontalAlignment="Stretch" Height="Auto">
@@ -27,6 +28,7 @@
                 </StackPanel>
             </Border>
         </ControlTemplate>
+
     </Window.Resources>
 
     <!--#endregion-->
@@ -216,28 +218,49 @@
 
             <Menu>
                 <Menu.Resources>
+                    
                     <Style x:Key="ContentItem" TargetType="MenuItem">
-                        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}, Path=Header}" />
+                        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}, Path=TargetName}" />
+                    </Style>
+
+                    <Style x:Key="MaterialItem" BasedOn="{x:Reference ContentItem}" TargetType="MenuItem">
+
+                        <Setter Property="Command" Value="{Binding AddMaterial}" />
+                        
                         <Style.Triggers>
-                            
+
                             <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
                                 <DataTrigger.Setters>
-                                    <Setter Property="Command" Value="{Binding AddMaterial}" />
+                                    <Setter Property="IsEnabled" Value="True" />
+                                    <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger.Setters>
                             </DataTrigger>
-                            
+
+                        </Style.Triggers>
+
+                    </Style>
+
+                    <Style x:Key="TestItem" BasedOn="{x:Reference ContentItem}" TargetType="MenuItem">
+
+                        <Setter Property="Command" Value="{Binding AddTest}" />
+
+                        <Style.Triggers>
+
                             <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
                                 <DataTrigger.Setters>
-                                    <Setter Property="Command" Value="{Binding AddTest}" />
+                                    <Setter Property="IsEnabled" Value="True" />
+                                    <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger.Setters>
                             </DataTrigger>
-                            
+
                         </Style.Triggers>
+
                     </Style>
-                </Menu.Resources>
-                
-                <MenuItem Header="Add" Background="LightBlue">
                     
+                </Menu.Resources>
+
+                <MenuItem Header="Add" Background="LightBlue">
+
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">
                             <Style.Triggers>
@@ -246,21 +269,20 @@
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
-                        
+
                     </MenuItem.Style>
+
+                    <!-- Items
+                    !!! DO NOT FORGET TO PUT NAME OF ITEM! IT'S USED FOR BINDING! !!! -->
+
+                    <!-- Materials -->
                     
-                    <!-- Items -->
+                    <MenuItem Name="Text" Header="text" Style="{StaticResource MaterialItem}" />
                     
-                    <MenuItem Header="text" Style="{StaticResource ContentItem}" />
+                    <!-- Tests -->
+
 
                 </MenuItem>
-                
-
-                <!--<i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Click">
-                        <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>-->
 
             </Menu>
             

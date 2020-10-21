@@ -9,6 +9,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using System;
+using Lessium.Interfaces;
+using Lessium.ContentControls.MaterialControls;
 
 namespace Lessium.ViewModels
 {
@@ -131,6 +133,16 @@ namespace Lessium.ViewModels
         {
             get { return model.SelectedTab; }
             set { SetProperty(ref model.SelectedTab, value); }
+        }
+
+        public bool SelectedTabIsMaterials
+        {
+            get { return model.SelectedTab == "Materials"; }
+        }
+
+        public bool SelectedTabIsTests
+        {
+            get { return model.SelectedTab == "Tests"; }
         }
 
         public ObservableCollection<Section> Sections
@@ -411,6 +423,8 @@ namespace Lessium.ViewModels
             SelectSection(newSection);
         }
 
+        #region Add Content
+
         // AddMaterial
 
         private DelegateCommand<string> AddMaterialCommand;
@@ -419,7 +433,20 @@ namespace Lessium.ViewModels
 
         void ExecuteAddMaterial(string MaterialName)
         {
-            
+            UserControl control;
+
+            // Instantiation of ContentControl
+            switch (MaterialName)
+            {
+                case "Text":
+                    control = new Text();
+                    break;
+                default:
+                    throw new NotImplementedException($"{MaterialName} not supported!");
+            }
+
+            CurrentSection.Add(control);
+
         }
 
         // AddTest
@@ -432,6 +459,8 @@ namespace Lessium.ViewModels
         {
 
         }
+
+        #endregion
 
         #endregion
 

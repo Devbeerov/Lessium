@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ActionsInCaseHeader" xml:space="preserve">
+    <value>Действия в ситуации:</value>
+  </data>
   <data name="AddSectionText" xml:space="preserve">
     <value>Добавить раздел</value>
+  </data>
+  <data name="AudioHeader" xml:space="preserve">
+    <value>Аудио</value>
   </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Добавить</value>
@@ -131,14 +137,30 @@
     <value>Закрыть Урок</value>
     <comment>Меню</comment>
   </data>
+  <data name="CompareHeader" xml:space="preserve">
+    <value>Сравнение</value>
+  </data>
+  <data name="DifferencesHeader" xml:space="preserve">
+    <value>Отличия</value>
+    <comment>Тесты</comment>
+  </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Редактировать</value>
   </data>
   <data name="ExitHeader" xml:space="preserve">
     <value>Выход</value>
   </data>
+  <data name="ImageHeader" xml:space="preserve">
+    <value>Изображение</value>
+  </data>
+  <data name="JokeHeader" xml:space="preserve">
+    <value>Шутка</value>
+  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Урок</value>
+  </data>
+  <data name="LinkTogetherHeader" xml:space="preserve">
+    <value>Соответствия</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Загрузить</value>
@@ -150,6 +172,9 @@
     <value>Не поддерживается в режиме "Для чтения".
 Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по  "Редактировать".</value>
   </data>
+  <data name="MiniGameHeader" xml:space="preserve">
+    <value>Мини-игра</value>
+  </data>
   <data name="NewLessonHeader" xml:space="preserve">
     <value>Новый Урок</value>
   </data>
@@ -159,16 +184,41 @@
   <data name="PrintLessonHeader" xml:space="preserve">
     <value>Печать</value>
   </data>
+  <data name="PrioritiesHeader" xml:space="preserve">
+    <value>Расстановка приоритетов</value>
+  </data>
   <data name="RecentHeader" xml:space="preserve">
     <value>Недавнее</value>
   </data>
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Сохранить</value>
   </data>
+  <data name="SelectCorrectHeader" xml:space="preserve">
+    <value>Выбор правильного</value>
+  </data>
+  <data name="SIGameHeader" xml:space="preserve">
+    <value>Своя Игра</value>
+  </data>
+  <data name="SimpleTestHeader" xml:space="preserve">
+    <value>Тест</value>
+  </data>
   <data name="TestsHeader" xml:space="preserve">
     <value>Тесты</value>
   </data>
+  <data name="TextHeader" xml:space="preserve">
+    <value>Текст</value>
+    <comment>Материалы</comment>
+  </data>
+  <data name="TrickyQuestionHeader" xml:space="preserve">
+    <value>Вопрос с подвохом</value>
+  </data>
+  <data name="TrueFalseHeader" xml:space="preserve">
+    <value>Правда/ложь</value>
+  </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Отменить изменения</value>
+  </data>
+  <data name="VideoHeader" xml:space="preserve">
+    <value>Видео</value>
   </data>
 </root>
