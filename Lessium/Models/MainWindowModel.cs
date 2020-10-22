@@ -7,41 +7,31 @@ namespace Lessium.Models
 {
     public class MainWindowModel
     {
-        // Window
+        #region Window
 
         public string title = "Lessium";
 
-        // Lesson Menu
+        #endregion
 
-            // Headers
+        #region Lesson Menu
 
-            public string LessonHeader = Resources.LessonHeader;
-            public string EditHeader = Resources.EditHeader;
-            public string UndoChangesHeader = Resources.UndoChangesHeader;
-            public string RecentHeader = Resources.RecentHeader;
-            public string NewLessonHeader = Resources.NewLessonHeader;
-            public string SaveLessonHeader = Resources.SaveLessonHeader;
-            public string LoadLessonHeader = Resources.LoadLessonHeader;
-            public string CloseLessonHeader = Resources.CloseLessonHeader;
-            public string PrintLessonHeader = Resources.PrintLessonHeader;
-            public string ExitHeader = Resources.ExitHeader;
+        public bool HasChanges = false;
+        public bool ReadOnly = true;
 
-            // Internal
+        #endregion
 
-            public bool HasChanges = false;
-            public bool ReadOnly = true;
-
-        // Tabs
+        #region Tabs
 
         public enum Tab
         {
             Materials, Tests
         }
 
-        public string MaterialHeader = Resources.MaterialHeader;
-        public string TestsHeader = Resources.TestsHeader;
-
         public string SelectedTab = Tab.Materials.ToString();
+
+        #endregion
+
+        #region Sections
 
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:
@@ -49,7 +39,7 @@ namespace Lessium.Models
         public Dictionary<string, ObservableCollection<Section>> Sections =
             new Dictionary<string, ObservableCollection<Section>>()
             {
-                { "Materials", new ObservableCollection<Section>() }, 
+                { "Materials", new ObservableCollection<Section>() },
                 { "Tests", new ObservableCollection<Section>() }
             };
 
@@ -64,19 +54,79 @@ namespace Lessium.Models
             { "Tests", -1 }
         };
 
-        // Buttons
+        #endregion
+
+        #region Localisation
+
+        #region Headers
+
+        // Lesson Menu
+
+        public string LessonHeader = Resources.LessonHeader;
+        public string EditHeader = Resources.EditHeader;
+        public string UndoChangesHeader = Resources.UndoChangesHeader;
+        public string RecentHeader = Resources.RecentHeader;
+        public string NewLessonHeader = Resources.NewLessonHeader;
+        public string SaveLessonHeader = Resources.SaveLessonHeader;
+        public string LoadLessonHeader = Resources.LoadLessonHeader;
+        public string CloseLessonHeader = Resources.CloseLessonHeader;
+        public string PrintLessonHeader = Resources.PrintLessonHeader;
+        public string ExitHeader = Resources.ExitHeader;
+
+        // Tabs
+
+        public string MaterialHeader = Resources.MaterialHeader;
+        public string TestsHeader = Resources.TestsHeader;
+
+        #endregion
+
+        #region Sections
+
+        #region MaterialControls
+
+        public string AudioHeader = Resources.AudioHeader;
+        public string ImageHeader = Resources.ImageHeader;
+        public string JokeHeader = Resources.JokeHeader;
+        public string TextHeader = Resources.TextHeader;
+        public string VideoHeader = Resources.VideoHeader;
+
+        #endregion
+
+        #region TestControls
+
+        public string ActionsInCaseHeader = Resources.ActionsInCaseHeader;
+        public string CompareHeader = Resources.CompareHeader;
+        public string DifferencesHeader = Resources.DifferencesHeader;
+        public string LinkTogetherHeader = Resources.LinkTogetherHeader;
+        public string MiniGameHeader = Resources.MiniGameHeader;
+        public string PrioritiesHeader = Resources.PrioritiesHeader;
+        public string SelectCorrectHeader = Resources.SelectCorrectHeader;
+        public string SIGameHeader = Resources.SIGameHeader;
+        public string SimpleTestHeader = Resources.SimpleTestHeader;
+        public string TrickyQuestionHeader = Resources.TrickyQuestionHeader;
+        public string TrueFalseHeader = Resources.TrueFalseHeader;
+
+        #endregion
+
+        #endregion
+
+        #region Buttons
 
         public string ButtonAddHeader = Resources.ButtonAddHeader;
         public string ButtonRemoveHeader = Resources.ButtonRemoveHeader;
         public string AddSectionText = Resources.AddSectionText;
         public string NewSection = Resources.NewSection;
+        public string AddContentHeader = Resources.AddContentHeader;
 
-        // Messages
+        #endregion
 
-        public string Message_NotEnabledInReadOnly = Resources.Message_NotEnabledInReadOnly;
+        #region ToolTips
 
+        public string ReadOnlyToolTip = Resources.ReadOnlyToolTip;
 
+        #endregion
 
+        #endregion
 
     }
 }

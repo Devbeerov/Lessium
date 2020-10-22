@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using System;
-using Lessium.Interfaces;
 using Lessium.ContentControls.MaterialControls;
 
 namespace Lessium.ViewModels
@@ -36,68 +35,6 @@ namespace Lessium.ViewModels
 
         #region LessonMenu
 
-        public string LessonHeader
-        {
-            get { return model.LessonHeader; }
-            set { SetProperty(ref model.LessonHeader, value); }
-        }
-
-        public string EditHeader
-        {
-            get { return model.EditHeader; }
-            set { SetProperty(ref model.EditHeader, value); }
-        }
-
-        public string UndoChangesHeader
-        {
-            get { return model.UndoChangesHeader; }
-            set { SetProperty(ref model.UndoChangesHeader, value); }
-        }
-
-        public string RecentHeader
-        {
-            get { return model.RecentHeader; }
-            set { SetProperty(ref model.RecentHeader, value); }
-        }
-
-        public string NewLessonHeader
-        {
-            get { return model.NewLessonHeader; }
-            set { SetProperty(ref model.NewLessonHeader, value); }
-        }
-
-        public string SaveLessonHeader
-        {
-            get { return model.SaveLessonHeader; }
-            set { SetProperty(ref model.SaveLessonHeader, value); }
-        }
-
-        public string LoadLessonHeader
-        {
-            get { return model.LoadLessonHeader; }
-            set { SetProperty(ref model.LoadLessonHeader, value); }
-        }
-
-        public string CloseLessonHeader
-        {
-            get { return model.CloseLessonHeader; }
-            set { SetProperty(ref model.CloseLessonHeader, value); }
-        }
-
-        public string PrintLessonHeader
-        {
-            get { return model.PrintLessonHeader; }
-            set { SetProperty(ref model.PrintLessonHeader, value); }
-        }
-
-        public string ExitHeader
-        {
-            get { return model.ExitHeader; }
-            set { SetProperty(ref model.ExitHeader, value); }
-        }
-
-        #region Internal
-
         public bool HasChanges
         {
             get { return model.HasChanges; }
@@ -110,24 +47,9 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.ReadOnly, value); }
         }
 
-
-        #endregion
-
         #endregion
 
         #region Tabs
-
-        public string MaterialHeader
-        {
-            get { return model.MaterialHeader; }
-            set { SetProperty(ref model.MaterialHeader, value); }
-        }
-
-        public string TestsHeader
-        {
-            get { return model.TestsHeader; }
-            set { SetProperty(ref model.TestsHeader, value); }
-        }
 
         public string SelectedTab
         {
@@ -159,7 +81,7 @@ namespace Lessium.ViewModels
             get { return model.CurrentSection[SelectedTab]; }
             set
             {
-                if(SetDictionaryProperty(ref model.CurrentSection, SelectedTab, value))
+                if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, value))
                 {
                     if (CurrentSection == null)
                     {
@@ -187,12 +109,12 @@ namespace Lessium.ViewModels
             }
         }
 
-        private bool SetDictionaryProperty<TValue> (ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
+        private bool SetDictionaryProperty<TValue>(ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
         {
             object currentValueObject = dictionary[key];
             object newValueObject = newValue;
 
-            if(currentValueObject != newValueObject)
+            if (currentValueObject != newValueObject)
             {
                 dictionary[key] = newValue;
                 RaisePropertyChanged(name);
@@ -206,22 +128,9 @@ namespace Lessium.ViewModels
 
         #region Buttons
 
-        public string ButtonAddHeader
-        {
-            get { return model.ButtonAddHeader; }
-            set { SetProperty(ref model.ButtonAddHeader, value); }
-        }
-
-        public string ButtonRemoveHeader
-        {
-            get { return model.ButtonRemoveHeader; }
-            set { SetProperty(ref model.ButtonRemoveHeader, value); }
-        }
-
         public string AddSectionText
         {
             get { return model.AddSectionText; }
-            set { SetProperty(ref model.AddSectionText, value); }
         }
 
         #endregion
@@ -235,14 +144,14 @@ namespace Lessium.ViewModels
         {
             // In case we don't provide model (for example when Prism wires ViewModel automatically), creates new Model.
 
-            if(model == null)
+            if (model == null)
             {
                 model = new MainWindowModel();
             }
 
             this.model = model;
         }
-        
+
         #region Section
 
         /// <summary>
@@ -274,7 +183,7 @@ namespace Lessium.ViewModels
 
         private void SelectSection(Section section)
         {
-            if(CurrentSection == section) { return; }
+            if (CurrentSection == section) { return; }
 
             TryCollapseCurrentSection(); // colapses old selected section
 
@@ -371,22 +280,14 @@ namespace Lessium.ViewModels
 
         private DelegateCommand AddSectionCommand;
         public DelegateCommand AddSection =>
-            AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection));
-            /* It's not practically to put condition here, because it's hard to imagine that Capacity
-            * will grow above highest possible, and checking condition will reduce perfomance slightly. */
+            AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection, CanExecuteAddSection));
 
         void ExecuteAddSection()
         {
-            if(ReadOnly)
-            {
-                MessageBox.Show(model.Message_NotEnabledInReadOnly);
-                return;
-            }
-
             int repeatingIndex = 1;
             string sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
 
-            while (Sections.Any(section => section.GetTitle() == sectionTitle)) 
+            while (Sections.Any(section => section.GetTitle() == sectionTitle))
             {
                 // While Sections contains section with Title equal to sectionTitle
 
@@ -410,6 +311,11 @@ namespace Lessium.ViewModels
             SelectSection(newSection);
 
             HasChanges = true;
+        }
+
+        bool CanExecuteAddSection()
+        {
+            return !ReadOnly;
         }
 
         // TrySelectSection
@@ -491,6 +397,196 @@ namespace Lessium.ViewModels
             {
                 ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
             }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Localisation
+
+        #region Lesson Menu
+
+        public string LessonHeader
+        {
+            get { return model.LessonHeader; }
+        }
+
+        public string EditHeader
+        {
+            get { return model.EditHeader; }
+        }
+
+        public string UndoChangesHeader
+        {
+            get { return model.UndoChangesHeader; }
+        }
+
+        public string RecentHeader
+        {
+            get { return model.RecentHeader; }
+        }
+
+        public string NewLessonHeader
+        {
+            get { return model.NewLessonHeader; }
+        }
+
+        public string SaveLessonHeader
+        {
+            get { return model.SaveLessonHeader; }
+        }
+
+        public string LoadLessonHeader
+        {
+            get { return model.LoadLessonHeader; }
+        }
+
+        public string CloseLessonHeader
+        {
+            get { return model.CloseLessonHeader; }
+        }
+
+        public string PrintLessonHeader
+        {
+            get { return model.PrintLessonHeader; }
+        }
+
+        public string ExitHeader
+        {
+            get { return model.ExitHeader; }
+        }
+
+        #endregion
+
+        #region Tabs
+
+        public string MaterialHeader
+        {
+            get { return model.MaterialHeader; }
+        }
+
+        public string TestsHeader
+        {
+            get { return model.TestsHeader; }
+        }
+
+        #endregion
+
+        #region Buttons
+
+        public string ButtonAddHeader
+        {
+            get { return model.ButtonAddHeader; }
+        }
+
+        public string ButtonRemoveHeader
+        {
+            get { return model.ButtonRemoveHeader; }
+        }
+
+        public string AddContentHeader
+        {
+            get { return model.AddContentHeader; }
+        }
+
+        #endregion
+
+        #region Sections
+
+        #region MaterialControls
+
+        public string AudioHeader
+        {
+            get { return model.AudioHeader; }
+        }
+
+        public string ImageHeader
+        {
+            get { return model.ImageHeader; }
+        }
+
+        public string JokeHeader
+        {
+            get { return model.JokeHeader; }
+        }
+
+        public string TextHeader
+        {
+            get { return model.TextHeader; }
+        }
+        public string VideoHeader
+        {
+            get { return model.VideoHeader; }
+        }
+
+        #endregion
+
+        #region TestControls
+
+        public string ActionsInCaseHeader
+        {
+            get { return model.ActionsInCaseHeader; }
+        }
+
+        public string CompareHeader
+        {
+            get { return model.CompareHeader; }
+        }
+
+        public string DifferencesHeader
+        {
+            get { return model.DifferencesHeader; }
+        }
+        public string LinkTogetherHeader
+        {
+            get { return model.LinkTogetherHeader; }
+        }
+
+        public string MiniGameHeader
+        {
+            get { return model.MiniGameHeader; }
+        }
+
+        public string PrioritiesHeader
+        {
+            get { return model.PrioritiesHeader; }
+        }
+
+        public string SelectCorrectHeader
+        {
+            get { return model.SelectCorrectHeader; }
+        }
+
+        public string SIGameHeader
+        {
+            get { return model.SIGameHeader; }
+        }
+
+        public string SimpleTestHeader
+        {
+            get { return model.SimpleTestHeader; }
+        }
+
+        public string TrickyQuestionHeader
+        {
+            get { return model.TrickyQuestionHeader; }
+        }
+
+        public string TrueFalseHeader
+        {
+            get { return model.TrueFalseHeader; }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ToolTips
+
+        public string ReadOnlyToolTip
+        {
+            get { return model.ReadOnlyToolTip; }
         }
 
         #endregion

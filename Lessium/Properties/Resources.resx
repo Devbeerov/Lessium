@@ -168,10 +168,6 @@
   <data name="MaterialHeader" xml:space="preserve">
     <value>Material</value>
   </data>
-  <data name="Message_NotEnabledInReadOnly" xml:space="preserve">
-    <value>Disabled in Read-Only.
-To edit lesson, select "Lesson" at top-left and press "Edit".</value>
-  </data>
   <data name="MiniGameHeader" xml:space="preserve">
     <value>Mini-game</value>
   </data>
@@ -220,5 +216,13 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="VideoHeader" xml:space="preserve">
     <value>Video</value>
+  </data>
+  <data name="AddContentHeader" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ReadOnlyToolTip" xml:space="preserve">
+    <value>Disabled in Read-Only.
+To edit lesson, select "Lesson" at top-left and press "Edit".</value>
+    <comment>ToolTips</comment>
   </data>
 </root>

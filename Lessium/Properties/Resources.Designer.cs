@@ -70,6 +70,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Add.
+        /// </summary>
+        public static string AddContentHeader {
+            get {
+                return ResourceManager.GetString("AddContentHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Add Section.
         /// </summary>
         public static string AddSectionText {
@@ -205,16 +214,6 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Disabled in Read-Only.
-        ///To edit lesson, select &quot;Lesson&quot; at top-left and press &quot;Edit&quot;..
-        /// </summary>
-        public static string Message_NotEnabledInReadOnly {
-            get {
-                return ResourceManager.GetString("Message_NotEnabledInReadOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Mini-game.
         /// </summary>
         public static string MiniGameHeader {
@@ -256,6 +255,16 @@ namespace Lessium.Properties {
         public static string PrioritiesHeader {
             get {
                 return ResourceManager.GetString("PrioritiesHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Disabled in Read-Only.
+        ///To edit lesson, select &quot;Lesson&quot; at top-left and press &quot;Edit&quot;..
+        /// </summary>
+        public static string ReadOnlyToolTip {
+            get {
+                return ResourceManager.GetString("ReadOnlyToolTip", resourceCulture);
             }
         }
         

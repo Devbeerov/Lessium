@@ -7,7 +7,8 @@
         xmlns:controls="clr-namespace:Lessium.ContentControls"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen">
+        Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
+        x:Name="MainWindowReference">
     
     <!--#region Resources -->
     
@@ -19,6 +20,7 @@
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
         <converters:NotNullConverter x:Key="NotNullConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /> <!-- Built-in converter -->
+
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
             <Border Opacity="80" Background="LightSteelBlue"
                     HorizontalAlignment="Stretch" Height="Auto">
@@ -29,12 +31,19 @@
             </Border>
         </ControlTemplate>
 
+        <Style x:Key="ReadOnlyToolTip" TargetType="ToolTip" >
+            <Setter Property="DataContext" Value="{Binding DataContext, Source={x:Reference MainWindowReference}}" />
+            <Setter Property="ToolTip.Content" Value="{Binding ReadOnlyToolTip}" />
+            <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+            <Setter Property="ToolTipService.IsEnabled" Value="{Binding ReadOnly}" />
+        </Style>
+
     </Window.Resources>
 
     <!--#endregion-->
-    
+
     <Grid>
-        
+
         <!-- Rows (percentage space) -->
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/> <!-- UI above content -->
@@ -168,7 +177,10 @@
                 <!-- Add Section -->
 
                 <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
-                        Command="{Binding AddSection}">
+                        Command="{Binding AddSection}" >
+                    <Button.ToolTip>
+                        <ToolTip Style="{StaticResource ReadOnlyToolTip}" />
+                    </Button.ToolTip>
 
                 </Button>
             </StackPanel>
@@ -216,14 +228,15 @@
             
             <!--#region Add Content -->
 
-            <Menu>
+            <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
+
                 <Menu.Resources>
                     
                     <Style x:Key="ContentItem" TargetType="MenuItem">
-                        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}, Path=TargetName}" />
+                        <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
                     </Style>
 
-                    <Style x:Key="MaterialItem" BasedOn="{x:Reference ContentItem}" TargetType="MenuItem">
+                    <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
                         <Setter Property="Command" Value="{Binding AddMaterial}" />
                         
@@ -240,7 +253,7 @@
 
                     </Style>
 
-                    <Style x:Key="TestItem" BasedOn="{x:Reference ContentItem}" TargetType="MenuItem">
+                    <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
                         <Setter Property="Command" Value="{Binding AddTest}" />
 
@@ -259,7 +272,11 @@
                     
                 </Menu.Resources>
 
-                <MenuItem Header="Add" Background="LightBlue">
+                <MenuItem Header="{Binding AddContentHeader}" Background="LightBlue">
+                    
+                    <MenuItem.ToolTip>
+                        <ToolTip Style="{StaticResource ReadOnlyToolTip}" />
+                    </MenuItem.ToolTip>
 
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">
@@ -273,14 +290,15 @@
                     </MenuItem.Style>
 
                     <!-- Items
-                    !!! DO NOT FORGET TO PUT NAME OF ITEM! IT'S USED FOR BINDING! !!! -->
+                    !!! NAME PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
 
                     <!-- Materials -->
                     
-                    <MenuItem Name="Text" Header="text" Style="{StaticResource MaterialItem}" />
+                    <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
                     
                     <!-- Tests -->
 
+                    <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
 
                 </MenuItem>
 

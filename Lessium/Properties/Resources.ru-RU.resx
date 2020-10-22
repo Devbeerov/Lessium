@@ -168,10 +168,6 @@
   <data name="MaterialHeader" xml:space="preserve">
     <value>Материал</value>
   </data>
-  <data name="Message_NotEnabledInReadOnly" xml:space="preserve">
-    <value>Не поддерживается в режиме "Для чтения".
-Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по  "Редактировать".</value>
-  </data>
   <data name="MiniGameHeader" xml:space="preserve">
     <value>Мини-игра</value>
   </data>
@@ -220,5 +216,13 @@
   </data>
   <data name="VideoHeader" xml:space="preserve">
     <value>Видео</value>
+  </data>
+  <data name="AddContentHeader" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="ReadOnlyToolTip" xml:space="preserve">
+    <value>Не поддерживается в режиме "Для чтения".
+Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по "Редактировать".</value>
+    <comment>Подсказки</comment>
   </data>
 </root>
