@@ -280,7 +280,8 @@ namespace Lessium.ViewModels
 
         private DelegateCommand AddSectionCommand;
         public DelegateCommand AddSection =>
-            AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection, CanExecuteAddSection));
+            AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection, CanExecuteAddSection)
+            .ObservesProperty(() => ReadOnly));
 
         void ExecuteAddSection()
         {

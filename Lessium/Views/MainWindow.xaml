@@ -21,22 +21,35 @@
         <converters:NotNullConverter x:Key="NotNullConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /> <!-- Built-in converter -->
 
+        <!--#region Control Templates -->
+        
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
-            <Border Opacity="80" Background="LightSteelBlue"
+            <Border x:Name="border" Background="LightSteelBlue"
                     HorizontalAlignment="Stretch" Height="Auto">
                 <StackPanel Orientation="Horizontal">
                     <Image x:Name="plusIcon" Source="{StaticResource ResourceKey=PlusIcon}" Margin="5,5,5,5"/>
-                    <TextBlock x:Name="addSection" Text="{Binding AddSectionText}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20,0,20,0"/>
+                    <TextBlock x:Name="addSection" Text="{Binding AddSectionText}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20,0,20,0"
+                               Foreground="{TemplateBinding Foreground}"/>
                 </StackPanel>
             </Border>
         </ControlTemplate>
+        
+        <!--#endregion-->
+        
+        <!--#region Styles -->
 
-        <Style x:Key="ReadOnlyToolTip" TargetType="ToolTip" >
-            <Setter Property="DataContext" Value="{Binding DataContext, Source={x:Reference MainWindowReference}}" />
-            <Setter Property="ToolTip.Content" Value="{Binding ReadOnlyToolTip}" />
-            <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
-            <Setter Property="ToolTipService.IsEnabled" Value="{Binding ReadOnly}" />
+        <Style x:Key="AddSectionButtonStyle" TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="ToolTipService.IsEnabled" Value="True">
+                    <Trigger.Setters>
+                        <!-- Gray -->
+                        <Setter Property="Foreground" Value="#ADADAD"/>
+                    </Trigger.Setters>
+                </Trigger>
+            </Style.Triggers>
         </Style>
+        
+        <!--#endregion-->
 
     </Window.Resources>
 
@@ -177,12 +190,12 @@
                 <!-- Add Section -->
 
                 <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
-                        Command="{Binding AddSection}" >
-                    <Button.ToolTip>
-                        <ToolTip Style="{StaticResource ReadOnlyToolTip}" />
-                    </Button.ToolTip>
-
+                        Command="{Binding AddSection}"
+                        ToolTip="{Binding ReadOnlyToolTip}" 
+                        ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                        Style="{StaticResource AddSectionButtonStyle}">
                 </Button>
+                
             </StackPanel>
         </Border>
         
@@ -193,47 +206,58 @@
         <!-- StackPanel for SelectedSection and UI (below)! -->
         
         <StackPanel Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
-                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     Orientation="Vertical">
 
             <!--#region Section's Content -->
 
-            <ItemsControl x:Name="SectionContent" BorderThickness="0">
+            <controls:Section>
+                <ItemsControl x:Name="SectionContent" BorderThickness="0">
 
-                <!-- Style enables binding only if current section isn't empty -->
-                <ItemsControl.Style>
-                    <Style TargetType="{x:Type ItemsControl}">
+                    <!-- Style enables binding only if current section isn't empty -->
+                    <ItemsControl.Style>
+                        <Style TargetType="{x:Type ItemsControl}">
 
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
-                                <DataTrigger.Setters>
-                                    <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
-                                </DataTrigger.Setters>
-                            </DataTrigger>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
+                                    <DataTrigger.Setters>
+                                        <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
+                                    </DataTrigger.Setters>
+                                </DataTrigger>
 
-                            <DataTrigger Binding="{Binding ElementName=SectionContent, Path=Items.IsEmpty}" Value="True">
-                                <DataTrigger.Setters>
-                                    <Setter Property="Focusable" Value="False"/>
-                                </DataTrigger.Setters>
-                            </DataTrigger>
-                        </Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SectionContent, Path=Items.IsEmpty}" Value="True">
+                                    <DataTrigger.Setters>
+                                        <Setter Property="Focusable" Value="False"/>
+                                    </DataTrigger.Setters>
+                                </DataTrigger>
 
-                    </Style>
+                            </Style.Triggers>
 
-                </ItemsControl.Style>
+                        </Style>
 
-            </ItemsControl>
+                    </ItemsControl.Style>
+
+                </ItemsControl>
+            </controls:Section>
 
             <!--#endregion-->
             
             <!--#region Add Content -->
 
-            <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
+            <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" 
+                  HorizontalAlignment="Left">
 
                 <Menu.Resources>
                     
                     <Style x:Key="ContentItem" TargetType="MenuItem">
-                        <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
+                        <Style.Setters>
+                            <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
+                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <!-- Passing ContentName to CommandParameter for later -->
+                            <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
+                        </Style.Setters>
+                        
                     </Style>
 
                     <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
@@ -272,25 +296,35 @@
                     
                 </Menu.Resources>
 
-                <MenuItem Header="{Binding AddContentHeader}" Background="LightBlue">
-                    
-                    <MenuItem.ToolTip>
-                        <ToolTip Style="{StaticResource ReadOnlyToolTip}" />
-                    </MenuItem.ToolTip>
+                <MenuItem Header="{Binding AddContentHeader}" Background="LightBlue"
+                          ToolTip="{Binding ReadOnlyToolTip}" 
+                          ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" >
 
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">
+                            
+                            <Style.Setters>
+                                <Setter Property="IsEnabled" Value="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" />
+                                <!-- Should return Visible if True, and Collapsed if False -->
+                                <Setter Property="Visibility" Value="{Binding RelativeSource={RelativeSource Mode=Self},
+                                    Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </Style.Setters>
+                            
                             <Style.Triggers>
+                                
+                                <!-- Visual -->
+
                                 <Trigger Property="Role" Value="TopLevelHeader">
                                     <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
                                 </Trigger>
+
                             </Style.Triggers>
                         </Style>
 
                     </MenuItem.Style>
 
                     <!-- Items
-                    !!! NAME PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
+                    !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
 
                     <!-- Materials -->
                     

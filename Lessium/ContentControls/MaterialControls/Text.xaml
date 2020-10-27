@@ -6,7 +6,9 @@
              xmlns:local="clr-namespace:Lessium.ContentControls.MaterialControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <TextBox TextWrapping="Wrap" Background="Transparent">
+    <TextBox TextWrapping="Wrap" Background="Transparent"
+             HorizontalAlignment="Stretch"
+             KeyDown="TextBox_KeyDown">
 
     </TextBox>
 </UserControl>

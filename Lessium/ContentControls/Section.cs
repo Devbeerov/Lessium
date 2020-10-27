@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace Lessium.ContentControls
 {
@@ -9,11 +8,13 @@ namespace Lessium.ContentControls
     {
         public Section() : base()
         {
+            Width = double.NaN;
+            Height = double.NaN;
+
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Top;
             Orientation = Orientation.Vertical;
-            Width = double.NaN;
-            Height = double.NaN;
+            
 
             SetItems(items);
         }
