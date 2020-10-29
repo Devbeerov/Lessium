@@ -1,5 +1,4 @@
 ﻿using Lessium.Interfaces;
-using System;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -10,9 +9,7 @@ namespace Lessium.ContentControls.MaterialControls
     /// </summary>
     public partial class Text : UserControl, IMaterialControl
     {
-        private Key prevKey = Key.None;
-        private Key prevKeyHold = Key.None;
-
+        
         public Text()
         {
             InitializeComponent();
@@ -25,35 +22,17 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Handles input
 
-            ProcessInput(key, sender as TextBox);
-
-            // Updates previous Keys
-
-            prevKey = key;
-
-            // If hold
-            if (e.IsRepeat)
-            {
-                prevKeyHold = key;
-            }
+            ProcessInput(key);
         }
 
-        private void ProcessInput(Key key, TextBox textBox)
+        private void ProcessInput(Key key)
         {
-            switch(key)
-            {
-                case Key.Enter:
+            // TODO: Implement method or remove it (same for method which invoked it).
+        }
 
-                    if(prevKeyHold == Key.LeftShift)
-                    {
-                        textBox.AppendText(Environment.NewLine);
-                        int index = textBox.Text.Length - 1;
-                        textBox.Select(index,1);
-                        return;
-                    }
-
-                    break;
-            }
+        public void SetEditable(bool editable)
+        {
+            textBox.IsReadOnly = !editable;
         }
     }
 }

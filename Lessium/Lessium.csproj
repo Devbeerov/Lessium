@@ -78,6 +78,7 @@
     </Compile>
     <Compile Include="ContentControls\Section.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
+    <Compile Include="Converters\ConverterChain.cs" />
     <Compile Include="Interfaces\TestControl.cs" />
     <Compile Include="Interfaces\MaterialControl.cs" />
     <Compile Include="Interfaces\ContentControl.cs" />

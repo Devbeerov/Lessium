@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Linq;
 using System;
 using Lessium.ContentControls.MaterialControls;
+using System.Windows.Input;
 
 namespace Lessium.ViewModels
 {
@@ -44,7 +45,16 @@ namespace Lessium.ViewModels
         public bool ReadOnly
         {
             get { return model.ReadOnly; }
-            set { SetProperty(ref model.ReadOnly, value); }
+            set
+            {
+                if(SetProperty(ref model.ReadOnly, value))
+                {
+                    foreach (var section in Sections)
+                    {
+                        section.SetEditable(!model.ReadOnly);
+                    }
+                }
+            }
         }
 
         #endregion
@@ -94,6 +104,11 @@ namespace Lessium.ViewModels
                     }
                 }
             }
+        }
+
+        public bool CurrentSectionIsEmpty
+        {
+            get { return CurrentSection?.GetItems().Count == 0; }
         }
 
         // Should be used exclusively for binding!
@@ -299,14 +314,11 @@ namespace Lessium.ViewModels
             var newSection = new Section();
             newSection.SetTitle(sectionTitle);
 
-            // For testing purposes
-            var textblock = new TextBlock
-            {
-                Text = "123"
-            };
-            newSection.Add(textblock);
+            // Updates IsEditable state of Section
 
-            // Adds newSection to Sections dictionary using extension method.
+            newSection.SetEditable(!ReadOnly);
+
+            // Adds newSection to Sections dictionary.
             Sections.Add(newSection);
 
             SelectSection(newSection);
@@ -328,6 +340,45 @@ namespace Lessium.ViewModels
         void ExecuteTrySelectSection(Section newSection)
         {
             SelectSection(newSection);
+        }
+
+        // SectionInput
+
+        private DelegateCommand SectionInputCommand;
+        public DelegateCommand SectionInput =>
+            SectionInputCommand ?? (SectionInputCommand = new DelegateCommand(ExecuteSectionInput));
+
+        void ExecuteSectionInput()
+        {
+            if(Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                if(Keyboard.IsKeyDown(Key.C))
+                {
+                    // TODO: implement UIElement serialization.
+                    var copiedSectionItems = CurrentSection.GetItems().ToList();
+                    Clipboard.Clear();
+                    Clipboard.SetDataObject(copiedSectionItems);
+                    
+                }
+                if (Keyboard.IsKeyDown(Key.V))
+                {
+                    IDataObject dataObject = Clipboard.GetDataObject();
+                    var dataType = typeof(List<UIElement>);
+                    if (dataObject.GetDataPresent(dataType))
+                    {
+                        var elements = dataObject.GetData(dataType) as List<UIElement>;
+                        if (elements != null)
+                        {
+                            var section = new Section();
+                            foreach (var element in elements)
+                            {
+                                section.Add(element);
+                            }
+                            Sections.Add(section);
+                        }
+                    }
+                }
+            }
         }
 
         #region Add Content

@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using Lessium.Interfaces;
+using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -6,6 +8,8 @@ namespace Lessium.ContentControls
 {
     public class Section : StackPanel
     {
+        private bool editable = false;
+
         public Section() : base()
         {
             Width = double.NaN;
@@ -14,7 +18,6 @@ namespace Lessium.ContentControls
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Top;
             Orientation = Orientation.Vertical;
-            
 
             SetItems(items);
         }
@@ -65,15 +68,58 @@ namespace Lessium.ContentControls
 
         #endregion
 
+        #region Methods
+
+        #region Private
+
+        private void UpdateItemEditable(object item)
+        {
+            var contentControl = item as IContentControl;
+
+            if (contentControl != null)
+            {
+                contentControl.SetEditable(editable);
+            }
+        }
+
+        private void UpdateItemsEditable()
+        {
+            foreach (object childControl in items)
+            {
+                UpdateItemEditable(childControl);
+            }
+        }
+
+        #endregion
+
+        #region Public
+
         public void Add(UIElement element)
         {
             items.Add(element);
+            UpdateItemEditable(element);
         }
 
         public void Remove(UIElement element)
         {
             items.Remove(element);
         }
+
+        public bool GetEditable()
+        {
+            return editable;
+        }
+
+        public void SetEditable(bool editable)
+        {
+            this.editable = editable;
+
+            UpdateItemsEditable();
+        }
+
+        #endregion
+
+        #endregion
 
         #region Dependency Properties
 
@@ -85,6 +131,8 @@ namespace Lessium.ContentControls
         public static readonly DependencyProperty Items =
             DependencyProperty.Register("Items", typeof(ObservableCollection<UIElement>),
                 typeof(Section), new PropertyMetadata(null));
+
+        #endregion
 
         #endregion
 

@@ -19,7 +19,16 @@
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
         <converters:NotNullConverter x:Key="NotNullConverter" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /> <!-- Built-in converter -->
+
+        <!-- Built-in -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        
+        <!-- Converter Chains -->
+
+        <converters:ConverterChain x:Key="InverseVisiblityConverter">
+            <converters:InverseBooleanConverter />
+            <BooleanToVisibilityConverter />
+        </converters:ConverterChain>
 
         <!--#region Control Templates -->
         
@@ -56,6 +65,8 @@
     <!--#endregion-->
 
     <Grid>
+        
+        <!--#region Grid Definitions -->
 
         <!-- Rows (percentage space) -->
         <Grid.RowDefinitions>
@@ -68,6 +79,8 @@
             <ColumnDefinition Width="20*"/> <!-- Content sections -->
             <ColumnDefinition Width="80*"/> <!-- Content, settings, pages -->
         </Grid.ColumnDefinitions>
+        
+        <!--#endregion-->
         
         <!--#region Row 0 - Menu, UI -->
         
@@ -154,49 +167,57 @@
         <Border BorderThickness="1" BorderBrush="DarkGray"
             Grid.Row="1" Margin="11,22,0,11"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <StackPanel Orientation="Vertical">
-                <!-- Sections Headers -->
-                <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
-                         ItemsSource="{Binding Sections}"
-                         SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
-                         SelectionChanged="Sections_SelectionChanged"
-                         IsSynchronizedWithCurrentItem="True">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical">
+                    <!-- Sections Headers -->
+                    <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
+                             ItemsSource="{Binding Sections}"
+                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                             SelectionChanged="Sections_SelectionChanged"
+                             IsSynchronizedWithCurrentItem="True">
                     
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Path=Title}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Title}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
 
-                    <ListBox.Style>
-                        <Style TargetType="{x:Type ListBox}">
-                            <Style.Triggers>
-                                <Trigger Property="HasItems" Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </Trigger>
-                            </Style.Triggers>
+                        <ListBox.Style>
+                            <Style TargetType="{x:Type ListBox}">
+                                <Style.Triggers>
+                                    <Trigger Property="HasItems" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </Trigger>
+                                </Style.Triggers>
 
-                        </Style>
-                    </ListBox.Style>
+                            </Style>
+                        </ListBox.Style>
 
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                        <i:Interaction.Triggers>
+                            
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
+                            </i:EventTrigger>
+                            
+                            <i:EventTrigger EventName="KeyDown">
+                                <i:InvokeCommandAction Command="{Binding SectionInput}" />
+                            </i:EventTrigger>
+                            
+                        </i:Interaction.Triggers>
 
-                </ListBox>
+                    </ListBox>
 
-                <!-- Add Section -->
+                    <!-- Add Section -->
 
-                <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
-                        Command="{Binding AddSection}"
-                        ToolTip="{Binding ReadOnlyToolTip}" 
-                        ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
-                        Style="{StaticResource AddSectionButtonStyle}">
-                </Button>
+                    <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
+                            Command="{Binding AddSection}"
+                            ToolTip="{Binding ReadOnlyToolTip}" 
+                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            Style="{StaticResource AddSectionButtonStyle}">
+                    </Button>
                 
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
         
         <!--#endregion-->
@@ -204,16 +225,19 @@
         <!--#region Content Region -->
 
         <!-- StackPanel for SelectedSection and UI (below)! -->
-        
-        <StackPanel Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                    Orientation="Vertical">
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                    Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            
+            <StackPanel Orientation="Vertical">
 
             <!--#region Section's Content -->
 
-            <controls:Section>
-                <ItemsControl x:Name="SectionContent" BorderThickness="0">
+            <controls:Section x:Name="section"> <!-- Keep in mind that Section inherited from StackPanel! -->
 
+                <ItemsControl x:Name="SectionContent" BorderThickness="0">
+                    
                     <!-- Style enables binding only if current section isn't empty -->
                     <ItemsControl.Style>
                         <Style TargetType="{x:Type ItemsControl}">
@@ -236,9 +260,9 @@
                         </Style>
 
                     </ItemsControl.Style>
-
                 </ItemsControl>
             </controls:Section>
+            
 
             <!--#endregion-->
             
@@ -340,7 +364,8 @@
             
             <!--#endregion-->
 
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
 
         <!--#endregion-->
 

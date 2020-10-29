@@ -1,10 +1,11 @@
 ﻿namespace Lessium.Interfaces
 {
     /// <summary>
-    /// Basic interface for ContentControl. Use IMaterialControl or ITestControl instead.
+    /// Basic interface for ContentControl.
     /// </summary>
     public interface IContentControl
     {
-
+        // Similar to IsReadOnly
+        void SetEditable(bool editable);
     }
 }
