@@ -1,28 +1,40 @@
 ﻿using Lessium.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
 
 namespace Lessium.ContentControls
 {
     public class Section : StackPanel
     {
         private bool editable = false;
+        private SectionType sectionType;
 
+        [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
-            Width = double.NaN;
-            Height = double.NaN;
-
-            HorizontalAlignment = HorizontalAlignment.Stretch;
-            VerticalAlignment = VerticalAlignment.Top;
-            Orientation = Orientation.Vertical;
-
-            SetItems(items);
+            Initialize(SectionType.MaterialSection);
         }
 
-        private readonly ObservableCollection<UIElement> items = new ObservableCollection<UIElement>();
+        public Section(SectionType type) : base()
+        {
+            Initialize(type);
+        }
+
+        // Custom Serialization
+        public Section(SectionSerializationInfo info) : base()
+        {
+            Initialize(info.sectionType);
+
+            SetTitle(info.title);
+            editable = info.editable;
+            items.AddRange(info.items);
+        }
+
+        private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
 
         #region Dependency Properties Methods
 
@@ -46,22 +58,22 @@ namespace Lessium.ContentControls
             SetTitle(this, title);
         }
 
-        public static ObservableCollection<UIElement> GetItems(DependencyObject obj)
+        public static ObservableCollection<IContentControl> GetItems(DependencyObject obj)
         {
-            return (ObservableCollection<UIElement>)obj.GetValue(Items);
+            return (ObservableCollection<IContentControl>)obj.GetValue(Items);
         }
 
-        protected static void SetItems(DependencyObject obj, ObservableCollection<UIElement> items)
+        protected static void SetItems(DependencyObject obj, ObservableCollection<IContentControl> items)
         {
             obj.SetValue(Items, items);
         }
 
-        public ObservableCollection<UIElement> GetItems()
+        public ObservableCollection<IContentControl> GetItems()
         {
              return GetItems(this);
         }
 
-        protected void SetItems(ObservableCollection<UIElement> items)
+        protected void SetItems(ObservableCollection<IContentControl> items)
         {
             SetItems(this, items);
         }
@@ -94,13 +106,33 @@ namespace Lessium.ContentControls
 
         #region Public
 
-        public void Add(UIElement element)
+        public void Initialize(SectionType sectionType)
+        {
+            // Internal
+
+            this.sectionType = sectionType;
+
+            // Visible
+
+            Width = double.NaN;
+            Height = double.NaN;
+
+            HorizontalAlignment = HorizontalAlignment.Stretch;
+            VerticalAlignment = VerticalAlignment.Top;
+            Orientation = Orientation.Vertical;
+
+            // Sets Items reference to internal items variable.
+
+            SetItems(items);
+        }
+
+        public void Add(IContentControl element)
         {
             items.Add(element);
             UpdateItemEditable(element);
         }
 
-        public void Remove(UIElement element)
+        public void Remove(IContentControl element)
         {
             items.Remove(element);
         }
@@ -117,6 +149,18 @@ namespace Lessium.ContentControls
             UpdateItemsEditable();
         }
 
+        public SectionSerializationInfo GetSerializationInfo()
+        {
+            SectionSerializationInfo info = new SectionSerializationInfo();
+
+            info.title = GetTitle();
+            info.editable = editable;
+            info.items = items.ToList(); // Linq does copying
+            info.sectionType = sectionType;
+
+            return info;
+        }
+
         #endregion
 
         #endregion
@@ -129,12 +173,24 @@ namespace Lessium.ContentControls
 
         // Used externally.
         public static readonly DependencyProperty Items =
-            DependencyProperty.Register("Items", typeof(ObservableCollection<UIElement>),
+            DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
                 typeof(Section), new PropertyMetadata(null));
 
         #endregion
 
-        #endregion
+    }
 
+    [Serializable]
+    public class SectionSerializationInfo
+    {
+        public string title;
+        public bool editable;
+        public List<IContentControl> items; // COPY of List of ObservableCollection!
+        public SectionType sectionType;
+    }
+
+    public enum SectionType
+    {
+        MaterialSection, TestSection
     }
 }

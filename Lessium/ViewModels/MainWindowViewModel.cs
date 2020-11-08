@@ -11,6 +11,7 @@ using System.Linq;
 using System;
 using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
+using Lessium.Interfaces;
 
 namespace Lessium.ViewModels
 {
@@ -167,6 +168,17 @@ namespace Lessium.ViewModels
             this.model = model;
         }
 
+        public SectionType SelectedTabToSectionType()
+        {
+
+            if (SelectedTab == "Materials")
+            {
+                return SectionType.MaterialSection;
+            }
+
+            return SectionType.TestSection;
+        }
+
         #region Section
 
         /// <summary>
@@ -291,7 +303,7 @@ namespace Lessium.ViewModels
 
         #region UI Commands
 
-        // AddSectionCommand
+        #region AddSection
 
         private DelegateCommand AddSectionCommand;
         public DelegateCommand AddSection =>
@@ -311,7 +323,9 @@ namespace Lessium.ViewModels
                 sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
             }
 
-            var newSection = new Section();
+
+            var sectionType = SelectedTabToSectionType();
+            var newSection = new Section(sectionType);
             newSection.SetTitle(sectionTitle);
 
             // Updates IsEditable state of Section
@@ -331,7 +345,9 @@ namespace Lessium.ViewModels
             return !ReadOnly;
         }
 
-        // TrySelectSection
+        #endregion
+
+        #region TrySelectSection
 
         private DelegateCommand<Section> TrySelectSectionCommand;
         public DelegateCommand<Section> TrySelectSection =>
@@ -342,7 +358,9 @@ namespace Lessium.ViewModels
             SelectSection(newSection);
         }
 
-        // SectionInput
+        #endregion
+
+        #region SectionInput
 
         private DelegateCommand SectionInputCommand;
         public DelegateCommand SectionInput =>
@@ -352,38 +370,54 @@ namespace Lessium.ViewModels
         {
             if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                if(Keyboard.IsKeyDown(Key.C))
+
+                if (Keyboard.IsKeyDown(Key.C))
                 {
-                    // TODO: implement UIElement serialization.
-                    var copiedSectionItems = CurrentSection.GetItems().ToList();
+                    var serializationInfo = CurrentSection.GetSerializationInfo();
                     Clipboard.Clear();
-                    Clipboard.SetDataObject(copiedSectionItems);
-                    
+                    Clipboard.SetDataObject(serializationInfo);
+
                 }
+
                 if (Keyboard.IsKeyDown(Key.V))
                 {
                     IDataObject dataObject = Clipboard.GetDataObject();
-                    var dataType = typeof(List<UIElement>);
+                    var dataType = typeof(SectionSerializationInfo);
                     if (dataObject.GetDataPresent(dataType))
                     {
-                        var elements = dataObject.GetData(dataType) as List<UIElement>;
-                        if (elements != null)
+                        // Retrieves SerializationInfo
+
+                        var info = dataObject.GetData(dataType) as SectionSerializationInfo;
+
+                        // Checks if SelectedTab (as SectionType) is same as SectionType
+
+                        if (SelectedTabToSectionType() == info.sectionType)
                         {
-                            var section = new Section();
-                            foreach (var element in elements)
-                            {
-                                section.Add(element);
-                            }
+                            // Constructs section from SerializationInfo
+
+                            var section = new Section(info);
+
+                            // Adds to sections
+
                             Sections.Add(section);
+
+                            // Selects copied Section
+
+                            SelectSection(section);
                         }
+
+                        
                     }
                 }
+
             }
         }
 
-        #region Add Content
+        #endregion
 
-        // AddMaterial
+        #region Add Content Commands
+
+        #region AddMaterial
 
         private DelegateCommand<string> AddMaterialCommand;
         public DelegateCommand<string> AddMaterial =>
@@ -391,7 +425,7 @@ namespace Lessium.ViewModels
 
         void ExecuteAddMaterial(string MaterialName)
         {
-            UserControl control;
+            IContentControl control;
 
             // Instantiation of ContentControl
             switch (MaterialName)
@@ -407,7 +441,9 @@ namespace Lessium.ViewModels
 
         }
 
-        // AddTest
+        #endregion
+
+        #region AddTest
 
         private DelegateCommand<string> AddTestCommand;
         public DelegateCommand<string> AddTest =>
@@ -422,6 +458,8 @@ namespace Lessium.ViewModels
 
         #endregion
 
+        #endregion
+
         #region Event-Commands 
 
         /*
@@ -429,7 +467,7 @@ namespace Lessium.ViewModels
         * This is used to avoid code-behind and put event handling at ViewModel.
         */
 
-        // OnTabChanged
+        #region OnTabChanged
 
         private DelegateCommand<string> OnTabChangedCommand;
         public DelegateCommand<string> OnTabChanged =>
@@ -450,6 +488,8 @@ namespace Lessium.ViewModels
                 ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
             }
         }
+
+        #endregion
 
         #endregion
 

@@ -8,7 +8,7 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
-        x:Name="MainWindowReference">
+        x:Name="MainWindowReference"> <!-- Used to get Window instance -->
     
     <!--#region Resources -->
     
@@ -57,7 +57,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <!--#endregion-->
 
     </Window.Resources>
@@ -178,7 +178,9 @@
                     
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Title}" />
+                                <TextBox Text="{Binding Path=Title}" 
+                                         Background="Transparent" IsReadOnly="{Binding ReadOnly}"
+                                         BorderThickness="0" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
 
