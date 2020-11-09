@@ -30,6 +30,11 @@
             <BooleanToVisibilityConverter />
         </converters:ConverterChain>
 
+        <converters:ConverterChain x:Key="StringNotEmptyToVisbilityConverter">
+            <converters:StringNotEmptyConverter />
+            <BooleanToVisibilityConverter />
+        </converters:ConverterChain>
+
         <!--#region Control Templates -->
         
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
@@ -64,7 +69,7 @@
 
     <!--#endregion-->
 
-    <Grid>
+    <Grid x:Name="WindowGrid">
         
         <!--#region Grid Definitions -->
 
@@ -175,11 +180,12 @@
                              SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
                              SelectionChanged="Sections_SelectionChanged"
                              IsSynchronizedWithCurrentItem="True">
-                    
+
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBox Text="{Binding Path=Title}" 
-                                         Background="Transparent" IsReadOnly="{Binding ReadOnly}"
+                                         Background="Transparent" 
+                                         IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
                                          BorderThickness="0" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -228,45 +234,46 @@
 
         <!-- StackPanel for SelectedSection and UI (below)! -->
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                    Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <ScrollViewer x:Name="ContentScrollViewer" 
+                      VerticalScrollBarVisibility="Auto" 
+                      Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Top">
             
             <StackPanel Orientation="Vertical">
 
-            <!--#region Section's Content -->
+                <!--#region Section's Content -->
 
-            <controls:Section x:Name="section"> <!-- Keep in mind that Section inherited from StackPanel! -->
+                <controls:Section x:Name="section"> <!-- Keep in mind that Section inherited from StackPanel! -->
 
-                <ItemsControl x:Name="SectionContent" BorderThickness="0">
+                    <ItemsControl x:Name="SectionContent" BorderThickness="0">
                     
-                    <!-- Style enables binding only if current section isn't empty -->
-                    <ItemsControl.Style>
-                        <Style TargetType="{x:Type ItemsControl}">
+                        <!-- Style enables binding only if current section isn't empty -->
+                        <ItemsControl.Style>
+                            <Style TargetType="{x:Type ItemsControl}">
 
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
-                                    <DataTrigger.Setters>
-                                        <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
-                                    </DataTrigger.Setters>
-                                </DataTrigger>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
+                                        <DataTrigger.Setters>
+                                            <Setter Property="ItemsSource" Value="{Binding CurrentSection.Items}"/>
+                                        </DataTrigger.Setters>
+                                    </DataTrigger>
 
-                                <DataTrigger Binding="{Binding ElementName=SectionContent, Path=Items.IsEmpty}" Value="True">
-                                    <DataTrigger.Setters>
-                                        <Setter Property="Focusable" Value="False"/>
-                                    </DataTrigger.Setters>
-                                </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=SectionContent, Path=Items.IsEmpty}" Value="True">
+                                        <DataTrigger.Setters>
+                                            <Setter Property="Focusable" Value="False"/>
+                                        </DataTrigger.Setters>
+                                    </DataTrigger>
 
-                            </Style.Triggers>
+                                </Style.Triggers>
 
-                        </Style>
+                            </Style>
 
-                    </ItemsControl.Style>
-                </ItemsControl>
-            </controls:Section>
+                        </ItemsControl.Style>
+                    </ItemsControl>
+                </controls:Section>
             
 
-            <!--#endregion-->
+                <!--#endregion-->
             
             <!--#region Add Content -->
 
@@ -367,6 +374,13 @@
             <!--#endregion-->
 
             </StackPanel>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="ScrollChanged">
+                    <i:InvokeCommandAction Command="{Binding OnContentScrollViewerScroll}" CommandParameter="{Binding ElementName=ContentScrollViewer}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
         </ScrollViewer>
 
         <!--#endregion-->
@@ -375,8 +389,9 @@
 
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="15" Grid.Row="1" Grid.Column="1" Margin="11"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom">
-            <TextBlock Text="1/1" VerticalAlignment="Bottom" />
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Visibility="{Binding ElementName=PageCounter, Path=Text, Converter={StaticResource StringNotEmptyToVisbilityConverter}}">
+            <TextBlock x:Name="PageCounter" Text="{Binding PageCounterString}" VerticalAlignment="Bottom" />
         </Border>
 
         <!--#endregion-->

@@ -12,6 +12,7 @@ using System;
 using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
 using Lessium.Interfaces;
+using System.Windows.Controls.Primitives;
 
 namespace Lessium.ViewModels
 {
@@ -140,6 +141,21 @@ namespace Lessium.ViewModels
             return false;
         }
 
+        public string PageCounterString
+        {
+            get { return model.PageCounterSB.ToString(); }
+            set
+            {
+                if (value != model.PageCounterSB.ToString())
+                {
+                    model.PageCounterSB.Clear();
+                    model.PageCounterSB.Append(value); // Assuming that it's already formatted (uint '/' uint)
+
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Buttons
@@ -230,7 +246,7 @@ namespace Lessium.ViewModels
 
         #region Lesson Commands
 
-        // Lesson_EditCommand
+        #region Lesson_Edit
 
         private DelegateCommand Lesson_EditCommand;
         public DelegateCommand Lesson_Edit =>
@@ -249,7 +265,9 @@ namespace Lessium.ViewModels
             return ReadOnly;
         }
 
-        // Lesson_UndoChangesCommand
+        #endregion
+
+        #region Lesson_UndoChanges
 
         private DelegateCommand Lesson_UndoChangesCommand;
         public DelegateCommand Lesson_UndoChanges =>
@@ -267,7 +285,9 @@ namespace Lessium.ViewModels
             return HasChanges;
         }
 
-        // Lesson_SaveCommand
+        #endregion
+
+        #region Lesson_Save
 
         private DelegateCommand Lesson_SaveCommand;
         public DelegateCommand Lesson_Save =>
@@ -287,7 +307,9 @@ namespace Lessium.ViewModels
             return !ReadOnly && HasChanges;
         }
 
-        // Lesson_NewCommand
+        #endregion
+
+        #region Lesson_New
 
         private DelegateCommand Lesson_NewCommand;
         public DelegateCommand Lesson_New =>
@@ -298,6 +320,8 @@ namespace Lessium.ViewModels
             // TODO: Implement new lesson
             HasChanges = true;
         }
+
+        #endregion
 
         #endregion
 
@@ -487,6 +511,36 @@ namespace Lessium.ViewModels
             {
                 ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
             }
+        }
+
+        #endregion
+
+        #region OnContentScrollViewerScroll
+
+        private DelegateCommand<ScrollViewer> OnContentScrollViewerScrollCommand;
+        public DelegateCommand<ScrollViewer> OnContentScrollViewerScroll =>
+            OnContentScrollViewerScrollCommand ?? (OnContentScrollViewerScrollCommand = new DelegateCommand<ScrollViewer>(ExecuteOnContentScrollViewerScroll));
+
+        void ExecuteOnContentScrollViewerScroll(ScrollViewer scroll)
+        {
+            // TODO: rework it completly, make system of Pages and bindings to it.
+
+            var dividableHeight = scroll.ViewportHeight;
+            double currentHeight = scroll.ExtentHeight;
+            double maxHeight = scroll.VerticalOffset + dividableHeight;
+
+            if (dividableHeight > 0)
+            {
+                uint pageCount = Convert.ToUInt32(Math.Ceiling(maxHeight / dividableHeight));
+                uint currentPage = Convert.ToUInt32(Math.Ceiling(currentHeight / dividableHeight));
+
+                PageCounterString = $"{currentPage}/{pageCount}";
+            }
+
+            else
+            {
+                PageCounterString = string.Empty;
+            } 
         }
 
         #endregion

@@ -77,6 +77,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ContentControls\Section.cs" />
+    <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
     <Compile Include="Converters\ConverterChain.cs" />
     <Compile Include="Interfaces\TestControl.cs" />

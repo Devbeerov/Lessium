@@ -2,6 +2,7 @@
 using Lessium.Properties;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Lessium.Models
 {
@@ -28,6 +29,8 @@ namespace Lessium.Models
         }
 
         public string SelectedTab = Tab.Materials.ToString();
+
+        public StringBuilder PageCounterSB = new StringBuilder();
 
         #endregion
 
