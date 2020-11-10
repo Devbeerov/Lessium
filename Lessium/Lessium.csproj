@@ -94,6 +94,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Utility\Behaviors.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -146,7 +147,6 @@
   <ItemGroup>
     <Folder Include="Classes\" />
     <Folder Include="ContentControls\TestControls\" />
-    <Folder Include="Utility\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\plus.png" />

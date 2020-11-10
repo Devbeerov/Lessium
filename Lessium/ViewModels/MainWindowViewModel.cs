@@ -141,6 +141,25 @@ namespace Lessium.ViewModels
             return false;
         }
 
+        public int CurrentPage
+        {
+            get { return model.CurrentPage; }
+            set
+            {
+                // Validates value
+                if(value <= 0) { value = 1; }
+                else if (value > PagesCount) { value = PagesCount; }
+
+                SetProperty(ref model.CurrentPage, value);
+            }
+        }
+
+        public int PagesCount
+        {
+            get { return model.PagesCount; }
+            set { SetProperty(ref model.PagesCount, value); }
+        }
+
         public string PageCounterString
         {
             get { return model.PageCounterSB.ToString(); }
@@ -193,6 +212,11 @@ namespace Lessium.ViewModels
             }
 
             return SectionType.TestSection;
+        }
+
+        private void GoToPage(ScrollViewer scroll, int page)
+        {
+            //scroll.ScrollToVerticalOffset(dividableHeight * (page - 1) );
         }
 
         #region Section
@@ -515,32 +539,17 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region OnContentScrollViewerScroll
+        #region OnPageTextBoxUpdated
 
-        private DelegateCommand<ScrollViewer> OnContentScrollViewerScrollCommand;
-        public DelegateCommand<ScrollViewer> OnContentScrollViewerScroll =>
-            OnContentScrollViewerScrollCommand ?? (OnContentScrollViewerScrollCommand = new DelegateCommand<ScrollViewer>(ExecuteOnContentScrollViewerScroll));
+        // Once TextBox loses focus, goes to the page.
 
-        void ExecuteOnContentScrollViewerScroll(ScrollViewer scroll)
+        private DelegateCommand<ScrollViewer> OnPageTextBoxUpdatedCommand;
+        public DelegateCommand<ScrollViewer> OnPageTextBoxUpdated =>
+            OnPageTextBoxUpdatedCommand ?? (OnPageTextBoxUpdatedCommand = new DelegateCommand<ScrollViewer>(ExecuteOnPageTextBoxUpdated));
+
+        void ExecuteOnPageTextBoxUpdated(ScrollViewer scroll)
         {
-            // TODO: rework it completly, make system of Pages and bindings to it.
-
-            var dividableHeight = scroll.ViewportHeight;
-            double currentHeight = scroll.ExtentHeight;
-            double maxHeight = scroll.VerticalOffset + dividableHeight;
-
-            if (dividableHeight > 0)
-            {
-                uint pageCount = Convert.ToUInt32(Math.Ceiling(maxHeight / dividableHeight));
-                uint currentPage = Convert.ToUInt32(Math.Ceiling(currentHeight / dividableHeight));
-
-                PageCounterString = $"{currentPage}/{pageCount}";
-            }
-
-            else
-            {
-                PageCounterString = string.Empty;
-            } 
+            GoToPage(scroll, CurrentPage);
         }
 
         #endregion

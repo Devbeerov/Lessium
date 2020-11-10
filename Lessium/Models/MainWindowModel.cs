@@ -31,6 +31,8 @@ namespace Lessium.Models
         public string SelectedTab = Tab.Materials.ToString();
 
         public StringBuilder PageCounterSB = new StringBuilder();
+        public int CurrentPage = 1;
+        public int PagesCount = 1;
 
         #endregion
 

@@ -5,6 +5,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
         xmlns:controls="clr-namespace:Lessium.ContentControls"
+        xmlns:utility="clr-namespace:Lessium.Utility"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
@@ -30,8 +31,8 @@
             <BooleanToVisibilityConverter />
         </converters:ConverterChain>
 
-        <converters:ConverterChain x:Key="StringNotEmptyToVisbilityConverter">
-            <converters:StringNotEmptyConverter />
+        <converters:ConverterChain x:Key="NotNullToVisbilityConverter">
+            <converters:NotNullConverter />
             <BooleanToVisibilityConverter />
         </converters:ConverterChain>
 
@@ -238,15 +239,16 @@
                       VerticalScrollBarVisibility="Auto" 
                       Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
                       HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            
+
             <StackPanel Orientation="Vertical">
 
                 <!--#region Section's Content -->
 
-                <controls:Section x:Name="section"> <!-- Keep in mind that Section inherited from StackPanel! -->
+                <controls:Section x:Name="section">
+                    <!-- Keep in mind that Section inherited from StackPanel! -->
 
                     <ItemsControl x:Name="SectionContent" BorderThickness="0">
-                    
+
                         <!-- Style enables binding only if current section isn't empty -->
                         <ItemsControl.Style>
                             <Style TargetType="{x:Type ItemsControl}">
@@ -271,115 +273,109 @@
                         </ItemsControl.Style>
                     </ItemsControl>
                 </controls:Section>
-            
+
 
                 <!--#endregion-->
-            
-            <!--#region Add Content -->
 
-            <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" 
+                <!--#region Add Content -->
+
+                <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" 
                   HorizontalAlignment="Left">
 
-                <Menu.Resources>
-                    
-                    <Style x:Key="ContentItem" TargetType="MenuItem">
-                        <Style.Setters>
-                            <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
-                            <Setter Property="IsEnabled" Value="False" />
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <!-- Passing ContentName to CommandParameter for later -->
-                            <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
-                        </Style.Setters>
-                        
-                    </Style>
+                    <Menu.Resources>
 
-                    <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+                        <Style x:Key="ContentItem" TargetType="MenuItem">
+                            <Style.Setters>
+                                <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
+                                <Setter Property="IsEnabled" Value="False" />
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <!-- Passing ContentName to CommandParameter for later -->
+                                <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
+                            </Style.Setters>
 
-                        <Setter Property="Command" Value="{Binding AddMaterial}" />
-                        
-                        <Style.Triggers>
+                        </Style>
 
-                            <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
-                                <DataTrigger.Setters>
-                                    <Setter Property="IsEnabled" Value="True" />
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger.Setters>
-                            </DataTrigger>
+                        <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
-                        </Style.Triggers>
+                            <Setter Property="Command" Value="{Binding AddMaterial}" />
 
-                    </Style>
+                            <Style.Triggers>
 
-                    <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
+                                    <DataTrigger.Setters>
+                                        <Setter Property="IsEnabled" Value="True" />
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger.Setters>
+                                </DataTrigger>
 
-                        <Setter Property="Command" Value="{Binding AddTest}" />
+                            </Style.Triggers>
 
-                        <Style.Triggers>
+                        </Style>
 
-                            <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
-                                <DataTrigger.Setters>
-                                    <Setter Property="IsEnabled" Value="True" />
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger.Setters>
-                            </DataTrigger>
+                        <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
-                        </Style.Triggers>
+                            <Setter Property="Command" Value="{Binding AddTest}" />
 
-                    </Style>
-                    
-                </Menu.Resources>
+                            <Style.Triggers>
 
-                <MenuItem Header="{Binding AddContentHeader}" Background="LightBlue"
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
+                                    <DataTrigger.Setters>
+                                        <Setter Property="IsEnabled" Value="True" />
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger.Setters>
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Menu.Resources>
+
+                    <MenuItem Header="{Binding AddContentHeader}" Background="LightBlue"
                           ToolTip="{Binding ReadOnlyToolTip}" 
                           ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" >
 
-                    <MenuItem.Style>
-                        <Style TargetType="{x:Type MenuItem}">
-                            
-                            <Style.Setters>
-                                <Setter Property="IsEnabled" Value="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" />
-                                <!-- Should return Visible if True, and Collapsed if False -->
-                                <Setter Property="Visibility" Value="{Binding RelativeSource={RelativeSource Mode=Self},
+                        <MenuItem.Style>
+                            <Style TargetType="{x:Type MenuItem}">
+
+                                <Style.Setters>
+                                    <Setter Property="IsEnabled" Value="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" />
+                                    <!-- Should return Visible if True, and Collapsed if False -->
+                                    <Setter Property="Visibility" Value="{Binding RelativeSource={RelativeSource Mode=Self},
                                     Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            </Style.Setters>
-                            
-                            <Style.Triggers>
-                                
-                                <!-- Visual -->
+                                </Style.Setters>
 
-                                <Trigger Property="Role" Value="TopLevelHeader">
-                                    <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
-                                </Trigger>
+                                <Style.Triggers>
 
-                            </Style.Triggers>
-                        </Style>
+                                    <!-- Visual -->
 
-                    </MenuItem.Style>
+                                    <Trigger Property="Role" Value="TopLevelHeader">
+                                        <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+                                    </Trigger>
 
-                    <!-- Items
+                                </Style.Triggers>
+                            </Style>
+
+                        </MenuItem.Style>
+
+                        <!-- Items
                     !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
 
-                    <!-- Materials -->
-                    
-                    <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
-                    
-                    <!-- Tests -->
+                        <!-- Materials -->
 
-                    <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
+                        <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
 
-                </MenuItem>
+                        <!-- Tests -->
 
-            </Menu>
-            
-            <!--#endregion-->
+                        <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
+
+                    </MenuItem>
+
+                </Menu>
+
+                <!--#endregion-->
 
             </StackPanel>
-
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="ScrollChanged">
-                    <i:InvokeCommandAction Command="{Binding OnContentScrollViewerScroll}" CommandParameter="{Binding ElementName=ContentScrollViewer}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
 
         </ScrollViewer>
 
@@ -388,10 +384,30 @@
         <!--#region Pages -->
 
         <Border BorderBrush="Black" BorderThickness="1"
-                Width="Auto" Height="15" Grid.Row="1" Grid.Column="1" Margin="11"
+                Width="Auto" Height="20" Grid.Row="1" Grid.Column="1" Margin="11"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Visibility="{Binding ElementName=PageCounter, Path=Text, Converter={StaticResource StringNotEmptyToVisbilityConverter}}">
-            <TextBlock x:Name="PageCounter" Text="{Binding PageCounterString}" VerticalAlignment="Bottom" />
+                Visibility="{Binding CurrentSectionIsEmpty, Converter={StaticResource NotNullToVisbilityConverter}}">
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                <TextBox Text="{Binding CurrentPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue='1'}" 
+                         PreviewTextInput="CurrentPage_PreviewTextInput">
+
+                    <i:Interaction.Behaviors>
+                        <utility:TextBoxEnterKeyUpdateBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="LostFocus">
+                            <i:InvokeCommandAction Command="{Binding OnPageTextBoxUpdated}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+
+                </TextBox>
+                <TextBlock Text="/" Padding="1" />
+                <TextBlock Text="{Binding PagesCount}" Padding="0,1" />
+            </StackPanel>
+            
         </Border>
 
         <!--#endregion-->
