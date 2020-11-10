@@ -1,4 +1,5 @@
-﻿using Lessium.ContentControls;
+﻿using Lessium.Classes;
+using Lessium.ContentControls;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,10 +37,24 @@ namespace Lessium.Views
         private void CurrentPage_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !onlyDigitsRegex.IsMatch(e.Text); // if not digit, sets event to Handled, so it won't update text.
-            
         }
 
-        
+        private void CurrentPage_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            var scroll = FindName("ContentScrollViewer") as ScrollViewer;
+
+            int page;
+
+            if (!int.TryParse(textBox.Text, out page))
+            {
+                textBox.Text = "1";
+                page = 1;
+            }
+
+            scroll.ScrollToVerticalOffset(ViewsConfig.MainWindow_ContentPageHeight * (page - 1));
+
+        }
 
         #endregion
     }

@@ -6,6 +6,7 @@
         xmlns:converters="clr-namespace:Lessium.Converters"
         xmlns:controls="clr-namespace:Lessium.ContentControls"
         xmlns:utility="clr-namespace:Lessium.Utility"
+        xmlns:classes="clr-namespace:Lessium.Classes"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
@@ -77,7 +78,8 @@
         <!-- Rows (percentage space) -->
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/> <!-- UI above content -->
-            <RowDefinition Height="95*"/> <!-- Content (materials/tests) -->
+            <RowDefinition Height="92*"/> <!-- Content (materials/tests) -->
+            <RowDefinition Height="3*"/> <!-- Page Counter -->
         </Grid.RowDefinitions>
 
         <!-- Columns (percentage space) -->
@@ -233,14 +235,14 @@
         
         <!--#region Content Region -->
 
-        <!-- StackPanel for SelectedSection and UI (below)! -->
+        <!-- StackPanel for SelectedSection -->
 
         <ScrollViewer x:Name="ContentScrollViewer" 
                       VerticalScrollBarVisibility="Auto" 
                       Grid.Row ="1" Grid.Column="1" Margin="0,22,11,11"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Top" >
 
-            <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical" >
 
                 <!--#region Section's Content -->
 
@@ -248,6 +250,7 @@
                     <!-- Keep in mind that Section inherited from StackPanel! -->
 
                     <ItemsControl x:Name="SectionContent" BorderThickness="0">
+
 
                         <!-- Style enables binding only if current section isn't empty -->
                         <ItemsControl.Style>
@@ -359,7 +362,7 @@
                         </MenuItem.Style>
 
                         <!-- Items
-                    !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
+                        !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
 
                         <!-- Materials -->
 
@@ -380,38 +383,32 @@
         </ScrollViewer>
 
         <!--#endregion-->
-
-        <!--#region Pages -->
+        
+        <!--#endregion-->
+        
+        <!--#region Row 2 - Page Counter-->
 
         <Border BorderBrush="Black" BorderThickness="1"
-                Width="Auto" Height="20" Grid.Row="1" Grid.Column="1" Margin="11"
+                Width="Auto" Height="20" Grid.Row="2" Grid.Column="1" Margin="0,0,11,1"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Visibility="{Binding CurrentSectionIsEmpty, Converter={StaticResource NotNullToVisbilityConverter}}">
-            
+                Visibility="{Binding CurrentSectionIsEmpty, Converter={StaticResource NotNullToVisbilityConverter}}" >
+
             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
-                <TextBox Text="{Binding CurrentPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue='1'}" 
-                         PreviewTextInput="CurrentPage_PreviewTextInput">
+                <TextBox Text="{Binding CurrentPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" 
+                         PreviewTextInput="CurrentPage_PreviewTextInput"
+                         LostFocus="CurrentPage_LostFocus" >
 
                     <i:Interaction.Behaviors>
                         <utility:TextBoxEnterKeyUpdateBehavior />
                     </i:Interaction.Behaviors>
 
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="LostFocus">
-                            <i:InvokeCommandAction Command="{Binding OnPageTextBoxUpdated}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-
-
                 </TextBox>
                 <TextBlock Text="/" Padding="1" />
                 <TextBlock Text="{Binding PagesCount}" Padding="0,1" />
             </StackPanel>
-            
+
         </Border>
 
-        <!--#endregion-->
-        
         <!--#endregion-->
         
     </Grid>

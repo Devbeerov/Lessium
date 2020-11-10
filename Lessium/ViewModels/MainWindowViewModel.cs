@@ -205,18 +205,12 @@ namespace Lessium.ViewModels
 
         public SectionType SelectedTabToSectionType()
         {
-
             if (SelectedTab == "Materials")
             {
                 return SectionType.MaterialSection;
             }
 
             return SectionType.TestSection;
-        }
-
-        private void GoToPage(ScrollViewer scroll, int page)
-        {
-            //scroll.ScrollToVerticalOffset(dividableHeight * (page - 1) );
         }
 
         #region Section
@@ -535,21 +529,6 @@ namespace Lessium.ViewModels
             {
                 ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
             }
-        }
-
-        #endregion
-
-        #region OnPageTextBoxUpdated
-
-        // Once TextBox loses focus, goes to the page.
-
-        private DelegateCommand<ScrollViewer> OnPageTextBoxUpdatedCommand;
-        public DelegateCommand<ScrollViewer> OnPageTextBoxUpdated =>
-            OnPageTextBoxUpdatedCommand ?? (OnPageTextBoxUpdatedCommand = new DelegateCommand<ScrollViewer>(ExecuteOnPageTextBoxUpdated));
-
-        void ExecuteOnPageTextBoxUpdated(ScrollViewer scroll)
-        {
-            GoToPage(scroll, CurrentPage);
         }
 
         #endregion
