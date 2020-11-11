@@ -13,6 +13,9 @@ namespace Lessium.ContentControls
         private bool editable = false;
         private SectionType sectionType;
 
+        public const double PageWidth = 795;
+        public const double PageHeight = 637;
+
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
@@ -30,13 +33,15 @@ namespace Lessium.ContentControls
             Initialize(info.sectionType);
 
             SetTitle(info.title);
-            editable = info.editable;
-            items.AddRange(info.items);
+            SetEditable(info.editable);
+            pages.AddRange(info.pages);
         }
 
-        private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
+        private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
         #region Dependency Properties Methods
+
+        #region Title
 
         public static string GetTitle(DependencyObject obj)
         {
@@ -58,25 +63,31 @@ namespace Lessium.ContentControls
             SetTitle(this, title);
         }
 
-        public static ObservableCollection<IContentControl> GetItems(DependencyObject obj)
+        #endregion
+
+        #region Pages
+
+        public static ObservableCollection<ContentPage> GetPages(DependencyObject obj)
         {
-            return (ObservableCollection<IContentControl>)obj.GetValue(Items);
+            return (ObservableCollection<ContentPage>)obj.GetValue(Pages);
         }
 
-        protected static void SetItems(DependencyObject obj, ObservableCollection<IContentControl> items)
+        protected static void SetPages(DependencyObject obj, ObservableCollection<ContentPage> pages)
         {
-            obj.SetValue(Items, items);
+            obj.SetValue(Pages, pages);
         }
 
-        public ObservableCollection<IContentControl> GetItems()
+        public ObservableCollection<ContentPage> GetPages()
         {
-             return GetItems(this);
+            return GetPages(this);
         }
 
-        protected void SetItems(ObservableCollection<IContentControl> items)
+        protected void SetPages(ObservableCollection<ContentPage> pages)
         {
-            SetItems(this, items);
+            SetPages(this, pages);
         }
+
+        #endregion
 
         #endregion
 
@@ -84,21 +95,19 @@ namespace Lessium.ContentControls
 
         #region Private
 
-        private void UpdateItemEditable(object item)
+        private void UpdatePageEditable(ContentPage page)
         {
-            var contentControl = item as IContentControl;
-
-            if (contentControl != null)
+            if (page != null)
             {
-                contentControl.SetEditable(editable);
+                page.SetEditable(editable);
             }
         }
 
-        private void UpdateItemsEditable()
+        private void UpdatePagesEditable()
         {
-            foreach (object childControl in items)
+            foreach (var page in pages)
             {
-                UpdateItemEditable(childControl);
+                UpdatePageEditable(page);
             }
         }
 
@@ -121,20 +130,24 @@ namespace Lessium.ContentControls
             VerticalAlignment = VerticalAlignment.Top;
             Orientation = Orientation.Vertical;
 
-            // Sets Items reference to internal items variable.
+            // Section should contain at least 1 page.
 
-            SetItems(items);
+            pages.Add(new ContentPage());
+
+            // Sets Items and pages reference to internal variables.
+
+            SetPages(pages);
         }
 
-        public void Add(IContentControl element)
+        public void Add(ContentPage page)
         {
-            items.Add(element);
-            UpdateItemEditable(element);
+            pages.Add(page);
+            UpdatePageEditable(page);
         }
 
-        public void Remove(IContentControl element)
+        public void Remove(ContentPage page)
         {
-            items.Remove(element);
+            pages.Remove(page);
         }
 
         public bool GetEditable()
@@ -146,7 +159,7 @@ namespace Lessium.ContentControls
         {
             this.editable = editable;
 
-            UpdateItemsEditable();
+            UpdatePagesEditable();
         }
 
         public SectionSerializationInfo GetSerializationInfo()
@@ -155,7 +168,7 @@ namespace Lessium.ContentControls
 
             info.title = GetTitle();
             info.editable = editable;
-            info.items = items.ToList(); // Linq does copying
+            info.pages = pages.ToList(); // Linq does copying
             info.sectionType = sectionType;
 
             return info;
@@ -167,14 +180,12 @@ namespace Lessium.ContentControls
 
         #region Dependency Properties
 
-        // Used externally.
         public static readonly DependencyProperty Title =
             DependencyProperty.RegisterAttached("Title", typeof(string), typeof(Section), new PropertyMetadata(string.Empty));
 
-        // Used externally.
-        public static readonly DependencyProperty Items =
-            DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
-                typeof(Section), new PropertyMetadata(null));
+        public static readonly DependencyProperty Pages =
+            DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPage>),
+                typeof(ContentPage), new PropertyMetadata(null));
 
         #endregion
 
@@ -185,7 +196,7 @@ namespace Lessium.ContentControls
     {
         public string title;
         public bool editable;
-        public List<IContentControl> items; // COPY of List of ObservableCollection!
+        public List<ContentPage> pages; // COPY of List of ObservableCollection!
         public SectionType sectionType;
     }
 

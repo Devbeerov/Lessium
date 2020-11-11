@@ -3,6 +3,7 @@ using Lessium.Properties;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Windows;
 
 namespace Lessium.Models
 {
@@ -30,9 +31,12 @@ namespace Lessium.Models
 
         public string SelectedTab = Tab.Materials.ToString();
 
-        public StringBuilder PageCounterSB = new StringBuilder();
-        public int CurrentPage = 1;
-        public int PagesCount = 1;
+        #endregion
+
+        #region Pages
+
+        public ContentPage CurrentPage;
+        public int CurrentPageIndex = 0;
 
         #endregion
 

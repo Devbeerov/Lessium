@@ -79,7 +79,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/> <!-- UI above content -->
             <RowDefinition Height="92*"/> <!-- Content (materials/tests) -->
-            <RowDefinition Height="3*"/> <!-- Page Counter -->
+            <RowDefinition Height="3*"/> <!-- ContentPage Counter -->
         </Grid.RowDefinitions>
 
         <!-- Columns (percentage space) -->
@@ -179,8 +179,8 @@
                 <StackPanel Orientation="Vertical">
                     <!-- Sections Headers -->
                     <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
-                             ItemsSource="{Binding Sections}"
-                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                             ItemsSource="{Binding Pages}"
+                             SelectedIndex="{Binding CurrentPageIndex, Mode=OneWay}"
                              SelectionChanged="Sections_SelectionChanged"
                              IsSynchronizedWithCurrentItem="True">
 
@@ -230,6 +230,12 @@
                 </StackPanel>
             </ScrollViewer>
         </Border>
+        
+        <!--#endregion-->
+        
+        <!--#region Toolbar -->
+        
+        
         
         <!--#endregion-->
         
@@ -386,7 +392,7 @@
         
         <!--#endregion-->
         
-        <!--#region Row 2 - Page Counter-->
+        <!--#region Row 2 - ContentPage Counter-->
 
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="20" Grid.Row="2" Grid.Column="1" Margin="0,0,11,1"
@@ -394,7 +400,7 @@
                 Visibility="{Binding CurrentSectionIsEmpty, Converter={StaticResource NotNullToVisbilityConverter}}" >
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
-                <TextBox Text="{Binding CurrentPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" 
+                <TextBox Text="{Binding CurrentPageNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" 
                          PreviewTextInput="CurrentPage_PreviewTextInput"
                          LostFocus="CurrentPage_LostFocus" >
 
@@ -404,7 +410,7 @@
 
                 </TextBox>
                 <TextBlock Text="/" Padding="1" />
-                <TextBlock Text="{Binding PagesCount}" Padding="0,1" />
+                <TextBlock Text="{Binding SectionPages.Count}" Padding="0,1" />
             </StackPanel>
 
         </Border>

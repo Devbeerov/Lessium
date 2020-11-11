@@ -1,5 +1,4 @@
-﻿using Lessium.Classes;
-using Lessium.ContentControls;
+﻿using Lessium.ContentControls;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,7 +51,7 @@ namespace Lessium.Views
                 page = 1;
             }
 
-            scroll.ScrollToVerticalOffset(ViewsConfig.MainWindow_ContentPageHeight * (page - 1));
+            scroll.ScrollToVerticalOffset(ContentPage.PageHeight * (page - 1));
 
         }
 

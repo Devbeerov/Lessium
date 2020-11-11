@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -87,6 +88,7 @@ namespace Lessium.ContentControls.MaterialControls
         {
             textBox.IsReadOnly = !editable;
         }
+
 
         #endregion
     }

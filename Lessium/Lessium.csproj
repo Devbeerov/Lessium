@@ -76,7 +76,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Classes\ViewsConfig.cs" />
+    <Compile Include="ContentControls\ContentPage.cs" />
     <Compile Include="ContentControls\Section.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
@@ -146,6 +146,7 @@
     <Resource Include="Lessium.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Classes\" />
     <Folder Include="ContentControls\TestControls\" />
   </ItemGroup>
   <ItemGroup>

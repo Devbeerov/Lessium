@@ -110,7 +110,7 @@ namespace Lessium.ViewModels
 
         public bool CurrentSectionIsEmpty
         {
-            get { return CurrentSection?.GetItems().Count == 0; }
+            get { return CurrentPage?.GetItems().Count == 0; }
         }
 
         // Should be used exclusively for binding!
@@ -126,52 +126,49 @@ namespace Lessium.ViewModels
             }
         }
 
-        private bool SetDictionaryProperty<TValue>(ref Dictionary<string, TValue> dictionary, string key, TValue newValue, [CallerMemberName] string name = null)
+        #endregion
+
+        #region Pages
+
+        public ObservableCollection<ContentPage> Pages
         {
-            object currentValueObject = dictionary[key];
-            object newValueObject = newValue;
-
-            if (currentValueObject != newValueObject)
+            get { return CurrentSection.GetPages(); }
+            set
             {
-                dictionary[key] = newValue;
-                RaisePropertyChanged(name);
-                return true;
+                var pages = CurrentSection.GetPages();
+                SetProperty(ref pages, value);
             }
-
-            return false;
         }
 
-        public int CurrentPage
+        public int CurrentPageIndex
         {
-            get { return model.CurrentPage; }
+            get { return model.CurrentPageIndex; }
+            set
+            {
+                SetProperty(ref model.CurrentPageIndex, value);
+            }
+        }
+
+        public int CurrentPageNumber
+        {
+            get { return model.CurrentPageIndex + 1; }
             set
             {
                 // Validates value
-                if(value <= 0) { value = 1; }
-                else if (value > PagesCount) { value = PagesCount; }
+                if (value <= 0) { value = 1; }
+                else if (value > Pages.Count) { value = Pages.Count; }
 
-                SetProperty(ref model.CurrentPage, value);
+                CurrentPageIndex = value - 1;
             }
         }
 
-        public int PagesCount
+        public ContentPage CurrentPage
         {
-            get { return model.PagesCount; }
-            set { SetProperty(ref model.PagesCount, value); }
-        }
-
-        public string PageCounterString
-        {
-            get { return model.PageCounterSB.ToString(); }
+            get { return Pages[CurrentPageIndex]; } // Index
             set
             {
-                if (value != model.PageCounterSB.ToString())
-                {
-                    model.PageCounterSB.Clear();
-                    model.PageCounterSB.Append(value); // Assuming that it's already formatted (uint '/' uint)
-
-                    RaisePropertyChanged();
-                }
+                var page = Pages[CurrentPageIndex];
+                SetProperty(ref page, value);
             }
         }
 
@@ -211,6 +208,21 @@ namespace Lessium.ViewModels
             }
 
             return SectionType.TestSection;
+        }
+
+        private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
+        {
+            object currentValueObject = dictionary[key];
+            object newValueObject = newValue;
+
+            if (currentValueObject != newValueObject)
+            {
+                dictionary[key] = newValue;
+                RaisePropertyChanged(name);
+                return true;
+            }
+
+            return false;
         }
 
         #region Section
@@ -479,7 +491,7 @@ namespace Lessium.ViewModels
                     throw new NotImplementedException($"{MaterialName} not supported!");
             }
 
-            CurrentSection.Add(control);
+            CurrentPage.Add(control);
 
         }
 
