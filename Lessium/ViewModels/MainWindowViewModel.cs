@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
 using System.Linq;
 using System;
 using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
 using Lessium.Interfaces;
-using System.Windows.Controls.Primitives;
 
 namespace Lessium.ViewModels
 {
@@ -108,7 +106,7 @@ namespace Lessium.ViewModels
             }
         }
 
-        public bool CurrentSectionIsEmpty
+        public bool CurrentPageIsEmpty
         {
             get { return CurrentPage?.GetItems().Count == 0; }
         }
@@ -130,21 +128,12 @@ namespace Lessium.ViewModels
 
         #region Pages
 
-        public ObservableCollection<ContentPage> Pages
-        {
-            get { return CurrentSection.GetPages(); }
-            set
-            {
-                var pages = CurrentSection.GetPages();
-                SetProperty(ref pages, value);
-            }
-        }
-
         public int CurrentPageIndex
         {
             get { return model.CurrentPageIndex; }
             set
             {
+                CurrentSection.SetSelectedPageIndex(value);
                 SetProperty(ref model.CurrentPageIndex, value);
             }
         }
@@ -154,21 +143,26 @@ namespace Lessium.ViewModels
             get { return model.CurrentPageIndex + 1; }
             set
             {
-                // Validates value
-                if (value <= 0) { value = 1; }
-                else if (value > Pages.Count) { value = Pages.Count; }
+                // Validates index
 
-                CurrentPageIndex = value - 1;
+                var number = value;
+                if (number <= 0) { number = 1; }
+                else if (number > CurrentSection.GetPages().Count) { number = CurrentSection.GetPages().Count; }
+
+                var index = number - 1;
+
+                CurrentSection.SetSelectedPageIndex(index);
+                SetProperty(ref model.CurrentPageIndex, index);
             }
         }
 
         public ContentPage CurrentPage
         {
-            get { return Pages[CurrentPageIndex]; } // Index
+            get { return model.CurrentPage; }
             set
             {
-                var page = Pages[CurrentPageIndex];
-                SetProperty(ref page, value);
+                CurrentSection.SetSelectedPage(value);
+                SetProperty(ref model.CurrentPage, value);
             }
         }
 
@@ -212,10 +206,9 @@ namespace Lessium.ViewModels
 
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
-            object currentValueObject = dictionary[key];
-            object newValueObject = newValue;
+            var oldValue = dictionary[key];
 
-            if (currentValueObject != newValueObject)
+            if (oldValue == null || !oldValue.Equals(newValue))
             {
                 dictionary[key] = newValue;
                 RaisePropertyChanged(name);
@@ -260,12 +253,21 @@ namespace Lessium.ViewModels
 
             TryCollapseCurrentSection(); // colapses old selected section
 
+            CurrentSection = section;
+
             if (section != null)
             {
+                // Updates CurrentPage
+
+                CurrentPageIndex = section.GetSelectedPageIndex();
+                CurrentPage = section.GetSelectedPage();
+
+                // Shows Section
+
                 ShowSection(section);
             }
 
-            CurrentSection = section;
+            
         }
 
         #endregion

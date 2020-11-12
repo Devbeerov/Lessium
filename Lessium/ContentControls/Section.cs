@@ -1,5 +1,4 @@
-﻿using Lessium.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -72,7 +71,7 @@ namespace Lessium.ContentControls
             return (ObservableCollection<ContentPage>)obj.GetValue(Pages);
         }
 
-        protected static void SetPages(DependencyObject obj, ObservableCollection<ContentPage> pages)
+        public static void SetPages(DependencyObject obj, ObservableCollection<ContentPage> pages)
         {
             obj.SetValue(Pages, pages);
         }
@@ -82,9 +81,57 @@ namespace Lessium.ContentControls
             return GetPages(this);
         }
 
-        protected void SetPages(ObservableCollection<ContentPage> pages)
+        public void SetPages(ObservableCollection<ContentPage> pages)
         {
             SetPages(this, pages);
+        }
+
+        #endregion
+
+        #region SelectedPage
+
+        public static ContentPage GetSelectedPage(DependencyObject obj)
+        {
+            return (ContentPage)obj.GetValue(SelectedPage);
+        }
+
+        public static void SetSelectedPage(DependencyObject obj, ContentPage page)
+        {
+            obj.SetValue(SelectedPage, page);
+        }
+
+        public ContentPage GetSelectedPage()
+        {
+            return GetSelectedPage(this);
+        }
+
+        public void SetSelectedPage(ContentPage page)
+        {
+            SetSelectedPage(this, page);
+        }
+
+        #endregion
+
+        #region SelectedPageIndex
+
+        public static int GetSelectedPageIndex(DependencyObject obj)
+        {
+            return (int)obj.GetValue(SelectedPageIndex);
+        }
+
+        public static void SetSelectedPageIndex(DependencyObject obj, int index)
+        {
+            obj.SetValue(SelectedPageIndex, index);
+        }
+
+        public int GetSelectedPageIndex()
+        {
+            return GetSelectedPageIndex(this);
+        }
+
+        public void SetSelectedPageIndex(int index)
+        {
+            SetSelectedPageIndex(this, index);
         }
 
         #endregion
@@ -132,11 +179,16 @@ namespace Lessium.ContentControls
 
             // Section should contain at least 1 page.
 
-            pages.Add(new ContentPage());
+            var page = new ContentPage();
+            pages.Add(page);
 
             // Sets Items and pages reference to internal variables.
 
             SetPages(pages);
+
+            SetSelectedPageIndex(0);
+            SetSelectedPage(page);
+            
         }
 
         public void Add(ContentPage page)
@@ -164,12 +216,13 @@ namespace Lessium.ContentControls
 
         public SectionSerializationInfo GetSerializationInfo()
         {
-            SectionSerializationInfo info = new SectionSerializationInfo();
-
-            info.title = GetTitle();
-            info.editable = editable;
-            info.pages = pages.ToList(); // Linq does copying
-            info.sectionType = sectionType;
+            SectionSerializationInfo info = new SectionSerializationInfo
+            {
+                title = GetTitle(),
+                editable = editable,
+                pages = pages.ToList(), // Linq does copying
+                sectionType = sectionType
+            };
 
             return info;
         }
@@ -185,7 +238,15 @@ namespace Lessium.ContentControls
 
         public static readonly DependencyProperty Pages =
             DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPage>),
-                typeof(ContentPage), new PropertyMetadata(null));
+                typeof(Section), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty SelectedPage =
+            DependencyProperty.Register("SelectedPage", typeof(ContentPage),
+                typeof(Section), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty SelectedPageIndex =
+            DependencyProperty.Register("SelectedPageIndex", typeof(int),
+                typeof(Section), new PropertyMetadata(null));
 
         #endregion
 
@@ -196,7 +257,7 @@ namespace Lessium.ContentControls
     {
         public string title;
         public bool editable;
-        public List<ContentPage> pages; // COPY of List of ObservableCollection!
+        public List<ContentPage> pages; // COPY of ObservableCollection as List!
         public SectionType sectionType;
     }
 

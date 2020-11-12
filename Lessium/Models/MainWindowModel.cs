@@ -36,6 +36,7 @@ namespace Lessium.Models
         #region Pages
 
         public ContentPage CurrentPage;
+        public ObservableCollection<ContentPage> CurrentSectionPages;
         public int CurrentPageIndex = 0;
 
         #endregion

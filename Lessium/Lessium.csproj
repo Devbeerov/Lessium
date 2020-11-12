@@ -78,6 +78,7 @@
     </Compile>
     <Compile Include="ContentControls\ContentPage.cs" />
     <Compile Include="ContentControls\Section.cs" />
+    <Compile Include="Converters\NotLastToVisibilityConverter.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
     <Compile Include="Converters\ConverterChain.cs" />
@@ -151,6 +152,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cross.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\green plus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

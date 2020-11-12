@@ -1,6 +1,5 @@
 ﻿using Lessium.Interfaces;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,6 +57,10 @@ namespace Lessium.ContentControls
             Height = PageHeight;
 
             Orientation = Orientation.Vertical;
+
+            // Sets Items property to internal items
+
+            SetItems(items);
         }
 
         public void Add(IContentControl element)
@@ -107,7 +110,7 @@ namespace Lessium.ContentControls
 
         public static readonly DependencyProperty Items =
             DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
-            typeof(Section), new PropertyMetadata(null));
+            typeof(ContentPage), new PropertyMetadata(null));
 
         #endregion
     }

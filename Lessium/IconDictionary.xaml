@@ -3,12 +3,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:Lessium">
 
-    <!-- Images -->
-    
+    <!-- Images (used as Content) -->
+
     <Image x:Key="SettingsIcon" Source="Resources/gear.png" />
-    
-    <!-- BitmapImages -->
+
+    <!-- BitmapImages (used for Images by referencing Source) -->
     
     <BitmapImage x:Key="PlusIcon" UriSource="Resources/plus.png" />
+    <BitmapImage x:Key="AddContentIcon" UriSource="Resources/green plus.png" />
+    <BitmapImage x:Key="RemoveContentIcon" UriSource="Resources/cross.png" />
 
 </ResourceDictionary>
