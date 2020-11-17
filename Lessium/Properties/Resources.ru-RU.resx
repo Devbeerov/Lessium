@@ -225,4 +225,10 @@
 Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по "Редактировать".</value>
     <comment>Подсказки</comment>
   </data>
+  <data name="TextControl_DefaultText" xml:space="preserve">
+    <value>Введите текст здесь.</value>
+  </data>
+  <data name="TextControl_Tooltip" xml:space="preserve">
+    <value>Рамки текста видны только при редактировании.</value>
+  </data>
 </root>

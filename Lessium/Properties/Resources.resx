@@ -225,4 +225,10 @@
 To edit lesson, select "Lesson" at top-left and press "Edit".</value>
     <comment>ToolTips</comment>
   </data>
+  <data name="TextControl_DefaultText" xml:space="preserve">
+    <value>Enter text here.</value>
+  </data>
+  <data name="TextControl_Tooltip" xml:space="preserve">
+    <value>Text borders visible only at editing.</value>
+  </data>
 </root>

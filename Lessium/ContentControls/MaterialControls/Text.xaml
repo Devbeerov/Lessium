@@ -4,12 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.ContentControls.MaterialControls"
+             xmlns:properties="clr-namespace:Lessium.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Border x:Name="border" MinWidth="16" MinHeight="16">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Left">
+            
+            <TextBox x:Name="textBox"
+                 TextWrapping="Wrap" Background="Transparent"
+                 AcceptsReturn="True"
+                 ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                 Text="{x:Static properties:Resources.TextControl_DefaultText}">
+            </TextBox>
 
-    <TextBox x:Name="textBox"
-             TextWrapping="Wrap" Background="Transparent"
-             HorizontalAlignment="Stretch" AcceptsReturn="True"
-             KeyDown="TextBox_KeyDown">
-    </TextBox>
+            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16">
+
+                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}"
+                       HorizontalAlignment="Right" VerticalAlignment="Top" />
+            </Button>
+                
+        </StackPanel>
+    </Border>
+    
 </UserControl>

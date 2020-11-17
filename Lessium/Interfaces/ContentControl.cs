@@ -11,5 +11,6 @@ namespace Lessium.Interfaces
     {
         // Similar to IsReadOnly
         void SetEditable(bool editable);
+        event RoutedEventHandler RemoveControl;
     }
 }

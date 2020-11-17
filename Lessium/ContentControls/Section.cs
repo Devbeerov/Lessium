@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
+using Lessium.ContentControls.Models;
 
 namespace Lessium.ContentControls
 {

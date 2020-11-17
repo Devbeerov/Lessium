@@ -35,19 +35,6 @@ namespace Lessium.ContentControls.MaterialControls
 
         #endregion
 
-        #region Events
-
-        private void TextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            Key key = e.Key;
-
-            // Handles input
-
-            ProcessInput(key);
-        }
-
-        #endregion
-
         #region Methods
 
         #region Public
@@ -56,15 +43,6 @@ namespace Lessium.ContentControls.MaterialControls
         {
             InitializeComponent();
             this.DataContext = this;
-        }
-
-        #endregion
-
-        #region Private
-
-        private void ProcessInput(Key key)
-        {
-            // TODO: Implement method or remove it (same for method which invoked it).
         }
 
         #endregion
@@ -86,9 +64,52 @@ namespace Lessium.ContentControls.MaterialControls
 
         public void SetEditable(bool editable)
         {
+            // ReadOnly
+
             textBox.IsReadOnly = !editable;
+
+            // Border
+
+            var converter = new ThicknessConverter();
+            var thickness = (Thickness)converter.ConvertFrom(editable);
+
+            textBox.BorderThickness = thickness;
+
+            // Button
+
+            removeButton.IsEnabled = editable;
+
+            if (editable)
+            {
+                removeButton.Visibility = Visibility.Visible;
+            }
+
+            else
+            {
+                removeButton.Visibility = Visibility.Collapsed;
+            }
+
+            // Tooltip
+
+            ToolTipService.SetIsEnabled(textBox, editable);
         }
 
+        public event RoutedEventHandler RemoveControl;
+
+        #endregion
+
+        #region Events
+
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Sets source to Text Control, not Button
+
+            e.Source = this;
+
+            // Invokes event
+
+            RemoveControl.Invoke(sender, e);
+        }
 
         #endregion
     }

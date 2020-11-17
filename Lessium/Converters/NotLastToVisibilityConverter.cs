@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lessium.ContentControls.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -11,8 +12,13 @@ namespace Lessium.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var collection = (Collection<object>) values[0];
+            var page = (ContentPage)values[0];
+            var collection = page.Items;
+
+            if(collection.Count == 0) { return Visibility.Collapsed; }
+
             var item = values[1];
+
             if(collection.Last() == item)
             {
                 return Visibility.Collapsed;

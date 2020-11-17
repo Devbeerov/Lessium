@@ -51,7 +51,7 @@ namespace Lessium.Views
                 page = 1;
             }
 
-            scroll.ScrollToVerticalOffset(ContentPage.PageHeight * (page - 1));
+            scroll.ScrollToVerticalOffset(ContentPageControl.PageHeight * (page - 1));
 
         }
 

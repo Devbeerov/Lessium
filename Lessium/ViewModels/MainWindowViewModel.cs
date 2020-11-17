@@ -11,6 +11,7 @@ using System;
 using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
 using Lessium.Interfaces;
+using Lessium.ContentControls.Models;
 
 namespace Lessium.ViewModels
 {
@@ -108,7 +109,7 @@ namespace Lessium.ViewModels
 
         public bool CurrentPageIsEmpty
         {
-            get { return CurrentPage?.GetItems().Count == 0; }
+            get { return CurrentPage?.Items.Count == 0; }
         }
 
         // Should be used exclusively for binding!
@@ -127,6 +128,15 @@ namespace Lessium.ViewModels
         #endregion
 
         #region Pages
+
+        public ObservableCollection<ContentPage> Pages
+        {
+            get { return CurrentSection.GetPages(); }
+            set
+            {
+                CurrentSection.SetPages(value);
+            }
+        }
 
         public int CurrentPageIndex
         {
@@ -147,7 +157,7 @@ namespace Lessium.ViewModels
 
                 var number = value;
                 if (number <= 0) { number = 1; }
-                else if (number > CurrentSection.GetPages().Count) { number = CurrentSection.GetPages().Count; }
+                else if (number > Pages.Count) { number = Pages.Count; }
 
                 var index = number - 1;
 
@@ -471,7 +481,7 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region Add Content Commands
+        #region Add/Remove Content Commands
 
         #region AddMaterial
 
@@ -508,6 +518,23 @@ namespace Lessium.ViewModels
         void ExecuteAddTest(string TestName)
         {
 
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Page Commands
+
+        #region RemovePage
+
+        private DelegateCommand RemovePageCommand;
+        public DelegateCommand RemovePage =>
+            RemovePageCommand ?? (RemovePageCommand = new DelegateCommand(ExecuteRemovePage));
+
+        void ExecuteRemovePage()
+        {
+            Pages.Remove(CurrentPage);
         }
 
         #endregion

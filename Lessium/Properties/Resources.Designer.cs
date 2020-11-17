@@ -323,6 +323,24 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter text here..
+        /// </summary>
+        public static string TextControl_DefaultText {
+            get {
+                return ResourceManager.GetString("TextControl_DefaultText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Text borders visible only at editing..
+        /// </summary>
+        public static string TextControl_Tooltip {
+            get {
+                return ResourceManager.GetString("TextControl_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Text.
         /// </summary>
         public static string TextHeader {

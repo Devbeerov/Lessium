@@ -76,8 +76,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ContentControls\ContentPage.cs" />
+    <Compile Include="ContentControls\ContentPageControl.cs" />
     <Compile Include="ContentControls\Section.cs" />
+    <Compile Include="Converters\NotLastConverter.cs" />
     <Compile Include="Converters\NotLastToVisibilityConverter.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
@@ -90,6 +91,7 @@
     </Compile>
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
+    <Compile Include="ContentControls\Models\ContentPage.cs" />
     <Compile Include="Models\MainWindowModel.cs" />
     <Compile Include="Properties\Resources.ru-RU.Designer.cs">
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>

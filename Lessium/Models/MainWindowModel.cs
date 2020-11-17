@@ -1,4 +1,5 @@
 ﻿using Lessium.ContentControls;
+using Lessium.ContentControls.Models;
 using Lessium.Properties;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
