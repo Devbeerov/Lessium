@@ -12,6 +12,7 @@ using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
 using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
+using Lessium.ContentControls.TestControls;
 
 namespace Lessium.ViewModels
 {
@@ -517,7 +518,19 @@ namespace Lessium.ViewModels
 
         void ExecuteAddTest(string TestName)
         {
+            IContentControl control;
 
+            // Instantiation of ContentControl
+            switch (TestName)
+            {
+                case "SimpleTest":
+                    control = new SimpleTest();
+                    break;
+                default:
+                    throw new NotImplementedException($"{TestName} not supported!");
+            }
+
+            CurrentPage.Add(control);
         }
 
         #endregion

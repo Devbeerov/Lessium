@@ -20,7 +20,6 @@
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
         <converters:NotNullConverter x:Key="NotNullConverter" />
-        <converters:NotLastToVisibilityConverter x:Key="NotLastToVisibilityConverter" />
         <converters:NotLastConverter x:Key="NotLastConverter" />
         
         <!-- Built-in -->
@@ -35,6 +34,12 @@
 
         <converters:ConverterChain x:Key="NotNullToVisbilityConverter">
             <converters:NotNullConverter />
+            <BooleanToVisibilityConverter />
+        </converters:ConverterChain>
+
+        <converters:ConverterChain x:Key="NotLastToVisibilityConverter">
+            <converters:NotNullConverter />
+            <converters:InverseBooleanConverter />
             <BooleanToVisibilityConverter />
         </converters:ConverterChain>
 
@@ -337,10 +342,12 @@
                                             <Button HorizontalAlignment="Right" Margin="2,2,2,2"
                                                     Command="{Binding RemovePage}"
                                                     ToolTip="{Binding ReadOnlyToolTip}"
-                                                    ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" >
+                                                    ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                                    IsEnabled="{Binding ElementName=PageContent, Converter={StaticResource NotLastConverter}}"
+                                                    Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
                                                 <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
                                                 
-                                                <Button.IsEnabled>
+                                                <!--<Button.IsEnabled>
                                                     <MultiBinding Converter="{StaticResource NotLastConverter}">
                                                         <Binding ElementName="panel" Path="DataContext" />
                                                         <Binding ElementName="SectionPages" />
@@ -352,7 +359,7 @@
                                                         <Binding ElementName="panel" Path="DataContext" />
                                                         <Binding ElementName="SectionPages" />
                                                     </MultiBinding>
-                                                </Button.Visibility>
+                                                </Button.Visibility>-->
                                                 
                                             </Button>
                                         </Grid>
@@ -371,15 +378,10 @@
                                         </ItemsControl.ItemsPanel>
 
                                     </ItemsControl>
-                                    
+
                                     <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="20" 
-                                               Fill="WhiteSmoke" >
-                                        <Rectangle.Visibility>
-                                            <MultiBinding Converter="{StaticResource NotLastToVisibilityConverter}">
-                                                <Binding Path="." />
-                                                <Binding ElementName="SectionPages" />
-                                            </MultiBinding>
-                                        </Rectangle.Visibility>
+                                               Fill="WhiteSmoke" 
+                                               Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
                                     </Rectangle>
                                 </StackPanel>
                             </DataTemplate>

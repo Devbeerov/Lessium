@@ -231,4 +231,10 @@
   <data name="TextControl_Tooltip" xml:space="preserve">
     <value>Рамки текста видны только при редактировании.</value>
   </data>
+  <data name="DefaultAnswerHeader" xml:space="preserve">
+    <value>Ответ</value>
+  </data>
+  <data name="SimpleTestControl_DefaultText" xml:space="preserve">
+    <value>Введите вопрос здесь.</value>
+  </data>
 </root>

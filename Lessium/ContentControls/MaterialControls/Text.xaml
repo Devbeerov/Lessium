@@ -13,9 +13,9 @@
             
             <TextBox x:Name="textBox"
                  TextWrapping="Wrap" Background="Transparent"
-                 AcceptsReturn="True"
+                 AcceptsReturn="True" IsReadOnly="True"
                  ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                 Text="{x:Static properties:Resources.TextControl_DefaultText}">
+                 Text="{Binding Text}">
             </TextBox>
 
             <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16">

@@ -231,4 +231,10 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="TextControl_Tooltip" xml:space="preserve">
     <value>Text borders visible only at editing.</value>
   </data>
+  <data name="SimpleTestControl_DefaultText" xml:space="preserve">
+    <value>Enter question here.</value>
+  </data>
+  <data name="DefaultAnswerHeader" xml:space="preserve">
+    <value>Answer</value>
+  </data>
 </root>

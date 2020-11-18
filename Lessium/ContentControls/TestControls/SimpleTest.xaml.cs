@@ -1,28 +1,45 @@
-﻿using Lessium.Interfaces;
+﻿using Lessium.ContentControls.MaterialControls;
+using Lessium.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
-namespace Lessium.ContentControls.MaterialControls
+namespace Lessium.ContentControls.TestControls
 {
     /// <summary>
-    /// Simple TextBlock with wrapping.
+    /// Simple test with multiple answers.
     /// </summary>
     [Serializable]
-    public partial class Text : UserControl, IMaterialControl
+    public partial class SimpleTest : UserControl, ITestControl
     {
+
+        private ObservableCollection<string> answers = new ObservableCollection<string>();
+
+        #region Properties
+
+        public ObservableCollection<string> Answers
+        {
+            get { return answers; }
+            set { answers = value; }
+        }
+
+        #endregion
+
         #region Constructors
 
-        public Text()
+        public SimpleTest()
         {
             Initialize();
         }
 
         // For serialization
-        protected Text(SerializationInfo info, StreamingContext context)
+        protected SimpleTest(SerializationInfo info, StreamingContext context)
         {
             // Initializes component
 
@@ -30,7 +47,9 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Serializes properties
 
-            textBox.Text = info.GetString("Text");
+            var answersList = (List<string>) info.GetValue("Answers", typeof(List<string>));
+
+            answers = new ObservableCollection<string>(answersList);
         }
 
         #endregion
@@ -55,7 +74,7 @@ namespace Lessium.ContentControls.MaterialControls
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Text", textBox.Text);
+            info.AddValue("Answers", answers.ToList());
         }
 
         #endregion
@@ -66,16 +85,16 @@ namespace Lessium.ContentControls.MaterialControls
         {
             // ReadOnly
 
-            textBox.IsReadOnly = !editable;
+            testQuestion.IsReadOnly = !editable;
 
             // Border
 
             var converter = new ThicknessConverter();
             var thickness = (Thickness)converter.ConvertFrom(editable);
 
-            textBox.BorderThickness = thickness;
+            testQuestion.BorderThickness = thickness;
 
-            // Button
+            // Buttons
 
             removeButton.IsEnabled = editable;
 
@@ -89,9 +108,19 @@ namespace Lessium.ContentControls.MaterialControls
                 removeButton.Visibility = Visibility.Collapsed;
             }
 
+            addAnswerButton.IsEnabled = editable;
+            addAnswerButton.Visibility = removeButton.Visibility;
+
+            // Answers Controls
+
+            foreach(IContentControl answer in AnswersItemControl.Items)
+            {
+                answer.SetEditable(editable);
+            }
+
             // Tooltip
 
-            ToolTipService.SetIsEnabled(textBox, editable);
+            ToolTipService.SetIsEnabled(testQuestion, editable);
         }
 
         public event RoutedEventHandler RemoveControl;
@@ -102,7 +131,7 @@ namespace Lessium.ContentControls.MaterialControls
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Sets source to Text Control, not Button
+            // Sets source to SimpleTest Control, not Button
 
             e.Source = this;
 
@@ -111,32 +140,17 @@ namespace Lessium.ContentControls.MaterialControls
             RemoveControl?.Invoke(sender, e);
         }
 
-        #endregion
-
-        #region Dependency Properties
-
-        public static string GetText(DependencyObject obj)
+        private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            return (string)obj.GetValue(TextProperty);
+            answers.Add(Properties.Resources.DefaultAnswerHeader);
         }
 
-        public static void SetText(DependencyObject obj, string text)
+        private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
         {
-            obj.SetValue(TextProperty, text);
-        }
+            var textControl = (Text)e.Source;
 
-        public string GetText()
-        {
-            return GetText(this);
+            answers.Remove(textControl.GetText()); // We remove Text string by it's reference, not by value!
         }
-
-        public void SetText(string text)
-        {
-            SetText(this, text);
-        }
-
-        public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(Text), new PropertyMetadata(Properties.Resources.TextControl_DefaultText));
 
         #endregion
     }

@@ -133,6 +133,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Answer.
+        /// </summary>
+        public static string DefaultAnswerHeader {
+            get {
+                return ResourceManager.GetString("DefaultAnswerHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Differences.
         /// </summary>
         public static string DifferencesHeader {
@@ -301,6 +310,15 @@ namespace Lessium.Properties {
         public static string SIGameHeader {
             get {
                 return ResourceManager.GetString("SIGameHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter question here..
+        /// </summary>
+        public static string SimpleTestControl_DefaultText {
+            get {
+                return ResourceManager.GetString("SimpleTestControl_DefaultText", resourceCulture);
             }
         }
         
