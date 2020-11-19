@@ -346,21 +346,6 @@
                                                     IsEnabled="{Binding ElementName=PageContent, Converter={StaticResource NotLastConverter}}"
                                                     Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
                                                 <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
-                                                
-                                                <!--<Button.IsEnabled>
-                                                    <MultiBinding Converter="{StaticResource NotLastConverter}">
-                                                        <Binding ElementName="panel" Path="DataContext" />
-                                                        <Binding ElementName="SectionPages" />
-                                                    </MultiBinding>
-                                                </Button.IsEnabled>
-                                                
-                                                <Button.Visibility>
-                                                    <MultiBinding Converter="{StaticResource NotLastToVisibilityConverter}">
-                                                        <Binding ElementName="panel" Path="DataContext" />
-                                                        <Binding ElementName="SectionPages" />
-                                                    </MultiBinding>
-                                                </Button.Visibility>-->
-                                                
                                             </Button>
                                         </Grid>
 

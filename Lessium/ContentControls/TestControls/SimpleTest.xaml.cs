@@ -3,12 +3,14 @@ using Lessium.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Lessium.ContentControls.TestControls
 {
@@ -18,15 +20,25 @@ namespace Lessium.ContentControls.TestControls
     [Serializable]
     public partial class SimpleTest : UserControl, ITestControl
     {
+        private Guid id;
 
-        private ObservableCollection<string> answers = new ObservableCollection<string>();
+        private bool editable;
+
+        private ObservableCollection<AnswerModel> answers = new ObservableCollection<AnswerModel>();
+
+        private readonly Collection<IContentControl> textControls = new Collection<IContentControl>();
 
         #region Properties
 
-        public ObservableCollection<string> Answers
+        public ObservableCollection<AnswerModel> Answers
         {
             get { return answers; }
             set { answers = value; }
+        }
+
+        public string GUID
+        {
+            get { return id.ToString(); }
         }
 
         #endregion
@@ -47,9 +59,9 @@ namespace Lessium.ContentControls.TestControls
 
             // Serializes properties
 
-            var answersList = (List<string>) info.GetValue("Answers", typeof(List<string>));
+            var answersList = (List<AnswerModel>) info.GetValue("Answers", typeof(List<AnswerModel>));
 
-            answers = new ObservableCollection<string>(answersList);
+            answers = new ObservableCollection<AnswerModel>(answersList);
         }
 
         #endregion
@@ -60,6 +72,8 @@ namespace Lessium.ContentControls.TestControls
 
         public void Initialize()
         {
+            id = Guid.NewGuid();
+
             InitializeComponent();
             this.DataContext = this;
         }
@@ -83,6 +97,8 @@ namespace Lessium.ContentControls.TestControls
 
         public void SetEditable(bool editable)
         {
+            this.editable = editable;
+
             // ReadOnly
 
             testQuestion.IsReadOnly = !editable;
@@ -142,16 +158,48 @@ namespace Lessium.ContentControls.TestControls
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            answers.Add(Properties.Resources.DefaultAnswerHeader);
+            answers.Add(new AnswerModel());
         }
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
         {
             var textControl = (Text)e.Source;
 
-            answers.Remove(textControl.GetText()); // We remove Text string by it's reference, not by value!
+            foreach (var answer in answers)
+            {
+                var text = textControl.GetText();
+
+                if (ReferenceEquals(answer.Text, text)) // Checks for string reference, not value!
+                {
+                    answers.Remove(answer); // We remove Text string by it's reference, not by value!
+                    return;
+                }
+            }
+        }
+
+        private void TextContainer_Loaded(object sender, RoutedEventArgs e)
+        {
+            var control = e.Source as Text;
+
+            control.SetEditable(editable);
+            textControls.Add(control);
+        }
+
+        private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            var control = e.Source as Text;
+
+            control.SetEditable(editable);
+            textControls.Remove(control);
         }
 
         #endregion
+    }
+
+    public class AnswerModel
+    {
+        private string text = string.Copy(Properties.Resources.DefaultAnswerHeader);
+
+        public string Text { get => text; set => text = value; }
     }
 }
