@@ -66,7 +66,20 @@ namespace Lessium.ViewModels
         public string SelectedTab
         {
             get { return model.SelectedTab; }
-            set { SetProperty(ref model.SelectedTab, value); }
+            set
+            {
+                var prevTab = string.Copy(model.SelectedTab); // If we won't copy, it will change on SetProperty.
+                var prevSection = CurrentSection;
+
+                if (SetProperty(ref model.SelectedTab, value))
+                {
+                    // Updates previous
+                    model.LastSelectedSection[prevTab] = prevSection;
+
+                    // Updates new
+                    CurrentSection = model.LastSelectedSection[SelectedTab];
+                }
+            }
         }
 
         public bool SelectedTabIsMaterials
@@ -93,6 +106,9 @@ namespace Lessium.ViewModels
             get { return model.CurrentSection[SelectedTab]; }
             set
             {
+                var prevSection = CurrentSection;
+                var prevPage = CurrentPage;
+
                 if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, value))
                 {
                     if (CurrentSection == null)
@@ -104,6 +120,12 @@ namespace Lessium.ViewModels
                     {
                         CurrentSectionID = Sections.IndexOf(value);
                     }
+
+                    // Updates previous
+                    model.LastSelectedPage[prevSection] = prevPage;
+
+                    // Updates new
+                    CurrentPage = model.LastSelectedPage[CurrentSection];
                 }
             }
         }
@@ -141,39 +163,53 @@ namespace Lessium.ViewModels
 
         public int CurrentPageIndex
         {
-            get { return model.CurrentPageIndex; }
+            get
+            {
+                if(CurrentSection == null) { return 0; }
+
+                return CurrentSection.GetSelectedPageIndex();
+            }
             set
             {
                 CurrentSection.SetSelectedPageIndex(value);
-                SetProperty(ref model.CurrentPageIndex, value);
             }
         }
 
         public int CurrentPageNumber
         {
-            get { return model.CurrentPageIndex + 1; }
+            get { return CurrentPageIndex + 1; }
             set
             {
                 // Validates index
 
                 var number = value;
+
                 if (number <= 0) { number = 1; }
                 else if (number > Pages.Count) { number = Pages.Count; }
 
                 var index = number - 1;
 
-                CurrentSection.SetSelectedPageIndex(index);
-                SetProperty(ref model.CurrentPageIndex, index);
+                CurrentPageIndex = index;
             }
         }
 
         public ContentPage CurrentPage
         {
-            get { return model.CurrentPage; }
+            get { return CurrentSection?.GetSelectedPage(); }
             set
             {
                 CurrentSection.SetSelectedPage(value);
-                SetProperty(ref model.CurrentPage, value);
+
+                if (CurrentPage == null)
+                {
+                    CurrentPageIndex = 0;
+                }
+
+                else
+                {
+                    CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
+                }
+                
             }
         }
 
@@ -402,7 +438,12 @@ namespace Lessium.ViewModels
             // Adds newSection to Sections dictionary.
             Sections.Add(newSection);
 
-            SelectSection(newSection);
+            if (CurrentSection == null)
+            {
+                SelectSection(newSection);
+            }
+
+            model.LastSelectedSection.Add(SelectedTab, newSection);
 
             HasChanges = true;
         }
@@ -576,8 +617,11 @@ namespace Lessium.ViewModels
             SelectedTab = param;
 
             RaisePropertyChanged("Sections"); // Sections[SelectedTab]
-            RaisePropertyChanged("CurrentSection");
-            RaisePropertyChanged("CurrentSectionID"); // Binds to (new) CurrentSectionID based on tab.
+
+            CurrentSection = model.LastSelectedSection[param];
+
+            CurrentPage = model.LastSelectedPage[CurrentSection];
+            RaisePropertyChanged("CurrentPageNumber");
 
             if (CurrentSection != null)
             {

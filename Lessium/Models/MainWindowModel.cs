@@ -3,8 +3,8 @@ using Lessium.ContentControls.Models;
 using Lessium.Properties;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
-using System.Windows;
+
+#pragma warning disable S1104 // Fields should not have public accessibility
 
 namespace Lessium.Models
 {
@@ -36,9 +36,15 @@ namespace Lessium.Models
 
         #region Pages
 
-        public ContentPage CurrentPage;
-        public ObservableCollection<ContentPage> CurrentSectionPages;
-        public int CurrentPageIndex = 0;
+        // Updates only on SelectedTab change!
+        public Dictionary<string, Section> LastSelectedSection = new Dictionary<string, Section>()
+        {
+            { "Materials", null },
+            { "Tests", null }
+        };
+
+        // Updates only on CurrentSection change!
+        public Dictionary<Section, ContentPage> LastSelectedPage = new Dictionary<Section, ContentPage>();
 
         #endregion
 
@@ -141,3 +147,5 @@ namespace Lessium.Models
 
     }
 }
+
+#pragma warning restore S1104 // Fields should not have public accessibility

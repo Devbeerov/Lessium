@@ -27,7 +27,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
-                                <RadioButton GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime, diag:PresentationTraceSources.TraceLevel=High}" >
+                                <RadioButton GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
                                     <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
                                     <materials:Text x:Name="TextContainer"
                                                     Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
