@@ -186,7 +186,7 @@
                     <!-- Sections Headers -->
                     <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
                              ItemsSource="{Binding Sections}"
-                             SelectedIndex="{Binding CurrentPageIndex, Mode=OneWay}"
+                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
                              SelectionChanged="Sections_SelectionChanged"
                              IsSynchronizedWithCurrentItem="True">
 

@@ -69,15 +69,13 @@ namespace Lessium.ViewModels
             set
             {
                 var prevTab = string.Copy(model.SelectedTab); // If we won't copy, it will change on SetProperty.
-                var prevSection = CurrentSection;
+                var prevSection = model.CurrentSection[prevTab];
 
-                if (SetProperty(ref model.SelectedTab, value))
+                if (SetProperty(ref model.SelectedTab, value)) // Will change CurrentSection property, because it's Get method bound with SelectedTab
                 {
                     // Updates previous
-                    model.LastSelectedSection[prevTab] = prevSection;
 
-                    // Updates new
-                    CurrentSection = model.LastSelectedSection[SelectedTab];
+                    model.LastSelectedSection[prevTab] = prevSection;
                 }
             }
         }
@@ -101,33 +99,11 @@ namespace Lessium.ViewModels
             }
         }
 
+        // Use SelectSection method for Set.
         public Section CurrentSection
         {
             get { return model.CurrentSection[SelectedTab]; }
-            set
-            {
-                var prevSection = CurrentSection;
-                var prevPage = CurrentPage;
 
-                if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, value))
-                {
-                    if (CurrentSection == null)
-                    {
-                        CurrentSectionID = -1;
-                    }
-
-                    else
-                    {
-                        CurrentSectionID = Sections.IndexOf(value);
-                    }
-
-                    // Updates previous
-                    model.LastSelectedPage[prevSection] = prevPage;
-
-                    // Updates new
-                    CurrentPage = model.LastSelectedPage[CurrentSection];
-                }
-            }
         }
 
         public bool CurrentPageIsEmpty
@@ -144,7 +120,10 @@ namespace Lessium.ViewModels
             }
             set
             {
-                SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value);
+                if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value))
+                {
+                    SelectSection(Sections[value]);
+                }
             }
         }
 
@@ -165,7 +144,7 @@ namespace Lessium.ViewModels
         {
             get
             {
-                if(CurrentSection == null) { return 0; }
+                if(CurrentSection == null) { return -1; }
 
                 return CurrentSection.GetSelectedPageIndex();
             }
@@ -202,7 +181,7 @@ namespace Lessium.ViewModels
 
                 if (CurrentPage == null)
                 {
-                    CurrentPageIndex = 0;
+                    CurrentPageIndex = -1;
                 }
 
                 else
@@ -268,9 +247,9 @@ namespace Lessium.ViewModels
         #region Section
 
         /// <summary>
-        /// We put methods below in ViewModel to access it's functionality, instead of just Section's own methods.
+        /// We put these methods in ViewModel to access it's functionality, instead of only Section's ones.
         /// </summary>
-        /// 
+
         private void SetSectionVisibility(Section section, Visibility visibility)
         {
             section.Visibility = visibility;
@@ -300,21 +279,119 @@ namespace Lessium.ViewModels
 
             TryCollapseCurrentSection(); // colapses old selected section
 
-            CurrentSection = section;
+            // Sets CurrentSection
+
+            var prevSection = CurrentSection;
+            var prevPage = CurrentPage;
+
+            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
+            {
+                var newSection = model.CurrentSection[SelectedTab];
+
+                if (newSection == null)
+                {
+                    CurrentSectionID = -1;
+                }
+
+                else
+                {
+                    CurrentSectionID = Sections.IndexOf(section);
+                }
+
+                // Updates previous
+
+                if (prevSection != null)
+                {
+                    model.LastSelectedPage[prevSection] = prevPage;
+                }
+
+                // Updates new
+
+                if (newSection != null)
+                {
+                    CurrentPage = model.LastSelectedPage[newSection];
+                }
+
+                // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
+                RaisePropertyChanged("CurrentPageIndex");
+                RaisePropertyChanged("CurrentPageNumber");
+
+                section = newSection;
+
+            }
+
+            // Shows section if not null.
 
             if (section != null)
             {
-                // Updates CurrentPage
-
-                CurrentPageIndex = section.GetSelectedPageIndex();
-                CurrentPage = section.GetSelectedPage();
-
-                // Shows Section
-
                 ShowSection(section);
             }
 
             
+        }
+
+        /// <summary>
+        /// Should be used when changing tabs.
+        /// </summary>
+        /// <param name="section">New Section</param>
+        /// <param name="previousSection">Previous Section (to check with new)</param>
+        private void SelectSection(Section section, Section previousSection)
+        {
+            if (CurrentSection == previousSection) { return; }
+
+            // Sets CurrentSection
+
+            var prevPage = previousSection.GetSelectedPage();
+
+            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
+            {
+                var newSection = model.CurrentSection[SelectedTab];
+
+                if (newSection == null)
+                {
+                    CurrentSectionID = -1;
+                }
+
+                else
+                {
+                    CurrentSectionID = Sections.IndexOf(section);
+                }
+
+                // Updates previous
+
+                if (previousSection != null)
+                {
+                    model.LastSelectedPage[previousSection] = prevPage;
+                }
+
+                // Updates new
+
+                if (newSection != null)
+                {
+                    CurrentPage = model.LastSelectedPage[newSection];
+                }
+
+                section = newSection;
+
+            }
+
+            else
+            {
+                RaisePropertyChanged("CurrentSection");
+            }
+
+            // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
+            RaisePropertyChanged("CurrentPageIndex");
+            RaisePropertyChanged("CurrentPageNumber");
+
+            // Shows section if not null.
+
+            if (section != null)
+            {
+                ShowSection(section);
+            }
+
+
         }
 
         #endregion
@@ -435,6 +512,10 @@ namespace Lessium.ViewModels
 
             newSection.SetEditable(!ReadOnly);
 
+            // Updates model
+
+            model.LastSelectedPage.Add(newSection, newSection.GetSelectedPage());
+
             // Adds newSection to Sections dictionary.
             Sections.Add(newSection);
 
@@ -442,8 +523,6 @@ namespace Lessium.ViewModels
             {
                 SelectSection(newSection);
             }
-
-            model.LastSelectedSection.Add(SelectedTab, newSection);
 
             HasChanges = true;
         }
@@ -547,6 +626,8 @@ namespace Lessium.ViewModels
 
             CurrentPage.Add(control);
 
+            HasChanges = true;
+
         }
 
         #endregion
@@ -572,6 +653,8 @@ namespace Lessium.ViewModels
             }
 
             CurrentPage.Add(control);
+
+            HasChanges = true;
         }
 
         #endregion
@@ -589,6 +672,8 @@ namespace Lessium.ViewModels
         void ExecuteRemovePage()
         {
             Pages.Remove(CurrentPage);
+
+            HasChanges = true;
         }
 
         #endregion
@@ -614,14 +699,16 @@ namespace Lessium.ViewModels
         {
             TryCollapseCurrentSection();
 
+            var previousSection = Sections[CurrentSectionID];
+
             SelectedTab = param;
 
             RaisePropertyChanged("Sections"); // Sections[SelectedTab]
 
-            CurrentSection = model.LastSelectedSection[param];
+            SelectSection(model.LastSelectedSection[param], previousSection);
 
-            CurrentPage = model.LastSelectedPage[CurrentSection];
-            RaisePropertyChanged("CurrentPageNumber");
+            // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
+            RaisePropertyChanged("CurrentSectionID");
 
             if (CurrentSection != null)
             {

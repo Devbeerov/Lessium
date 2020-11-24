@@ -253,13 +253,20 @@ namespace Lessium.ContentControls
 
     }
 
+    
+
     [Serializable]
     public class SectionSerializationInfo
     {
+        #pragma warning disable S1104 // Fields should not have public accessibility
+
         public string title;
         public bool editable;
         public List<ContentPage> pages; // COPY of ObservableCollection as List!
+
         public SectionType sectionType;
+
+        #pragma warning restore S1104 // Fields should not have public accessibility
     }
 
     public enum SectionType
