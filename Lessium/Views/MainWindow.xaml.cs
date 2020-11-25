@@ -20,6 +20,8 @@ namespace Lessium.Views
         #region UI related code-behind
         // Code in this region affects visual part only, it's not breaking MVVM pattern.
 
+        #region SectionsItemControl
+
         // Focuses ListBox once SelectedItem changed
         private void Sections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -29,6 +31,10 @@ namespace Lessium.Views
             listbox.Focus();
 
         }
+
+        #endregion
+
+        #region CurrentPage
 
         private static readonly Regex onlyDigitsRegex = new Regex("\\d");
 
@@ -56,5 +62,9 @@ namespace Lessium.Views
         }
 
         #endregion
+
+        #endregion
+
+
     }
 }

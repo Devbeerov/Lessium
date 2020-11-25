@@ -7,6 +7,7 @@
         xmlns:controls="clr-namespace:Lessium.ContentControls"
         xmlns:utility="clr-namespace:Lessium.Utility"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
         x:Name="MainWindowReference"> <!-- Used to get Window instance -->
@@ -182,9 +183,9 @@
             Grid.Row="1" Margin="11,22,0,11"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Vertical" >
                     <!-- Sections Headers -->
-                    <ListBox x:Name="Sections" BorderThickness="0" HorizontalAlignment="Stretch"
+                    <ListBox x:Name="Sections" BorderThickness="0" HorizontalContentAlignment="Stretch"
                              ItemsSource="{Binding Sections}"
                              SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
                              SelectionChanged="Sections_SelectionChanged"
@@ -192,10 +193,68 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding Path=Title}" 
-                                         Background="Transparent" 
-                                         IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
-                                         BorderThickness="0" />
+                                <!--<Grid ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="16" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="Title" Text="{Binding Path=Title}"
+                                             HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
+                                             TextWrapping="Wrap"
+                                             IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
+                                             HorizontalScrollBarVisibility="Disabled">
+
+                                        <i:Interaction.Behaviors>
+                                            <utility:TextBoxNewlineBehavior />
+                                            <utility:DoubleClickTextBoxBehavior />
+                                        </i:Interaction.Behaviors>
+
+                                    </TextBox>
+
+                                    <Button Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
+                                            Width="16" Height="16"
+                                            Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
+                                            IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
+                                            Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
+
+                                        <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+
+
+
+                                    </Button>
+
+                                </Grid>-->
+                                <Canvas x:Name="canvas" Height="{Binding ElementName=Title, Path=ActualHeight}"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                    <TextBox x:Name="Title" Text="{Binding Path=Title}"
+                                             HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
+                                             TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
+                                             IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}">
+
+                                        <i:Interaction.Behaviors>
+                                            <utility:TextBoxNewlineBehavior />
+                                            <utility:DoubleClickTextBoxBehavior />
+                                        </i:Interaction.Behaviors>
+
+                                    </TextBox>
+
+                                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
+                                            Canvas.Right="0" Canvas.Top="0"
+                                            Width="16" Height="16"
+                                            Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
+                                            IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
+                                            Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
+
+                                        <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+
+
+
+                                    </Button>
+                                    
+                                </Canvas>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
 
@@ -413,7 +472,7 @@
                          LostFocus="CurrentPage_LostFocus" >
 
                     <i:Interaction.Behaviors>
-                        <utility:TextBoxEnterKeyUpdateBehavior />
+                        <utility:TextBoxNewlineBehavior />
                     </i:Interaction.Behaviors>
 
                 </TextBox>

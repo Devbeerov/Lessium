@@ -122,6 +122,8 @@ namespace Lessium.ViewModels
             {
                 if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value))
                 {
+                    if(value == -1) { return; }
+
                     SelectSection(Sections[value]);
                 }
             }
@@ -332,6 +334,7 @@ namespace Lessium.ViewModels
 
         /// <summary>
         /// Should be used when changing tabs.
+        /// Checks section with manually providen previousSection to avoid wrong comprasion.
         /// </summary>
         /// <param name="section">New Section</param>
         /// <param name="previousSection">Previous Section (to check with new)</param>
@@ -339,9 +342,14 @@ namespace Lessium.ViewModels
         {
             if (CurrentSection == previousSection) { return; }
 
-            // Sets CurrentSection
+            // Updates previous
 
-            var prevPage = previousSection.GetSelectedPage();
+            if (previousSection != null)
+            {
+                model.LastSelectedPage[previousSection] = previousSection.GetSelectedPage();
+            }
+
+            // Sets CurrentSection
 
             if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
             {
@@ -355,13 +363,6 @@ namespace Lessium.ViewModels
                 else
                 {
                     CurrentSectionID = Sections.IndexOf(section);
-                }
-
-                // Updates previous
-
-                if (previousSection != null)
-                {
-                    model.LastSelectedPage[previousSection] = prevPage;
                 }
 
                 // Updates new
@@ -534,6 +535,29 @@ namespace Lessium.ViewModels
 
         #endregion
 
+        #region RemoveSection
+
+        private DelegateCommand<Section> RemoveSectionCommand;
+        public DelegateCommand<Section> RemoveSection =>
+            RemoveSectionCommand ?? (RemoveSectionCommand = new DelegateCommand<Section>(ExecuteRemoveSection));
+
+        void ExecuteRemoveSection(Section section)
+        {
+            // Unselect
+
+            SelectSection(null);
+
+            // Remove
+
+            Sections.Remove(section);
+
+            // Notify
+
+            HasChanges = true;
+        }
+
+        #endregion
+
         #region TrySelectSection
 
         private DelegateCommand<Section> TrySelectSectionCommand;
@@ -699,7 +723,12 @@ namespace Lessium.ViewModels
         {
             TryCollapseCurrentSection();
 
-            var previousSection = Sections[CurrentSectionID];
+            Section previousSection = null;
+
+            if (CurrentSectionID != -1)
+            {
+                previousSection = Sections[CurrentSectionID];
+            }
 
             SelectedTab = param;
 

@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.ContentControls.MaterialControls"
              xmlns:properties="clr-namespace:Lessium.Properties"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     
@@ -12,16 +14,20 @@
         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Left">
             
             <TextBox x:Name="textBox"
-                 TextWrapping="Wrap" Background="Transparent"
-                 AcceptsReturn="True" IsReadOnly="True"
+                 TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
                  ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                  Text="{Binding Text}">
+
+                <i:Interaction.Behaviors>
+                    <utility:TextBoxNewlineBehavior />
+                </i:Interaction.Behaviors>
+                
             </TextBox>
 
-            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16">
+            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" >
 
-                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}"
-                       HorizontalAlignment="Right" VerticalAlignment="Top" />
+                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
             </Button>
                 
         </StackPanel>
