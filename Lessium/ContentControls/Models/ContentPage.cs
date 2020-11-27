@@ -8,6 +8,9 @@ namespace Lessium.ContentControls.Models
     // Model
     public class ContentPage
     {
+        public const double PageWidth = 795d;
+        public const double PageHeight = 610d;
+
         private bool editable = false;
 
         public ContentPage()
@@ -25,6 +28,8 @@ namespace Lessium.ContentControls.Models
 
         public void Add(IContentControl element)
         {
+            element.SetMaxWidth(PageWidth);
+            element.SetMaxHeight(PageHeight);
             element.RemoveControl += OnRemove;
             Items.Add(element);
             UpdateItemEditable(element);

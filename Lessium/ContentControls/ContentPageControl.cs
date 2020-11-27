@@ -9,12 +9,8 @@ namespace Lessium.ContentControls
 {
     public class ContentPageControl : WrapPanel
     {
-        public const double PageWidth = 795;
-        public const double PageHeight = 610;
 
-        private ContentPage model;
-
-        [Obsolete("This constructed used for creating control in XAML. Use constructor with model instead.",true)]
+        [Obsolete("This constructed used for creating control in XAML. Use constructor with model instead.", true)]
         public ContentPageControl() : base()
         {
             Initialize(null);
@@ -66,12 +62,10 @@ namespace Lessium.ContentControls
                 model = new ContentPage();
             }
 
-            this.model = model;
-
             // Visual
 
-            Width = PageWidth;
-            Height = PageHeight;
+            Width = ContentPage.PageWidth;
+            Height = ContentPage.PageHeight;
 
             Orientation = Orientation.Vertical;
 

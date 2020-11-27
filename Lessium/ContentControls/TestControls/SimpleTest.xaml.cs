@@ -193,6 +193,16 @@ namespace Lessium.ContentControls.TestControls
             textControls.Remove(control);
         }
 
+        public void SetMaxWidth(double width)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMaxHeight(double height)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 

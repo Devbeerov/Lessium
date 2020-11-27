@@ -94,6 +94,16 @@ namespace Lessium.ContentControls.MaterialControls
             ToolTipService.SetIsEnabled(textBox, editable);
         }
 
+        public void SetMaxWidth(double width)
+        {
+            textBox.MaxWidth = width;
+        }
+
+        public void SetMaxHeight(double height)
+        {
+            textBox.MaxHeight = height;
+        }
+
         public event RoutedEventHandler RemoveControl;
 
         #endregion

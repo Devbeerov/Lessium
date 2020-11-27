@@ -86,6 +86,7 @@
       <DependentUpon>SimpleTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\NotLastConverter.cs" />
+    <Compile Include="Converters\ThicknessConverter.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
     <Compile Include="Converters\ConverterChain.cs" />
