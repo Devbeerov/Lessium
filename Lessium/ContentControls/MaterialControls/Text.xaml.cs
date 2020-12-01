@@ -96,7 +96,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         public void SetMaxWidth(double width)
         {
-            textBox.MaxWidth = width;
+            textBox.Width = width - removeButton.Width;
+            textBox.MaxWidth = textBox.Width;
         }
 
         public void SetMaxHeight(double height)

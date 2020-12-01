@@ -76,6 +76,30 @@ namespace Lessium.ContentControls
 
         #endregion
 
+        //#region Overrides
+
+        //protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        //{
+        //    base.OnRenderSizeChanged(sizeInfo);
+
+        //    var items = GetItems();
+
+        //    foreach(var item in items)
+        //    {
+        //        if (sizeInfo.WidthChanged)
+        //        {
+        //            item.SetMaxWidth(sizeInfo.NewSize.Width);
+        //        }
+
+        //        if (sizeInfo.HeightChanged)
+        //        {
+        //            item.SetMaxHeight(sizeInfo.NewSize.Height);
+        //        }
+        //    }
+        //}
+
+        //#endregion
+
         #endregion
 
         #region Dependency Properties

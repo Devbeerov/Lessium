@@ -90,9 +90,9 @@
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />
     <Compile Include="Converters\ConverterChain.cs" />
-    <Compile Include="Interfaces\TestControl.cs" />
-    <Compile Include="Interfaces\MaterialControl.cs" />
-    <Compile Include="Interfaces\ContentControl.cs" />
+    <Compile Include="Interfaces\ITestControl.cs" />
+    <Compile Include="Interfaces\IMaterialControl.cs" />
+    <Compile Include="Interfaces\IContentControl.cs" />
     <Compile Include="ContentControls\MaterialControls\Text.xaml.cs">
       <DependentUpon>Text.xaml</DependentUpon>
     </Compile>

@@ -139,6 +139,17 @@ namespace Lessium.ContentControls.TestControls
             ToolTipService.SetIsEnabled(testQuestion, editable);
         }
 
+        public void SetMaxWidth(double width)
+        {
+            testQuestion.Width = width - removeButton.Width;
+            testQuestion.MaxWidth = testQuestion.Width;
+        }
+
+        public void SetMaxHeight(double height)
+        {
+            testQuestion.MaxHeight = height;
+        }
+
         public event RoutedEventHandler RemoveControl;
 
         #endregion
@@ -191,16 +202,6 @@ namespace Lessium.ContentControls.TestControls
 
             control.SetEditable(editable);
             textControls.Remove(control);
-        }
-
-        public void SetMaxWidth(double width)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetMaxHeight(double height)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

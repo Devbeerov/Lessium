@@ -8,6 +8,7 @@
         xmlns:utility="clr-namespace:Lessium.Utility"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
+        xmlns:models="clr-namespace:Lessium.ContentControls.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
         x:Name="MainWindowReference"> <!-- Used to get Window instance -->
@@ -46,17 +47,26 @@
         </converters:ConverterChain>
 
         <!--#region Control Templates -->
-        
+
         <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
-
             <Border x:Name="border" Background="LightSteelBlue"
-                        HorizontalAlignment="Stretch" Height="Auto">
+                    HorizontalAlignment="Stretch" Height="Auto">
 
-                <StackPanel Orientation="Horizontal">
-                    <Image x:Name="plusIcon" Source="{StaticResource ResourceKey=PlusIcon}" Margin="5,5,5,5"/>
-                    <TextBlock x:Name="addSection" Text="{Binding AddSectionText}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20,0,20,0"
-                                       Foreground="{TemplateBinding Foreground}"/>
-                </StackPanel>
+                <Viewbox Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Left">
+                    <Grid Height="24" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image x:Name="plusIcon" Source="{StaticResource ResourceKey=PlusIcon}" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="4" />
+                        <TextBlock Grid.Column="1" x:Name="addSection" Text="{Binding AddSectionText}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                                   Foreground="{TemplateBinding Foreground}"/>
+
+                    </Grid>
+                </Viewbox>
             </Border>
         </ControlTemplate>
         
@@ -144,13 +154,48 @@
 
         <!--#region Tabs -->
 
+        <!--<Viewbox Stretch="Uniform" StretchDirection="Both" Grid.Row="1"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="10,0,10,10">
+            <TabControl Name="Tabs" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+
+                --><!-- Material --><!--
+
+                <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
+
+                    --><!-- Interaction --><!--
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="GotFocus">
+                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                </TabItem>
+
+                --><!-- Tests --><!--
+                <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
+
+                    --><!-- Interaction --><!--
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="GotFocus">
+                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                </TabItem>
+
+            </TabControl>
+        </Viewbox>-->
+
         <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Margin="10,0,10,10" >
 
             <!-- Material -->
             <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
-                
+
                 <!-- Interaction -->
 
                 <i:Interaction.Triggers>
@@ -163,48 +208,48 @@
 
             <!-- Tests -->
             <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
-                
+
                 <!-- Interaction -->
-                
+
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
                         <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                
+
             </TabItem>
 
         </TabControl>
-        
+
         <!--#endregion-->
         
         <!--#region Left part UI (border, buttons) -->
 
         <!-- Border serves as separator of Sections and (selected) Section content 
              Also used as container for Sections and AddSectionButton -->
+
         <Border BorderThickness="1" BorderBrush="DarkGray"
-            Grid.Row="1" Margin="11,22,0,11"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                Grid.Row="1" Margin="11,22,0,11"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Orientation="Vertical" >
                     <!-- Sections Headers -->
                     <ListBox x:Name="Sections" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                             ItemsSource="{Binding Sections}"
-                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
-                             SelectionChanged="Sections_SelectionChanged"
-                             IsSynchronizedWithCurrentItem="True">
+                            ItemsSource="{Binding Sections}"
+                            SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                            SelectionChanged="Sections_SelectionChanged"
+                            IsSynchronizedWithCurrentItem="True">
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                
                                 <Canvas x:Name="canvas" Height="{Binding ElementName=Title, Path=ActualHeight}"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
+                                    
                                     <TextBox x:Name="Title" Text="{Binding Path=Title}"
-                                             HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
-                                             TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
-                                             IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
-                                             Padding="{Binding ElementName=removeSectionButton, Path=ActualWidth, Converter={StaticResource ThicknessConverter}, ConverterParameter=Right}">
+                                            HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
+                                            TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
+                                            IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
+                                            Padding="{Binding ElementName=removeSectionButton, Path=ActualWidth, Converter={StaticResource ThicknessConverter}, ConverterParameter=Right}">
 
                                         <i:Interaction.Behaviors>
                                             <utility:TextBoxNewlineBehavior />
@@ -214,18 +259,16 @@
                                     </TextBox>
 
                                     <Button x:Name="removeSectionButton" Canvas.Right="0" Canvas.Top="0"
-                                            VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
-                                            Width="16" Height="16"
-                                            Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
-                                            IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
-                                            Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
+                                        VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
+                                        Width="16" Height="16"
+                                        Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
+                                        IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
+                                        Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
 
                                         <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
 
-
-
                                     </Button>
-                                    
+
                                 </Canvas>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -237,37 +280,44 @@
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </Trigger>
                                 </Style.Triggers>
-
                             </Style>
                         </ListBox.Style>
 
                         <i:Interaction.Triggers>
-                            
+
                             <i:EventTrigger EventName="SelectionChanged">
                                 <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
                             </i:EventTrigger>
-                            
+
                             <i:EventTrigger EventName="KeyDown">
                                 <i:InvokeCommandAction Command="{Binding SectionInput}" />
                             </i:EventTrigger>
-                            
+
                         </i:Interaction.Triggers>
 
                     </ListBox>
 
                     <!-- Add Section -->
+                    
+                        <Button Template="{StaticResource AddSectionButton}" Height="25" 
+                                Command="{Binding AddSection}"
+                                ToolTip="{Binding ReadOnlyToolTip}" 
+                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                                Style="{StaticResource AddSectionButtonStyle}">
+                        </Button>
+                    
+                    <!--<Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
+                        Command="{Binding AddSection}"
+                        ToolTip="{Binding ReadOnlyToolTip}" 
+                        ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                        Style="{StaticResource AddSectionButtonStyle}">
+                    </Button>-->
 
-                    <Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
-                            Command="{Binding AddSection}"
-                            ToolTip="{Binding ReadOnlyToolTip}" 
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
-                            Style="{StaticResource AddSectionButtonStyle}">
-                    </Button>
-                
                 </StackPanel>
             </ScrollViewer>
-        </Border>
-        
+         </Border>
+
+
         <!--#endregion-->
         
         <!--#region Content Region -->
@@ -280,147 +330,152 @@
             <!-- Content's Scroll -->
 
             <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto" >
-                <controls:Section x:Name="section">
-                    <!-- Keep in mind that Section inherited from StackPanel! -->
+                <Viewbox Stretch="Uniform" StretchDirection="Both">
+                    <controls:Section x:Name="section" 
+                                  MaxWidth="{x:Static models:ContentPage.PageWidth}"
+                                  MaxHeight="{x:Static models:ContentPage.PageHeight}" >
+                        <!-- Keep in mind that Section inherited from StackPanel! -->
 
-                    <ItemsControl x:Name="SectionPages" BorderThickness="0" 
-                                  ItemsSource="{Binding CurrentSection.Pages}">
+                        <ItemsControl x:Name="SectionPages" BorderThickness="0" 
+                                  ItemsSource="{Binding CurrentSection.Pages}"
+                                  HorizontalAlignment="Left">
 
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Vertical" x:Name="panel">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
 
-                                    <!-- Custom Toolbar -->
+                                        <!-- Custom Toolbar -->
 
-                                    <Border Height="26"
-                                            HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                                            BorderThickness="3" BorderBrush="Gray" 
-                                            DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}">
+                                        <Border Height="26"
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                                BorderThickness="3" BorderBrush="Gray" 
+                                                DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}">
 
-                                        <Grid IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
-                                            <Menu>
+                                            <Grid IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
+                                                <Menu>
 
-                                                <Menu.Resources>
+                                                    <Menu.Resources>
 
-                                                    <Style x:Key="ContentItem" TargetType="MenuItem">
-                                                        <Style.Setters>
-                                                            <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
-                                                            <Setter Property="IsEnabled" Value="False" />
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                            <!-- Passing ContentName to CommandParameter for later -->
-                                                            <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
-                                                        </Style.Setters>
+                                                        <Style x:Key="ContentItem" TargetType="MenuItem">
+                                                            <Style.Setters>
+                                                                <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
+                                                                <Setter Property="IsEnabled" Value="False" />
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <!-- Passing ContentName to CommandParameter for later -->
+                                                                <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
+                                                            </Style.Setters>
 
-                                                    </Style>
+                                                        </Style>
 
-                                                    <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+                                                        <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
-                                                        <Setter Property="Command" Value="{Binding AddMaterial}" />
+                                                            <Setter Property="Command" Value="{Binding AddMaterial}" />
 
-                                                        <Style.Triggers>
+                                                            <Style.Triggers>
 
-                                                            <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
-                                                                <DataTrigger.Setters>
-                                                                    <Setter Property="IsEnabled" Value="True" />
-                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                </DataTrigger.Setters>
-                                                            </DataTrigger>
+                                                                <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
+                                                                    <DataTrigger.Setters>
+                                                                        <Setter Property="IsEnabled" Value="True" />
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger.Setters>
+                                                                </DataTrigger>
 
-                                                        </Style.Triggers>
+                                                            </Style.Triggers>
 
-                                                    </Style>
+                                                        </Style>
 
-                                                    <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+                                                        <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
 
-                                                        <Setter Property="Command" Value="{Binding AddTest}" />
+                                                            <Setter Property="Command" Value="{Binding AddTest}" />
 
-                                                        <Style.Triggers>
+                                                            <Style.Triggers>
 
-                                                            <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
-                                                                <DataTrigger.Setters>
-                                                                    <Setter Property="IsEnabled" Value="True" />
-                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                </DataTrigger.Setters>
-                                                            </DataTrigger>
+                                                                <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
+                                                                    <DataTrigger.Setters>
+                                                                        <Setter Property="IsEnabled" Value="True" />
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger.Setters>
+                                                                </DataTrigger>
 
-                                                        </Style.Triggers>
+                                                            </Style.Triggers>
 
-                                                    </Style>
+                                                        </Style>
 
-                                                </Menu.Resources>
+                                                    </Menu.Resources>
 
-                                                <MenuItem ToolTip="{Binding ReadOnlyToolTip}" 
-                                                          ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                                          Width="22">
-                                                    <MenuItem.Header>
-                                                        <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,0,0"/>
-                                                    </MenuItem.Header>
+                                                    <MenuItem ToolTip="{Binding ReadOnlyToolTip}" 
+                                                              ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                                              Width="22">
+                                                        <MenuItem.Header>
+                                                            <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,0,0"/>
+                                                        </MenuItem.Header>
 
-                                                    <!--#region Items -->
-                                                    <!-- !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
+                                                        <!--#region Items -->
+                                                        <!-- !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
 
-                                                    <!-- Materials -->
+                                                        <!-- Materials -->
 
-                                                    <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
+                                                        <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
 
-                                                    <!-- Tests -->
+                                                        <!-- Tests -->
 
-                                                    <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
-                                                    <!--#endregion-->
-                                                </MenuItem>
-                                            </Menu>
+                                                        <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
+                                                        <!--#endregion-->
+                                                    </MenuItem>
+                                                </Menu>
 
-                                            <Button HorizontalAlignment="Right" Margin="2,2,2,2"
-                                                    Command="{Binding RemovePage}"
-                                                    ToolTip="{Binding ReadOnlyToolTip}"
-                                                    ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                                    IsEnabled="{Binding ElementName=PageContent, Converter={StaticResource NotLastConverter}}"
-                                                    Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
-                                                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
-                                            </Button>
-                                        </Grid>
+                                                <Button HorizontalAlignment="Right" Margin="2,2,2,2"
+                                                        Command="{Binding RemovePage}"
+                                                        ToolTip="{Binding ReadOnlyToolTip}"
+                                                        ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                                        IsEnabled="{Binding ElementName=PageContent, Converter={StaticResource NotLastConverter}}"
+                                                        Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
+                                                    <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+                                                </Button>
+                                            </Grid>
 
-                                    </Border>
+                                        </Border>
 
-                                    <!-- Page.Items -->
+                                        <!-- Page.Items -->
 
-                                    <ItemsControl x:Name="PageContent" BorderThickness="0" 
-                                                  ItemsSource="{Binding Path=Items}" >
+                                        <ItemsControl Grid.Row="1" x:Name="PageContent" BorderThickness="0" 
+                                                      ItemsSource="{Binding Path=Items}" >
 
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <controls:ContentPageControl />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <controls:ContentPageControl />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
 
-                                    </ItemsControl>
+                                        </ItemsControl>
 
-                                    <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="20" 
-                                               Fill="WhiteSmoke" 
-                                               Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
-                                    </Rectangle>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
 
-                        <ItemsControl.Style>
-                            <Style TargetType="{x:Type ItemsControl}">
+                            <ItemsControl.Style>
+                                <Style TargetType="{x:Type ItemsControl}">
 
-                                <Style.Triggers>
+                                    <Style.Triggers>
 
-                                    <DataTrigger Binding="{Binding ElementName=SectionPages, Path=Items.IsEmpty}" Value="True">
-                                        <DataTrigger.Setters>
-                                            <Setter Property="Focusable" Value="False"/>
-                                        </DataTrigger.Setters>
-                                    </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=SectionPages, Path=Items.IsEmpty}" Value="True">
+                                            <DataTrigger.Setters>
+                                                <Setter Property="Focusable" Value="False"/>
+                                            </DataTrigger.Setters>
+                                        </DataTrigger>
 
-                                </Style.Triggers>
+                                    </Style.Triggers>
 
-                            </Style>
+                                </Style>
 
-                        </ItemsControl.Style>
-                    </ItemsControl>
-                </controls:Section>
+                            </ItemsControl.Style>
+                        </ItemsControl>
+                    </controls:Section>
+                </Viewbox>
             </ScrollViewer>
 
         </StackPanel>

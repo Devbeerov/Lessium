@@ -29,7 +29,7 @@
                     
                 </TextBox>
 
-                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}">
+                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
