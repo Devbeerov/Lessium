@@ -8,10 +8,16 @@
              xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              xmlns:tests="clr-namespace:Lessium.ContentControls.TestControls"
+             xmlns:converters="clr-namespace:Lessium.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
+    </UserControl.Resources>
 
     <Border x:Name="border" MinWidth="16" MinHeight="16">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
@@ -33,13 +39,30 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
-                                <RadioButton GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
+                                <RadioButton x:Name="radioButton" 
+                                             GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
                                     <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
                                     <materials:Text x:Name="TextContainer"
                                                     Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
                                                     Loaded="TextContainer_Loaded"
                                                     Unloaded="TextContainer_Unloaded"
-                                                    RemoveControl="RemoveAnswer_Click" />
+                                                    RemoveControl="RemoveAnswer_Click" >
+
+                                        <materials:Text.Tag>
+                                            <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
+                                                <Binding ElementName="TextContainer" />
+                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                            </MultiBinding>
+                                        </materials:Text.Tag>
+
+                                        <materials:Text.MaxWidth>
+                                            <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
+                                                <Binding Path="Tag" />
+                                            </MultiBinding>
+                                        </materials:Text.MaxWidth>
+                                        
+                                    </materials:Text>
                                 </RadioButton>
                             </StackPanel>
                         </DataTemplate>

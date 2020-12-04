@@ -8,8 +8,8 @@ namespace Lessium.ContentControls.Models
     // Model
     public class ContentPage
     {
-        public const double PageWidth = 795d;
-        public const double PageHeight = 610d;
+        public const double PageWidth = 796d;
+        public const double PageHeight = 637d;
 
         private bool editable = false;
 

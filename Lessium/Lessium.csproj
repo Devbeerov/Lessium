@@ -85,6 +85,8 @@
     <Compile Include="ContentControls\TestControls\SimpleTest.xaml.cs">
       <DependentUpon>SimpleTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\UIElementsDistanceConverter.cs" />
+    <Compile Include="Converters\ArithmeticConverter.cs" />
     <Compile Include="Converters\NotLastConverter.cs" />
     <Compile Include="Converters\ThicknessConverter.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />

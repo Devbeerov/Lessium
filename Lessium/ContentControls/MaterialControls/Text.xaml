@@ -34,8 +34,9 @@
                 
             </TextBox>
 
-            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
-                    HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1" >
+            <Button x:Name="removeButton" Click="RemoveButton_Click"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1"
+                    Width="16" Height="16" >
 
                 <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
             </Button>

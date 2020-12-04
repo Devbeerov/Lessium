@@ -135,7 +135,7 @@ namespace Lessium.ViewModels
 
         public ObservableCollection<ContentPage> Pages
         {
-            get { return CurrentSection.GetPages(); }
+            get { return CurrentSection?.GetPages(); }
             set
             {
                 CurrentSection.SetPages(value);

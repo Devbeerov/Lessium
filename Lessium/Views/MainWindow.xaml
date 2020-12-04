@@ -24,6 +24,7 @@
         <converters:NotNullConverter x:Key="NotNullConverter" />
         <converters:NotLastConverter x:Key="NotLastConverter" />
         <converters:ThicknessConverter x:Key="ThicknessConverter" />
+        <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
 
         <!-- Built-in -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -153,41 +154,6 @@
         <!--#region Row 1 - Tabs and Content -->
 
         <!--#region Tabs -->
-
-        <!--<Viewbox Stretch="Uniform" StretchDirection="Both" Grid.Row="1"
-                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                    Margin="10,0,10,10">
-            <TabControl Name="Tabs" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-
-                --><!-- Material --><!--
-
-                <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
-
-                    --><!-- Interaction --><!--
-
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="GotFocus">
-                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-
-                </TabItem>
-
-                --><!-- Tests --><!--
-                <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
-
-                    --><!-- Interaction --><!--
-
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="GotFocus">
-                            <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-
-                </TabItem>
-
-            </TabControl>
-        </Viewbox>-->
 
         <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -325,7 +291,7 @@
         <!-- StackPanel for SelectedSection -->
 
         <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1"
-                    Margin="0,22,11,11">
+                    Margin="0,22,11,11" MaxHeight="{x:Static models:ContentPage.PageHeight}" >
 
             <!-- Content's Scroll -->
 
@@ -333,12 +299,12 @@
                 <Viewbox Stretch="Uniform" StretchDirection="Both">
                     <controls:Section x:Name="section" 
                                   MaxWidth="{x:Static models:ContentPage.PageWidth}"
-                                  MaxHeight="{x:Static models:ContentPage.PageHeight}" >
+                                  MaxHeight="{x:Static models:ContentPage.PageHeight}" CanVerticallyScroll="False">
                         <!-- Keep in mind that Section inherited from StackPanel! -->
 
                         <ItemsControl x:Name="SectionPages" BorderThickness="0" 
-                                  ItemsSource="{Binding CurrentSection.Pages}"
-                                  HorizontalAlignment="Left">
+                                      ItemsSource="{Binding CurrentSection.Pages}"
+                                      HorizontalAlignment="Left" MaxHeight="{Binding ElementName=section, Path=MaxHeight}">
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -350,7 +316,7 @@
 
                                         <!-- Custom Toolbar -->
 
-                                        <Border Height="26"
+                                        <Border x:Name="toolbar" Height="26"
                                                 HorizontalAlignment="Stretch" VerticalAlignment="Top"
                                                 BorderThickness="3" BorderBrush="Gray" 
                                                 DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}">
@@ -408,8 +374,8 @@
                                                     </Menu.Resources>
 
                                                     <MenuItem ToolTip="{Binding ReadOnlyToolTip}" 
-                                                              ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                                              Width="22">
+                                                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                                                Width="22">
                                                         <MenuItem.Header>
                                                             <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,0,0"/>
                                                         </MenuItem.Header>
@@ -445,6 +411,13 @@
                                         <ItemsControl Grid.Row="1" x:Name="PageContent" BorderThickness="0" 
                                                       ItemsSource="{Binding Path=Items}" >
 
+                                            <ItemsControl.MaxHeight>
+                                                <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxHeight" />
+                                                    <Binding ElementName="toolbar" Path="ActualHeight" />
+                                                </MultiBinding>
+                                            </ItemsControl.MaxHeight>
+
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <controls:ContentPageControl />
@@ -474,6 +447,7 @@
 
                             </ItemsControl.Style>
                         </ItemsControl>
+
                     </controls:Section>
                 </Viewbox>
             </ScrollViewer>
