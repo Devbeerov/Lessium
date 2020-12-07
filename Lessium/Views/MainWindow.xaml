@@ -54,17 +54,20 @@
                     HorizontalAlignment="Stretch" Height="Auto">
 
                 <Viewbox Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Left">
-                    <Grid Height="24" HorizontalAlignment="Stretch">
+
+                    <Grid x:Name="grid" Height="24" Width="{Binding ElementName=border, Path=ActualWidth}" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <Image x:Name="plusIcon" Source="{StaticResource ResourceKey=PlusIcon}" 
                                VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="4" />
-                        <TextBlock Grid.Column="1" x:Name="addSection" Text="{Binding AddSectionText}"
-                                   VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
-                                   Foreground="{TemplateBinding Foreground}"/>
+
+                        <TextBlock x:Name="addSection" Grid.Column="1" Text="{Binding AddSectionText}"
+                                   VerticalAlignment="Center" TextAlignment="Center"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   Margin="0,0,4,0" />
 
                     </Grid>
                 </Viewbox>
@@ -265,12 +268,12 @@
 
                     <!-- Add Section -->
                     
-                        <Button Template="{StaticResource AddSectionButton}" Height="25" 
-                                Command="{Binding AddSection}"
-                                ToolTip="{Binding ReadOnlyToolTip}" 
-                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
-                                Style="{StaticResource AddSectionButtonStyle}">
-                        </Button>
+                    <Button Template="{StaticResource AddSectionButton}" Height="25" 
+                            Command="{Binding AddSection}"
+                            ToolTip="{Binding ReadOnlyToolTip}" 
+                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            Style="{StaticResource AddSectionButtonStyle}">
+                    </Button>
                     
                     <!--<Button Template="{StaticResource AddSectionButton}" VerticalAlignment="Top" Height="25"
                         Command="{Binding AddSection}"
