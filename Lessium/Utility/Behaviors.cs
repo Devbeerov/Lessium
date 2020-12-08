@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Lessium.Converters;
+using Lessium.Properties;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 
@@ -62,12 +65,37 @@ namespace Lessium.Utility
 
     public class DoubleClickTextBoxBehavior : Behavior<TextBox>
     {
+        private static readonly InverseBooleanConverter converter = new InverseBooleanConverter();
+
         private long _timestamp;
 
         protected override void OnAttached()
         {
+            // Properties
+
             AssociatedObject.Focusable = false;
             AssociatedObject.Cursor = Cursors.Arrow;
+
+            // Tooltip
+
+            var tooltip = AssociatedObject.ToolTip as ToolTip;
+            if(tooltip == null)
+            {
+                tooltip = new ToolTip();
+                tooltip.Content = Resources.DoubleClickToEditTooltip;
+
+                AssociatedObject.ToolTip = tooltip;
+
+                // Binding
+
+                Binding binding = new Binding("IsReadOnly");
+                binding.Source = AssociatedObject;
+                binding.Converter = converter;
+
+                AssociatedObject.SetBinding(ToolTipService.IsEnabledProperty, binding);
+            }
+
+            // Events
 
             AssociatedObject.MouseDoubleClick += AssociatedObjectOnMouseDoubleClick;
             AssociatedObject.LostFocus += AssociatedObjectOnLostFocus;

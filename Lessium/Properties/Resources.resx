@@ -237,4 +237,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="DefaultAnswerHeader" xml:space="preserve">
     <value>Answer</value>
   </data>
+  <data name="DoubleClickToEditTooltip" xml:space="preserve">
+    <value>Click twice to edit.</value>
+  </data>
 </root>

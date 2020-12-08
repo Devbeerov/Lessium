@@ -151,6 +151,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Click twice to edit..
+        /// </summary>
+        public static string DoubleClickToEditTooltip {
+            get {
+                return ResourceManager.GetString("DoubleClickToEditTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Edit.
         /// </summary>
         public static string EditHeader {

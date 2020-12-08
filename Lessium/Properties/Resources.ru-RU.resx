@@ -237,4 +237,7 @@
   <data name="SimpleTestControl_DefaultText" xml:space="preserve">
     <value>Введите вопрос здесь.</value>
   </data>
+  <data name="DoubleClickToEditTooltip" xml:space="preserve">
+    <value>Для редактирования нажмите дважды.</value>
+  </data>
 </root>
