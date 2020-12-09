@@ -11,7 +11,7 @@
         xmlns:models="clr-namespace:Lessium.ContentControls.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
-        x:Name="MainWindowReference"> <!-- Used to get Window instance -->
+        x:Name="MainWindowReference"> <!-- Used for referencing -->
     
     <!--#region Resources -->
     

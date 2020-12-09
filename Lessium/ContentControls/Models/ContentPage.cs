@@ -2,6 +2,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using Lessium.Utility;
 
 namespace Lessium.ContentControls.Models
 {
@@ -30,7 +31,10 @@ namespace Lessium.ContentControls.Models
         {
             element.SetMaxWidth(PageWidth);
             element.SetMaxHeight(PageHeight);
+
             element.RemoveControl += OnRemove;
+            element.Resize += OnItemResize;
+
             Items.Add(element);
             UpdateItemEditable(element);
         }
@@ -38,6 +42,7 @@ namespace Lessium.ContentControls.Models
         public void Remove(IContentControl element)
         {
             element.RemoveControl -= OnRemove;
+            element.Resize -= OnItemResize;
             Items.Remove(element);
         }
 
@@ -78,6 +83,24 @@ namespace Lessium.ContentControls.Models
         public void OnRemove(object sender, RoutedEventArgs e)
         {
             Remove(e.Source as IContentControl);
+        }
+
+        public void OnItemResize(object sender, SizeChangedEventArgs e)
+        {
+
+            //var control = sender as IContentControl;
+
+            //var rect = this.GetRect();
+            //var controlRect = ((FrameworkElement)control).GetRect();
+
+            //if (e.HeightChanged)
+            //{
+            //    if (controlRect.Y > rect.Y)
+            //    {
+            //        Console.WriteLine("Should go to next page");
+            //    }
+            //}
+
         }
 
         #endregion

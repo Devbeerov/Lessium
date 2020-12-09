@@ -157,6 +157,7 @@ namespace Lessium.ContentControls.TestControls
         }
 
         public event RoutedEventHandler RemoveControl;
+        public event SizeChangedEventHandler Resize;
 
         #endregion
 
@@ -171,6 +172,17 @@ namespace Lessium.ContentControls.TestControls
             // Invokes event
 
             RemoveControl?.Invoke(sender, e);
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // Sets source to SimpleTest Control, not Border
+
+            e.Source = this;
+
+            // Invokes event
+
+            Resize?.Invoke(sender, e);
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)

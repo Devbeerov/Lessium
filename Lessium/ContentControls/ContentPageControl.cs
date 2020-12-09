@@ -4,12 +4,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using Lessium.Utility;
 
 namespace Lessium.ContentControls
 {
     public class ContentPageControl : WrapPanel
     {
-
         [Obsolete("This constructed used for creating control in XAML. Use constructor with model instead.", true)]
         public ContentPageControl() : base()
         {

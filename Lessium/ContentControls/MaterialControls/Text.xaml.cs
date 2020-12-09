@@ -107,6 +107,7 @@ namespace Lessium.ContentControls.MaterialControls
         }
 
         public event RoutedEventHandler RemoveControl;
+        public event SizeChangedEventHandler Resize;
 
         #endregion
 
@@ -121,6 +122,17 @@ namespace Lessium.ContentControls.MaterialControls
             // Invokes event
 
             RemoveControl?.Invoke(sender, e);
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // Sets source to Text Control, not Border
+
+            e.Source = this;
+
+            // Invokes event
+
+            Resize?.Invoke(sender, e);
         }
 
         #endregion

@@ -9,14 +9,14 @@
              xmlns:utility="clr-namespace:Lessium.Utility"
              xmlns:converters="clr-namespace:Lessium.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="20" d:DesignWidth="20">
+             d:DesignHeight="20" d:DesignWidth="20" >
 
     <UserControl.Resources>
         <converters:ThicknessConverter x:Key="ThicknessConverter" />
     </UserControl.Resources>
     
-    <Border x:Name="border">
-        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Left" x:Name="grid">
+    <Border x:Name="border" SizeChanged="Border_SizeChanged">
+        <Grid x:Name="grid" VerticalAlignment="Stretch" HorizontalAlignment="Left">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

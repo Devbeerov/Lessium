@@ -19,7 +19,7 @@
         <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
     </UserControl.Resources>
 
-    <Border x:Name="border" MinWidth="16" MinHeight="16">
+    <Border x:Name="border" MinWidth="16" MinHeight="16" SizeChanged="Border_SizeChanged">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
 
             <StackPanel Orientation="Vertical">
