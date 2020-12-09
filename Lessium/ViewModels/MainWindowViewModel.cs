@@ -246,6 +246,13 @@ namespace Lessium.ViewModels
             return false;
         }
 
+        private void AddContentControl(IContentControl control)
+        {
+            CurrentPage.Add(control);
+
+            HasChanges = true;
+        }
+
         #region Section
 
         /// <summary>
@@ -648,9 +655,7 @@ namespace Lessium.ViewModels
                     throw new NotImplementedException($"{MaterialName} not supported!");
             }
 
-            CurrentPage.Add(control);
-
-            HasChanges = true;
+            AddContentControl(control);
 
         }
 
@@ -676,9 +681,7 @@ namespace Lessium.ViewModels
                     throw new NotImplementedException($"{TestName} not supported!");
             }
 
-            CurrentPage.Add(control);
-
-            HasChanges = true;
+            AddContentControl(control);
         }
 
         #endregion

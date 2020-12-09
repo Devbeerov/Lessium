@@ -9,7 +9,11 @@
         
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="IconDictionary.xaml" />
+
+                <!-- Icons, Themes used in application, not bound to specified View -->
+
+                <ResourceDictionary Source="Themes/Generic.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         
