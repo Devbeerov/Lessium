@@ -195,7 +195,7 @@
                 <ItemsControl x:Name="SectionPages" BorderThickness="0" 
                               ItemsSource="{Binding CurrentSection.Pages}"
                               HorizontalAlignment="Left" MaxHeight="{Binding ElementName=section, Path=MaxHeight}"
-                              Style="{StaticResource SectionControlStyle}" ItemTemplate="{StaticResource PageTemplate}">
+                              Style="{StaticResource SectionControlStyle}" ItemTemplate="{StaticResource PageTemplate}" >
 
                 </ItemsControl>
 

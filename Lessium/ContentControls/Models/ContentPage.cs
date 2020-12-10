@@ -14,6 +14,8 @@ namespace Lessium.ContentControls.Models
 
         private bool editable = false;
 
+        public event SizeChangedEventHandler ContentResized;
+
         public ContentPage()
         {
 
@@ -87,20 +89,7 @@ namespace Lessium.ContentControls.Models
 
         public void OnItemResize(object sender, SizeChangedEventArgs e)
         {
-
-            //var control = sender as IContentControl;
-
-            //var rect = this.GetRect();
-            //var controlRect = ((FrameworkElement)control).GetRect();
-
-            //if (e.HeightChanged)
-            //{
-            //    if (controlRect.Y > rect.Y)
-            //    {
-            //        Console.WriteLine("Should go to next page");
-            //    }
-            //}
-
+            ContentResized?.Invoke(sender, e);
         }
 
         #endregion

@@ -10,15 +10,12 @@ namespace Lessium.ContentControls
 {
     public class ContentPageControl : WrapPanel
     {
-        [Obsolete("This constructed used for creating control in XAML. Use constructor with model instead.", true)]
+        private ContentPage model;
+
+        [Obsolete("This constructor used for creating control in XAML.", true)]
         public ContentPageControl() : base()
         {
-            Initialize(null);
-        }
-
-        public ContentPageControl(ContentPage model) : base()
-        {
-            Initialize(model);
+            Initialize();
         }
 
         #region Dependency Properties Methods
@@ -53,28 +50,59 @@ namespace Lessium.ContentControls
 
         #region Public
 
-        public void Initialize(ContentPage model)
+        public void Initialize()
         {
-            // Model
-
-            if (model == null)
-            {
-                model = new ContentPage();
-            }
-
             // Visual
+
+            MaxWidth = ContentPage.PageWidth;
+            MaxHeight = ContentPage.PageHeight;
 
             Width = ContentPage.PageWidth;
             Height = ContentPage.PageHeight;
 
             Orientation = Orientation.Vertical;
-
-            // Sets Items property to model items
-
-            SetItems(model.Items);
+            DataContextChanged += OnDataContextChanged;
         }
 
+        
+
         #endregion
+
+        #endregion
+
+        #region Events
+
+        private void OnModelControlResized(object sender, SizeChangedEventArgs e)
+        {
+            if (e.HeightChanged)
+            {
+                var controlElement = sender as FrameworkElement;
+                var controlLocation = controlElement.TranslatePoint(new Point(), this);
+
+                var controlRect = controlElement.TransformToAncestor(this).TransformBounds(
+                    new Rect(controlLocation, controlElement.RenderSize));
+
+                var rect = LayoutTransform.TransformBounds(new Rect(0, 0, ActualWidth, ActualHeight));
+
+                if (controlRect.Bottom > rect.Height)
+                {
+                    Console.WriteLine("Should go to next page");
+                }
+            }
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            model = e.NewValue as ContentPage;
+
+            // Items
+
+            SetItems(model.Items);
+
+            // Events
+
+            model.ContentResized += OnModelControlResized;
+        }
 
         #endregion
 

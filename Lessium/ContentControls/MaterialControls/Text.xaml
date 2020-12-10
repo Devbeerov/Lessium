@@ -15,7 +15,7 @@
         <converters:ThicknessConverter x:Key="ThicknessConverter" />
     </UserControl.Resources>
     
-    <Border x:Name="border" SizeChanged="Border_SizeChanged">
+    <Border x:Name="border" SizeChanged="Border_SizeChanged" >
         <Grid x:Name="grid" VerticalAlignment="Stretch" HorizontalAlignment="Left">
 
             <Grid.ColumnDefinitions>
