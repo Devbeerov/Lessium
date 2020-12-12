@@ -4,7 +4,8 @@
                     xmlns:converters="clr-namespace:Lessium.Converters" 
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:utility="clr-namespace:Lessium.Utility" 
-                    xmlns:controls="clr-namespace:Lessium.ContentControls" >
+                    xmlns:controls="clr-namespace:Lessium.ContentControls" 
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="MainWindowView.Icons.xaml" />
@@ -246,7 +247,8 @@
             <!-- Page.Items -->
 
             <ItemsControl Grid.Row="1" x:Name="PageContent" BorderThickness="0" 
-                          ItemsSource="{Binding Path=Items}" >
+                          ItemsSource="{Binding Path=Items}"
+                          Tag="{Binding ElementName=toolbar, Path=ActualHeight}" >
 
                 <ItemsControl.MaxHeight>
                     <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
@@ -255,9 +257,16 @@
                     </MultiBinding>
                 </ItemsControl.MaxHeight>
 
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="{x:Type ItemsControl}">
+                        <ItemsPresenter Tag="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Tag}" />
+                    </ControlTemplate>
+                </ItemsControl.Template>
+
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:ContentPageControl IsItemsHost="True" />
+                        <controls:ContentPageControl IsItemsHost="True" 
+                                                     OffsetY="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Tag}" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 

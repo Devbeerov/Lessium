@@ -9,30 +9,43 @@ namespace Lessium.ContentControls.Models
     // Model
     public class ContentPage
     {
+        // Public
+
         public const double PageWidth = 796d;
         public const double PageHeight = 637d;
 
+        // Private
+
+        private double actualWidth = PageWidth;
+        private double actualHeight = PageWidth;
+        
         private bool editable = false;
 
+        private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
+
+        // Events
+
         public event SizeChangedEventHandler ContentResized;
+
+        #region Properties
+
+        public ObservableCollection<IContentControl> Items => items;
+
+        #endregion
+
+        #region Methods
+
+        #region Public
 
         public ContentPage()
         {
 
         }
 
-        private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
-
-        public ObservableCollection<IContentControl> Items => items;
-
-        #region Methods
-
-        #region Public
-
         public void Add(IContentControl element)
         {
-            element.SetMaxWidth(PageWidth);
-            element.SetMaxHeight(PageHeight);
+            element.SetMaxWidth(actualWidth);
+            element.SetMaxHeight(actualHeight);
 
             element.RemoveControl += OnRemove;
             element.Resize += OnItemResize;
@@ -60,6 +73,30 @@ namespace Lessium.ContentControls.Models
             UpdateItemsEditable();
         }
 
+        public void SetMaxWidth(double width)
+        {
+            actualWidth = width;
+
+            foreach (var childControl in items)
+            {
+                childControl.SetMaxWidth(actualWidth);
+            }
+        }
+
+        public void SetMaxHeight(double height)
+        {
+            actualHeight = height;
+
+            foreach(var childControl in items)
+            {
+                childControl.SetMaxHeight(actualHeight);
+            }
+        }
+
+        #endregion
+
+        #region Private
+
         private void UpdateItemEditable(IContentControl contentControl)
         {
             if (contentControl != null)
@@ -70,7 +107,7 @@ namespace Lessium.ContentControls.Models
 
         private void UpdateItemsEditable()
         {
-            foreach (var childControl in Items)
+            foreach (var childControl in items)
             {
                 UpdateItemEditable(childControl);
             }
