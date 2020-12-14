@@ -2,11 +2,13 @@
 using Lessium.Properties;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
+using System.Windows.Media;
 
 namespace Lessium.Utility
 {
@@ -127,6 +129,87 @@ namespace Lessium.Utility
 
             AssociatedObject.Cursor = Cursors.Arrow;
             AssociatedObject.Focusable = false;
+        }
+    }
+
+    #endregion
+
+    #region TextBoxCutBehavior
+
+    /// <summary>
+    /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts text to MaxWidth.
+    /// </summary>
+    public class TextBoxCutBehavior : Behavior<TextBox>
+    {
+        protected override void OnAttached()
+        {
+            if (this.AssociatedObject != null)
+            {
+                base.OnAttached();
+                this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+            }
+        }
+
+        protected override void OnDetaching()
+        {
+            if (this.AssociatedObject != null)
+            {
+                this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+                base.OnDetaching();
+            }
+        }
+
+        private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            if (textBox == null) { return; }
+
+            var lineHeight = TextBlock.GetLineHeight(textBox);
+            
+            var maxLines = Math.Ceiling(textBox.MaxHeight / lineHeight);
+
+            textBox.MaxLines = Convert.ToInt32(maxLines);
+
+            //int pos = textBox.meas
+            //textBox.Text = textBox.Text.Remove(pos);
+            //if(textBox.)
+
+            //if (e.Key == Key.Enter)
+            //{
+            //    if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            //    {
+            //        var selectIndex = textBox.SelectionStart;
+
+            //        textBox.Text = textBox.Text.Insert(selectIndex, System.Environment.NewLine);
+            //        textBox.SelectionStart = selectIndex + System.Environment.NewLine.Length - 1;
+            //    }
+
+            //    else
+            //    {
+            //        // Removes focus
+
+            //        FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null); // Logical focus
+            //        Keyboard.ClearFocus(); // Keyboard focus
+            //    }
+            //}
+        }
+
+        private Size MeasureTextBoxMaxSymbols(TextBox textBox)
+        {
+            
+            var formattedText = new FormattedText(
+                textBox.Text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
+                textBox.FontSize,
+                Brushes.Black,
+                new NumberSubstitution(),
+                1);
+
+            
+            return new Size(formattedText.Width, formattedText.Height);
         }
     }
 

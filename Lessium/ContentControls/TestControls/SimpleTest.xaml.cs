@@ -146,13 +146,14 @@ namespace Lessium.ContentControls.TestControls
             testQuestion.Width = adjustedWidth;
             testQuestion.MaxWidth = adjustedWidth;
 
-            AnswersItemControl.MaxWidth = testQuestion.MaxWidth;
+            AnswersItemControl.MaxWidth = adjustedWidth;
         }
 
         public void SetMaxHeight(double height)
         {
-            testQuestion.MaxHeight = height;
+            // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
 
+            testQuestion.MaxHeight = height;
             AnswersItemControl.MaxHeight = height;
         }
 

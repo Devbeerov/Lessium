@@ -16,7 +16,7 @@
     </UserControl.Resources>
     
     <Border x:Name="border" SizeChanged="Border_SizeChanged" >
-        <Grid x:Name="grid" VerticalAlignment="Stretch" HorizontalAlignment="Left">
+        <Grid x:Name="grid" VerticalAlignment="Top" HorizontalAlignment="Left">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -24,12 +24,13 @@
             </Grid.ColumnDefinitions>
             
             <TextBox x:Name="textBox"
-                 TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
+                 TextWrapping="WrapWithOverflow" Background="Transparent" IsReadOnly="True"
                  ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                  Text="{Binding Text}" >
 
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />
+                    <utility:TextBoxCutBehavior />
                 </i:Interaction.Behaviors>
                 
             </TextBox>

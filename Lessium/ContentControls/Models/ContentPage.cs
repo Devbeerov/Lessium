@@ -75,6 +75,8 @@ namespace Lessium.ContentControls.Models
 
         public void SetMaxWidth(double width)
         {
+            if(actualWidth == width) { return; }
+
             actualWidth = width;
 
             foreach (var childControl in items)
@@ -85,6 +87,8 @@ namespace Lessium.ContentControls.Models
 
         public void SetMaxHeight(double height)
         {
+            if (actualHeight == height) { return; }
+
             actualHeight = height;
 
             foreach(var childControl in items)
