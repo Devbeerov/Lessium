@@ -24,10 +24,14 @@
             </Grid.ColumnDefinitions>
             
             <TextBox x:Name="textBox"
-                 TextWrapping="WrapWithOverflow" Background="Transparent" IsReadOnly="True"
+                 TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
                  ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                 Text="{Binding Text}" >
+                 Text="{Binding Text}" 
+                 ScrollViewer.CanContentScroll="False"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                 MaxLines="38" >
 
+                
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />
                     <utility:TextBoxCutBehavior />

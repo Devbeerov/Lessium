@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media;
+using System.Linq;
 
 namespace Lessium.Utility
 {
@@ -137,7 +138,7 @@ namespace Lessium.Utility
     #region TextBoxCutBehavior
 
     /// <summary>
-    /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts text to MaxWidth.
+    /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts exceeding text.
     /// </summary>
     public class TextBoxCutBehavior : Behavior<TextBox>
     {
@@ -165,41 +166,111 @@ namespace Lessium.Utility
 
             if (textBox == null) { return; }
 
-            var lineHeight = TextBlock.GetLineHeight(textBox);
-            
-            var maxLines = Math.Ceiling(textBox.MaxHeight / lineHeight);
+            if (textBox.LineCount > textBox.MaxLines)
+            {
+                e.Handled = true;
 
-            textBox.MaxLines = Convert.ToInt32(maxLines);
+                var pos = 0;
+                for (int i = 0; i <= textBox.MaxLines; i++)
+                {
+                    pos += textBox.GetLineLength(i);
+                }
 
-            //int pos = textBox.meas
-            //textBox.Text = textBox.Text.Remove(pos);
-            //if(textBox.)
+                var totalAddedLength = e.Changes.Sum((change) => Math.Abs(change.AddedLength - change.RemovedLength));
 
-            //if (e.Key == Key.Enter)
-            //{
-            //    if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-            //    {
-            //        var selectIndex = textBox.SelectionStart;
+                string sourceText = string.Copy(textBox.Text);
 
-            //        textBox.Text = textBox.Text.Insert(selectIndex, System.Environment.NewLine);
-            //        textBox.SelectionStart = selectIndex + System.Environment.NewLine.Length - 1;
-            //    }
+                // Moving offset to get valid wrapping for text.
+                for (int i = 0; i < totalAddedLength; i++)
+                {
+                    string temp = sourceText.Substring(0, pos);
 
-            //    else
-            //    {
-            //        // Removes focus
+                    UpdateTextWithoutFiring(textBox, temp);
 
-            //        FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null); // Logical focus
-            //        Keyboard.ClearFocus(); // Keyboard focus
-            //    }
-            //}
+                    textBox.UpdateLayout();
+
+                    if (textBox.LineCount > textBox.MaxLines)
+                    {
+                        // Decreases pos for next iteration.
+
+                        pos--;
+                    }
+
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // pos now should be last valid position before wrap.
+
+                textBox.Text = sourceText.Remove(pos);
+
+                textBox.CaretIndex = pos;
+            }
+
         }
 
-        private Size MeasureTextBoxMaxSymbols(TextBox textBox)
+        private void UpdateTextWithoutFiring(TextBox textBox, string newText)
+        {
+            textBox.TextChanged -= AssociatedObject_TextChanged;
+
+            textBox.Text = newText;
+
+            textBox.TextChanged += AssociatedObject_TextChanged;
+        }
+
+        //private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    TextBox textBox = sender as TextBox;
+
+        //    if (textBox == null) { return; }
+
+        //    //var currentSize = MeasureTextBoxSize(textBox, textBox.Text);
+        //    //var newSize = MeasureTextBoxSize(textBox, textBox.Text);
+        //    //if (currentSize.Width >= 29382)
+
+        //    //if(textBox.ActualHeight == textBox.MaxHeight)
+        //    //{
+        //    //    // Cut
+
+        //    //    var minPos = e.Changes.Min((change) => change.Offset);
+        //    //    var maxPos = textBox.
+
+        //    //    textBox.Text = textBox.Text.Remove(0, pos);
+        //    //}
+        //    //Console.WriteLine($"{textBox.DesiredSize}, {textBox.RenderSize}");
+        //    //29382
+
+        //    //int pos = textBox.meas
+        //    //textBox.Text = textBox.Text.Remove(pos);
+        //    //if(textBox.)
+
+        //    //if (e.Key == Key.Enter)
+        //    //{
+        //    //    if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+        //    //    {
+        //    //        var selectIndex = textBox.SelectionStart;
+
+        //    //        textBox.Text = textBox.Text.Insert(selectIndex, System.Environment.NewLine);
+        //    //        textBox.SelectionStart = selectIndex + System.Environment.NewLine.Length - 1;
+        //    //    }
+
+        //    //    else
+        //    //    {
+        //    //        // Removes focus
+
+        //    //        FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null); // Logical focus
+        //    //        Keyboard.ClearFocus(); // Keyboard focus
+        //    //    }
+        //    //}
+        //}
+
+        private Size MeasureTextBoxSize(TextBox textBox, string text)
         {
             
             var formattedText = new FormattedText(
-                textBox.Text,
+                text,
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
@@ -208,7 +279,6 @@ namespace Lessium.Utility
                 new NumberSubstitution(),
                 1);
 
-            
             return new Size(formattedText.Width, formattedText.Height);
         }
     }
