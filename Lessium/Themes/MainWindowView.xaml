@@ -206,7 +206,7 @@
             <Border x:Name="toolbar" Height="26"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     BorderThickness="3" BorderBrush="Gray" 
-                    DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}">
+                    DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}" >
 
                 <Grid IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
                     <Menu>

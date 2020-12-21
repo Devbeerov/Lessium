@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media;
 using System.Linq;
+using System.Text;
 
 namespace Lessium.Utility
 {
@@ -180,25 +181,43 @@ namespace Lessium.Utility
 
                 string sourceText = string.Copy(textBox.Text);
 
+                StringBuilder sb = new StringBuilder(sourceText);
+
+                int oldPos = pos;
+
                 // Moving offset to get valid wrapping for text.
                 for (int i = 0; i < totalAddedLength; i++)
                 {
-                    string temp = sourceText.Substring(0, pos);
+                    pos = pos / 2; // Will round up (0.5 ~ 1)
 
-                    UpdateTextWithoutFiring(textBox, temp);
+                    /* pos = 100 > maxlines
+                     * pos = 50 < maxlines
+                     * pos = 
+                     * 
+                     */
+
+
+                    sb.Remove(oldPos, pos);
+
+                    UpdateTextWithoutFiring(textBox, sb.ToString());
 
                     textBox.UpdateLayout();
 
                     if (textBox.LineCount > textBox.MaxLines)
                     {
-                        // Decreases pos for next iteration.
-
-                        pos--;
+                        oldPos = pos;
                     }
 
                     else
                     {
-                        break;
+                        if (textBox.LineCount == textBox.MaxLength)
+                        {
+                            break;
+                        }
+
+                        // LineCount < MaxLines
+
+                        
                     }
                 }
 

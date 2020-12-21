@@ -10,7 +10,7 @@ namespace Lessium.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return this.Aggregate(value, (current, converter) => converter.Convert(current, current.GetType(), parameter, culture));
+            return this.Aggregate(value, (current, converter) => converter.Convert(current, current?.GetType(), parameter, culture));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

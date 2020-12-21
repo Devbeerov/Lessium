@@ -48,24 +48,20 @@ namespace Lessium.Views
         private void CurrentPage_LostFocus(object sender, RoutedEventArgs e)
         {
             var textBox = sender as TextBox;
-            var scroll = FindName("ContentScrollViewer") as ScrollViewer;
 
             int page;
 
             if (!int.TryParse(textBox.Text, out page))
             {
-                textBox.Text = "1";
                 page = 1;
             }
 
-            scroll.ScrollToVerticalOffset(ContentPage.PageHeight * (page - 1));
+            textBox.Text = page.ToString();
 
         }
 
         #endregion
 
         #endregion
-
-
     }
 }

@@ -213,12 +213,12 @@
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="20" Grid.Row="2" Grid.Column="1" Margin="0,0,11,1"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Visibility="{Binding CurrentPageIsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                Visibility="{Binding CurrentSection, Converter={StaticResource NotNullToVisbilityConverter}}" >
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
-                <TextBox Text="{Binding CurrentPageNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                         PreviewTextInput="CurrentPage_PreviewTextInput"
-                         LostFocus="CurrentPage_LostFocus" >
+                <TextBox x:Name="CurrentPage" Text="{Binding CurrentPageNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         PreviewTextInput="CurrentPage_PreviewTextInput" 
+                         LostFocus="CurrentPage_LostFocus">
 
                     <i:Interaction.Behaviors>
                         <utility:TextBoxNewlineBehavior />

@@ -106,11 +106,6 @@ namespace Lessium.ViewModels
 
         }
 
-        public bool CurrentPageIsEmpty
-        {
-            get { return CurrentPage?.Items.Count == 0; }
-        }
-
         // Should be used exclusively for binding!
         public int CurrentSectionID
         {
@@ -190,7 +185,6 @@ namespace Lessium.ViewModels
                 {
                     CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
                 }
-                
             }
         }
 

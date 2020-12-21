@@ -2,6 +2,7 @@
 using Lessium.Interfaces;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -126,6 +127,21 @@ namespace Lessium.ContentControls
             model.SetMaxHeight(newSize.Height);
         }
 
+        /// <summary>
+        /// Checks if item position is fits to ContentPageControl.
+        /// If it's not valid, throws event for further handling.
+        /// </summary>
+        /// <param name="item">Element to check</param>
+        private void ValidateContentPlacement(FrameworkElement item)
+        {
+            var controlLocation = item.TranslatePoint(new Point(), this);
+
+            if (item.ActualHeight + controlLocation.Y > this.ActualHeight - GetOffsetY())
+            {
+                Console.WriteLine("Should go to next page");
+            }
+        }
+
         #endregion
 
         #endregion
@@ -137,19 +153,8 @@ namespace Lessium.ContentControls
             if (e.HeightChanged)
             {
                 var controlElement = sender as FrameworkElement;
-                var controlLocation = controlElement.TranslatePoint(new Point(), this);
 
-                //var controlRect = controlElement.TransformToAncestor(this).TransformBounds(
-                //    new Rect(controlLocation, controlElement.RenderSize));
-
-                //var rect = LayoutTransform.TransformBounds(new Rect(0, 0, ActualWidth, ActualHeight));
-
-                //var actualheight = controlElement.ActualHeight;
-
-                if (controlElement.ActualHeight + controlLocation.Y > this.ActualHeight)
-                {
-                    Console.WriteLine("Should go to next page");
-                }
+                ValidateContentPlacement(controlElement);
             }
         }
 
@@ -176,14 +181,52 @@ namespace Lessium.ContentControls
 
             UpdateModelMaxSize(newSize);
         }
-        
+
+        private void OnItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var newItems = e.NewItems;
+
+            if(newItems == null) { return; }
+
+            var items = sender as ObservableCollection<IContentControl>;
+
+            foreach(FrameworkElement item in newItems)
+            {
+                if (item.IsLoaded)
+                {
+                    ValidateContentPlacement(item);
+                }
+
+                else
+                {
+                    // Wait for new added item to initialize for further check.
+
+                    item.Loaded += OnItemLoaded;
+                }
+            }
+
+        }
+
+        private void OnItemLoaded(object sender, EventArgs e)
+        {
+            var item = sender as FrameworkElement;
+
+            // Validates placement
+
+            ValidateContentPlacement(item);
+
+            // Unsubscribes
+
+            item.Loaded -= OnItemLoaded;
+        }
+
         #endregion
 
         #region Dependency Properties
 
         public static readonly DependencyProperty Items =
             DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
-            typeof(ContentPageControl), new PropertyMetadata(null));
+            typeof(ContentPageControl), new PropertyMetadata(null, ItemsSourceChangedCallback));
 
         public static readonly DependencyProperty OffsetXProperty =
             DependencyProperty.Register("OffsetX", typeof(double),
@@ -221,8 +264,26 @@ namespace Lessium.ContentControls
             pageControl.UpdateModelMaxSize(newSize);
         }
 
+        private static void ItemsSourceChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        {
+            var obj = dependencyObject as ContentPageControl;
+
+            var oldCollection = args.OldValue as ObservableCollection<IContentControl>;
+            var newCollectiion = args.NewValue as ObservableCollection<IContentControl>;
+
+            if (oldCollection != null)
+            {
+                oldCollection.CollectionChanged -= obj.OnItemsChanged;
+            }
+
+            if (newCollectiion != null)
+            {
+                newCollectiion.CollectionChanged += obj.OnItemsChanged;
+            }
+        }
+
         #endregion
 
         #endregion
-    }
+     }
 }
