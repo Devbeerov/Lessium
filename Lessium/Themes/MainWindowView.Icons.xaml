@@ -9,5 +9,7 @@
     <!-- BitmapImages (used for Images by referencing Source) -->
 
     <BitmapImage x:Key="PlusIcon" UriSource="../Resources/plus.png" />
+    <BitmapImage x:Key="SearchIcon" UriSource="../Resources/search.png" />
+    <BitmapImage x:Key="SortIcon" UriSource="../Resources/sort.png" />
 
 </ResourceDictionary>

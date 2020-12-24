@@ -417,10 +417,29 @@ namespace Lessium.ViewModels
             ReadOnly = false;
         }
 
-        // Enables editing only when at ReadOnly
         bool CanExecuteLesson_Edit()
         {
             return ReadOnly;
+        }
+
+        #endregion
+
+        #region Lesson_StopEditing
+
+        private DelegateCommand Lesson_StopEditingCommand;
+        public DelegateCommand Lesson_StopEditing =>
+            Lesson_StopEditingCommand ?? (Lesson_StopEditingCommand = new DelegateCommand(ExecuteLesson_StopEditing, CanExecuteLesson_StopEditing)
+            .ObservesProperty(() => ReadOnly)
+            );
+
+        void ExecuteLesson_StopEditing()
+        {
+            ReadOnly = true;
+        }
+
+        bool CanExecuteLesson_StopEditing()
+        {
+            return !ReadOnly;
         }
 
         #endregion
@@ -760,6 +779,11 @@ namespace Lessium.ViewModels
         public string EditHeader
         {
             get { return model.EditHeader; }
+        }
+
+        public string StopEditingHeader
+        {
+            get { return model.StopEditingHeader; }
         }
 
         public string UndoChangesHeader

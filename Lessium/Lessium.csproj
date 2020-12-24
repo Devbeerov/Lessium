@@ -97,6 +97,7 @@
     <Compile Include="ContentControls\TestControls\SimpleTest.xaml.cs">
       <DependentUpon>SimpleTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\VisibilityAndConverter.cs" />
     <Compile Include="Converters\UIElementsDistanceConverter.cs" />
     <Compile Include="Converters\ArithmeticConverter.cs" />
     <Compile Include="Converters\NotLastConverter.cs" />
@@ -120,6 +121,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Utility\Behaviors.cs" />
+    <Compile Include="Utility\Utility.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -180,6 +182,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\green plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\sort.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

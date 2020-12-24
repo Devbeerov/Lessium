@@ -212,7 +212,7 @@
     <value>True/False</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
-    <value>Undo Changes</value>
+    <value>Undo</value>
   </data>
   <data name="VideoHeader" xml:space="preserve">
     <value>Video</value>
@@ -239,5 +239,8 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="DoubleClickToEditTooltip" xml:space="preserve">
     <value>Click twice to edit.</value>
+  </data>
+  <data name="StopEditingHeader" xml:space="preserve">
+    <value>Stop editing</value>
   </data>
 </root>

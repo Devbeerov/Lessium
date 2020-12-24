@@ -21,7 +21,8 @@
     <converters:NotLastConverter x:Key="NotLastConverter" />
     <converters:ThicknessConverter x:Key="ThicknessConverter" />
     <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
-    
+    <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
+
     <!--#endregion-->
 
     <!--#region Built-in -->
@@ -42,12 +43,6 @@
         <BooleanToVisibilityConverter />
     </converters:ConverterChain>
 
-    <converters:ConverterChain x:Key="NotLastToVisibilityConverter">
-        <converters:NotNullConverter />
-        <converters:InverseBooleanConverter />
-        <BooleanToVisibilityConverter />
-    </converters:ConverterChain>
-    
     <!--#endregion-->
     
     <!--#endregion-->
@@ -205,17 +200,28 @@
 
             <Border x:Name="toolbar" Height="26"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                    BorderThickness="3" BorderBrush="Gray" 
+                    BorderThickness="3" BorderBrush="Gray" Background="#dddddd"
                     DataContext="{Binding ElementName=MainWindowReference, Path=DataContext}" >
 
-                <Grid IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}" >
-                    <Menu>
+                <Grid>
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" /> <!-- Edit-Only, left part -->
+                        <ColumnDefinition Width="Auto" /> <!-- Both, middle -->
+                        <ColumnDefinition Width="*" /> <!-- Edit-Only, right part -->
+                    </Grid.ColumnDefinitions>
 
-                        <MenuItem ToolTip="{Binding ReadOnlyToolTip}" 
+                    <!-- Column 0 -->
+                    
+                    <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}"
+                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
+
+                        <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
                                   ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                  Width="22">
+                                  Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
+                            
                             <MenuItem.Header>
-                                <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,0,0"/>
+                                <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,-5,0" />
                             </MenuItem.Header>
 
                             <!--#region Items -->
@@ -232,12 +238,35 @@
                         </MenuItem>
                     </Menu>
 
-                    <Button HorizontalAlignment="Right" Margin="2,2,2,2"
+                    <!-- Column 1 -->
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" >
+
+                        <Button BorderThickness="0">
+                            <Image x:Name="sortIcon" Source="{StaticResource ResourceKey=SortIcon}" />
+                        </Button>
+
+                        <Button BorderThickness="0">
+                            <Image x:Name="searchIcon" Source="{StaticResource ResourceKey=SearchIcon}" />
+                        </Button>
+                        
+                    </StackPanel>
+
+                    <!-- Column 2 -->
+
+                    <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
                             Command="{Binding RemovePage}"
                             ToolTip="{Binding ReadOnlyToolTip}"
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                            IsEnabled="{Binding ElementName=PageContent, Converter={StaticResource NotLastConverter}}"
-                            Visibility="{Binding ElementName=PageContent, Converter={StaticResource NotLastToVisibilityConverter}}" >
+                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                        <Button.IsEnabled>
+                            <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                <Binding Path="ReadOnly" Converter="{StaticResource InverseBooleanConverter}" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Converter="{StaticResource NotLastConverter}" />
+                            </MultiBinding>
+                        </Button.IsEnabled>
+
                         <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
                     </Button>
                 </Grid>

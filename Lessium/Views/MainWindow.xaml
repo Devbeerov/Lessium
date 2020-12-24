@@ -58,7 +58,17 @@
         
         <Menu Name="LessonMenu" HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuItem Width="40" Height="25" Header="{Binding LessonHeader}">
-                <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}"/>
+                
+                <!-- Edit -->
+                
+                <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}" 
+                          Visibility="{Binding ReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                
+                <!-- Stop editing -->
+                
+                <MenuItem Header="{Binding StopEditingHeader}" Command="{Binding Lesson_StopEditing}" 
+                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" />
+                
                 <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
                 <Separator />
                 <MenuItem Header="{Binding RecentHeader}" />

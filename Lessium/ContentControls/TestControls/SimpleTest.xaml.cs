@@ -129,9 +129,13 @@ namespace Lessium.ContentControls.TestControls
 
             // Answers Controls
 
-            foreach(IContentControl answer in AnswersItemControl.Items)
+            foreach(DependencyObject item in AnswersItemControl.Items)
             {
-                answer.SetEditable(editable);
+                // TODO: 
+                ContentPresenter contentPresenter = Utility.Helper.FindVisualChild<ContentPresenter>(item);
+                DataTemplate dataTemplate = contentPresenter.ContentTemplate;
+                Text textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as Text;
+                textContainer.SetEditable(editable);
             }
 
             // Tooltip

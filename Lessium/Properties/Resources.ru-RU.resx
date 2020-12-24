@@ -212,7 +212,7 @@
     <value>Правда/ложь</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
-    <value>Отменить изменения</value>
+    <value>Отменить</value>
   </data>
   <data name="VideoHeader" xml:space="preserve">
     <value>Видео</value>
@@ -239,5 +239,8 @@
   </data>
   <data name="DoubleClickToEditTooltip" xml:space="preserve">
     <value>Для редактирования нажмите дважды.</value>
+  </data>
+  <data name="StopEditingHeader" xml:space="preserve">
+    <value>Прекратить редактирование</value>
   </data>
 </root>

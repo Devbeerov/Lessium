@@ -341,6 +341,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Stop editing.
+        /// </summary>
+        public static string StopEditingHeader {
+            get {
+                return ResourceManager.GetString("StopEditingHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Tests.
         /// </summary>
         public static string TestsHeader {
@@ -395,7 +404,7 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Undo Changes.
+        ///   Ищет локализованную строку, похожую на Undo.
         /// </summary>
         public static string UndoChangesHeader {
             get {

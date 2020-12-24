@@ -10,6 +10,8 @@ namespace Lessium.Models
 {
     public class MainWindowModel
     {
+        // NOTE: Avoid static fields!
+
         #region Window
 
         public string title = "Lessium";
@@ -81,6 +83,7 @@ namespace Lessium.Models
 
         public string LessonHeader = Resources.LessonHeader;
         public string EditHeader = Resources.EditHeader;
+        public string StopEditingHeader = Resources.StopEditingHeader;
         public string UndoChangesHeader = Resources.UndoChangesHeader;
         public string RecentHeader = Resources.RecentHeader;
         public string NewLessonHeader = Resources.NewLessonHeader;
