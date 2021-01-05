@@ -143,6 +143,8 @@ namespace Lessium.Utility
     /// </summary>
     public class TextBoxCutBehavior : Behavior<TextBox>
     {
+        private bool raiseEvent = true;
+
         protected override void OnAttached()
         {
             if (this.AssociatedObject != null)
@@ -163,6 +165,8 @@ namespace Lessium.Utility
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if(!raiseEvent) { return; }
+
             TextBox textBox = sender as TextBox;
 
             if (textBox == null) { return; }
@@ -195,42 +199,15 @@ namespace Lessium.Utility
                 textBox.CaretIndex = prevCaret;
 
             }
-
-            //int firstPositionInNextLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex + 1);
-            //int lengthOfNextLine = textBox.GetLineLength(MaxLineIndex + 1);
-            //int lastPositionInNextLine = firstPositionInNextLine + lengthOfNextLine;
-
-            //var sourceText = string.Copy(textBox.Text);
-
-            //string newText = string.Empty;
-            //while (textBox.LineCount > textBox.MaxLines)
-            //{
-            //    int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
-            //    int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
-            //    int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
-
-            //    if(lengthOfNextLine > lengthOfMaxLine / 2)
-            //    {
-            //        lengthOfNextLine = lengthOfNextLine / 2;
-            //    }
-
-            //    var len = sourceText.Length;
-
-            //    newText = sourceText.Remove(lastPositionInMaxLine + lengthOfNextLine - 1);
-            //    UpdateTextWithoutFiring(textBox, newText);
-            //    textBox.UpdateLayout();
-            //    lengthOfNextLine--;
-            //}
-
         }
 
         private void UpdateTextWithoutFiring(TextBox textBox, string newText)
         {
-            textBox.TextChanged -= AssociatedObject_TextChanged;
+            raiseEvent = false;
 
             textBox.Text = newText;
 
-            textBox.TextChanged += AssociatedObject_TextChanged;
+            raiseEvent = true;
         }
 
     }

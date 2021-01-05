@@ -97,8 +97,13 @@ namespace Lessium.ContentControls.MaterialControls
         public void SetMaxWidth(double width)
         {
             var adjusted = width - removeButton.Width;
+
+            raiseResizeEvent = false;
+
             textBox.Width = adjusted;
             textBox.MaxWidth = adjusted;
+
+            raiseResizeEvent = true;
         }
 
         public void SetMaxHeight(double height)
@@ -110,6 +115,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         public event RoutedEventHandler RemoveControl;
         public event SizeChangedEventHandler Resize;
+
+        private bool raiseResizeEvent = true;
 
         #endregion
 
@@ -128,6 +135,12 @@ namespace Lessium.ContentControls.MaterialControls
 
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            if (!raiseResizeEvent)
+            {
+                e.Handled = true;
+                return;
+            }
+
             // Sets source to Text Control, not Border
 
             e.Source = this;

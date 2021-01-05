@@ -245,12 +245,12 @@ namespace Lessium.ContentControls
             DependencyProperty.Register("SelectedPage", typeof(ContentPage),
                 typeof(Section), new PropertyMetadata(null));
 
+        // Won't do anything with Section here. Used in ViewModel to change SelectedPage.
         public static readonly DependencyProperty SelectedPageIndex =
             DependencyProperty.Register("SelectedPageIndex", typeof(int),
                 typeof(Section), new PropertyMetadata(null));
 
         #endregion
-
     }
 
     

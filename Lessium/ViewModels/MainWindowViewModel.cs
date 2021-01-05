@@ -13,6 +13,7 @@ using System.Windows.Input;
 using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
+using static Lessium.ContentControls.ContentPageControl;
 
 namespace Lessium.ViewModels
 {
@@ -147,7 +148,13 @@ namespace Lessium.ViewModels
             }
             set
             {
-                CurrentSection.SetSelectedPageIndex(value);
+                if (CurrentPageIndex != value)
+                {
+                    CurrentSection.SetSelectedPageIndex(value);
+                    CurrentPage = Pages[value];
+
+                    RaisePropertyChanged();
+                }
             }
         }
 
@@ -166,6 +173,8 @@ namespace Lessium.ViewModels
                 var index = number - 1;
 
                 CurrentPageIndex = index;
+
+                RaisePropertyChanged();
             }
         }
 
@@ -174,16 +183,21 @@ namespace Lessium.ViewModels
             get { return CurrentSection?.GetSelectedPage(); }
             set
             {
-                CurrentSection.SetSelectedPage(value);
-
-                if (CurrentPage == null)
+                if (CurrentPage != value)
                 {
-                    CurrentPageIndex = -1;
-                }
+                    CurrentSection.SetSelectedPage(value);
 
-                else
-                {
-                    CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
+                    if (CurrentPage == null)
+                    {
+                        CurrentPageIndex = -1;
+                    }
+
+                    else
+                    {
+                        CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
+                    }
+
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -759,6 +773,27 @@ namespace Lessium.ViewModels
             {
                 ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
             }
+        }
+
+        #endregion
+
+        #region HandleExceedingContent
+
+        private DelegateCommand<ExceedingContentEventArgs> HandleExceedingContentCommand;
+        public DelegateCommand<ExceedingContentEventArgs> HandleExceedingContent =>
+            HandleExceedingContentCommand ?? (HandleExceedingContentCommand = new DelegateCommand<ExceedingContentEventArgs>(ExecuteHandleExceedingContent));
+
+        void ExecuteHandleExceedingContent(ExceedingContentEventArgs e)
+        {
+            var content = e.ExceedingItem;
+            var oldPage = e.Page;
+
+            oldPage.Remove(content);
+
+            var newPage = new ContentPage();
+            newPage.Add(content);
+
+            Pages.Add(newPage);
         }
 
         #endregion

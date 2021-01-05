@@ -226,10 +226,13 @@
                 Visibility="{Binding CurrentSection, Converter={StaticResource NotNullToVisbilityConverter}}" >
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
-                <TextBox x:Name="CurrentPage" Text="{Binding CurrentPageNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox x:Name="CurrentPage"
                          PreviewTextInput="CurrentPage_PreviewTextInput" 
-                         LostFocus="CurrentPage_LostFocus">
+                         LostFocus="CurrentPage_LostFocus"
+                         Text="{Binding CurrentPageNumber, UpdateSourceTrigger=PropertyChanged}" >
+                    <!-- ViewModel.CurrentPageNumber updates in code-behind -->
 
+                    <!-- To handle enter press -->
                     <i:Interaction.Behaviors>
                         <utility:TextBoxNewlineBehavior />
                     </i:Interaction.Behaviors>

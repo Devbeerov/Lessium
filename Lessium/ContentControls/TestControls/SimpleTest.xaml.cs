@@ -3,14 +3,11 @@ using Lessium.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Lessium.ContentControls.TestControls
 {
@@ -129,10 +126,9 @@ namespace Lessium.ContentControls.TestControls
 
             // Answers Controls
 
-            foreach(DependencyObject item in AnswersItemControl.Items)
+            foreach (var item in AnswersItemControl.Items)
             {
-                // TODO: 
-                ContentPresenter contentPresenter = Utility.Helper.FindVisualChild<ContentPresenter>(item);
+                var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
                 DataTemplate dataTemplate = contentPresenter.ContentTemplate;
                 Text textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as Text;
                 textContainer.SetEditable(editable);

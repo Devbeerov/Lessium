@@ -1,10 +1,8 @@
-﻿using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
+﻿using Lessium.ViewModels;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace Lessium.Views
 {
@@ -48,7 +46,6 @@ namespace Lessium.Views
         private void CurrentPage_LostFocus(object sender, RoutedEventArgs e)
         {
             var textBox = sender as TextBox;
-
             int page;
 
             if (!int.TryParse(textBox.Text, out page))
@@ -57,7 +54,11 @@ namespace Lessium.Views
             }
 
             textBox.Text = page.ToString();
+            
+            // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
 
+            var viewModel = DataContext as MainWindowViewModel;
+            viewModel.CurrentPageNumber = page;
         }
 
         #endregion

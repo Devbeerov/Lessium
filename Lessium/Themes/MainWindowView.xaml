@@ -5,7 +5,8 @@
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
                     xmlns:utility="clr-namespace:Lessium.Utility" 
                     xmlns:controls="clr-namespace:Lessium.ContentControls" 
-                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
+                    xmlns:prism="http://www.codeplex.com/prism">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="MainWindowView.Icons.xaml" />
@@ -294,8 +295,14 @@
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:ContentPageControl IsItemsHost="True" 
-                                                     OffsetY="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Tag}" />
+                        <controls:ContentPageControl IsItemsHost="True"
+                                                     OffsetY="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Tag}" >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="AddedExceedingContent">
+                                    <prism:InvokeCommandAction Command="{Binding DataContext.HandleExceedingContent, RelativeSource={RelativeSource AncestorType=Border}}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </controls:ContentPageControl>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 

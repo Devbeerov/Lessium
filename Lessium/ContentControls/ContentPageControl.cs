@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Linq;
 
 namespace Lessium.ContentControls
 {
@@ -132,14 +132,26 @@ namespace Lessium.ContentControls
         /// If it's not valid, throws event for further handling.
         /// </summary>
         /// <param name="item">Element to check</param>
-        private void ValidateContentPlacement(FrameworkElement item)
+        /// <returns>True if event throwed, otherwise - false.</returns>
+        private bool ValidateContentPlacement(IContentControl item)
         {
-            var controlLocation = item.TranslatePoint(new Point(), this);
+            var element = item as FrameworkElement;
+            var controlLocation = element.TranslatePoint(new Point(), this);
 
-            if (item.ActualHeight + controlLocation.Y > this.ActualHeight - GetOffsetY())
+            if (element.ActualHeight + controlLocation.Y > this.ActualHeight - GetOffsetY())
             {
-                Console.WriteLine("Should go to next page");
+                var args = new ExceedingContentEventArgs()
+                {
+                    ExceedingItem = item,
+                    Page = model
+                };
+
+                AddedExceedingContent.Invoke(this, args);
+
+                return true;
             }
+
+            return false;
         }
 
         #endregion
@@ -148,13 +160,41 @@ namespace Lessium.ContentControls
 
         #region Events
 
+        public event EventHandler AddedExceedingContent;
+
+        public class ExceedingContentEventArgs : EventArgs
+        {
+            public ContentPage Page { get; set; }
+            public IContentControl ExceedingItem { get; set; }
+        }
+
         private void OnModelControlResized(object sender, SizeChangedEventArgs e)
         {
             if (e.HeightChanged)
             {
-                var controlElement = sender as FrameworkElement;
+                var control = e.Source as IContentControl;
 
-                ValidateContentPlacement(controlElement);
+                var collection = model.Items;
+                int controlPos = collection.IndexOf(control);
+
+                if (ValidateContentPlacement(control))
+                {
+                    // 0 1 2 3 4 5 6 7
+                    //           | <-
+                    // 0 1 2 3 4 5 6
+                    // item with index 6 become item with index 5
+                    // we checked previous 5, so we check new 5 too
+
+                    // If content gone to the next page, we also check all content from upper bound to previous content position.
+
+                    int pos = collection.Count - 1;
+
+                    for (; pos >= controlPos; pos--)
+                    {
+                        var item = collection[pos];
+                        ValidateContentPlacement(item);
+                    }
+                }
             }
         }
 
@@ -173,6 +213,8 @@ namespace Lessium.ContentControls
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
+            if (sender == this) { return; } // important
+
             var offset = new Point(GetOffsetX(), GetOffsetY());
             var newSize = new Size(e.NewSize.Width, e.NewSize.Height);
 
@@ -188,36 +230,15 @@ namespace Lessium.ContentControls
 
             if(newItems == null) { return; }
 
-            var items = sender as ObservableCollection<IContentControl>;
-
             foreach(FrameworkElement item in newItems)
             {
                 if (item.IsLoaded)
                 {
-                    ValidateContentPlacement(item);
+                    ValidateContentPlacement(item as IContentControl);
                 }
-
-                else
-                {
-                    // Wait for new added item to initialize for further check.
-
-                    item.Loaded += OnItemLoaded;
-                }
+                // else it will raise OnModelControlResized method once it will be loaded, which will validate placement.
             }
 
-        }
-
-        private void OnItemLoaded(object sender, EventArgs e)
-        {
-            var item = sender as FrameworkElement;
-
-            // Validates placement
-
-            ValidateContentPlacement(item);
-
-            // Unsubscribes
-
-            item.Loaded -= OnItemLoaded;
         }
 
         #endregion

@@ -1,8 +1,6 @@
 ﻿using Lessium.Interfaces;
-using System;
 using System.Collections.ObjectModel;
 using System.Windows;
-using Lessium.Utility;
 
 namespace Lessium.ContentControls.Models
 {
