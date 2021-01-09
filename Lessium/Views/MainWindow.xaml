@@ -194,20 +194,106 @@
 
         <Viewbox Stretch="Fill" StretchDirection="Both"
                  Grid.Row="1" Grid.Column="1" Margin="0,22,11,11" 
-
                  VerticalAlignment="Top" HorizontalAlignment="Left">
-            
-            <controls:Section x:Name="section" 
+
+            <controls:Section x:Name="section" CanVerticallyScroll="False"
                               MaxWidth="{x:Static models:ContentPage.PageWidth}"
-                              MaxHeight="{x:Static models:ContentPage.PageHeight}" CanVerticallyScroll="False">
+                              MaxHeight="{x:Static models:ContentPage.PageHeight}"
+                              Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              Style="{StaticResource CurrentSectionStyle}" >
+
                 <!-- Keep in mind that Section inherited from StackPanel! -->
 
-                <ItemsControl x:Name="SectionPages" BorderThickness="0" 
-                              ItemsSource="{Binding CurrentSection.Pages}"
-                              HorizontalAlignment="Left" MaxHeight="{Binding ElementName=section, Path=MaxHeight}"
-                              Style="{StaticResource SectionControlStyle}" ItemTemplate="{StaticResource PageTemplate}" >
+                <!-- Page Toolbar -->
 
-                </ItemsControl>
+                <Border x:Name="toolbar" Height="26"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                    BorderThickness="3" BorderBrush="Gray" Background="#dddddd" >
+
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" /> <!-- Edit-Only, left part -->
+                            <ColumnDefinition Width="Auto" /> <!-- Both, middle -->
+                            <ColumnDefinition Width="*" /> <!-- Edit-Only, right part -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Column 0 -->
+
+                        <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}"
+                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
+
+                            <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
+                                  ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                  Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
+
+                                <MenuItem.Header>
+                                    <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,-5,0" />
+                                </MenuItem.Header>
+
+                                <!--#region Items -->
+                                <!-- !!! Name PROPERTY SHOULD BE VALID CONTENT CONTROL TYPE! IT'S USED FOR BINDING! !!! -->
+
+                                <!-- Materials -->
+
+                                <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
+
+                                <!-- Tests -->
+
+                                <MenuItem Name="SimpleTest" Header="{Binding SimpleTestHeader}" Style="{StaticResource TestItem}" />
+                                <!--#endregion-->
+                            </MenuItem>
+                        </Menu>
+
+                        <!-- Column 1 -->
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" >
+
+                            <Button BorderThickness="0">
+                                <Image x:Name="sortIcon" Source="{StaticResource ResourceKey=SortIcon}" />
+                            </Button>
+
+                            <Button BorderThickness="0">
+                                <Image x:Name="searchIcon" Source="{StaticResource ResourceKey=SearchIcon}" />
+                            </Button>
+
+                        </StackPanel>
+
+                        <!-- Column 2 -->
+
+                        <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
+                            Command="{Binding RemovePage}"
+                            ToolTip="{Binding ReadOnlyToolTip}"
+                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                            <Button.IsEnabled>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding Path="ReadOnly" Converter="{StaticResource InverseBooleanConverter}" />
+                                    <Binding Path="CurrentPageIsNotLast" />
+                                </MultiBinding>
+                            </Button.IsEnabled>
+
+                            <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+                        </Button>
+                    </Grid>
+
+                </Border>
+
+                <!-- CurrentPage Content -->
+                <ContentControl x:Name="CurrentPage" 
+                                Content="{Binding CurrentPage}" HorizontalAlignment="Left"
+                                Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}" 
+                                Tag="{Binding ElementName=toolbar, Path=ActualHeight}" >
+                    
+                    <ContentControl.MaxHeight>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                            <Binding ElementName="section" Path="MaxHeight" />
+                            <Binding ElementName="toolbar" Path="ActualHeight" />
+                        </MultiBinding>
+                    </ContentControl.MaxHeight>
+                    
+                </ContentControl>
 
             </controls:Section>
         </Viewbox>
@@ -226,10 +312,10 @@
                 Visibility="{Binding CurrentSection, Converter={StaticResource NotNullToVisbilityConverter}}" >
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
-                <TextBox x:Name="CurrentPage"
-                         PreviewTextInput="CurrentPage_PreviewTextInput" 
-                         LostFocus="CurrentPage_LostFocus"
-                         Text="{Binding CurrentPageNumber, UpdateSourceTrigger=PropertyChanged}" >
+                <TextBox x:Name="CurrentPageBox"
+                         PreviewTextInput="CurrentPageBox_PreviewTextInput" 
+                         LostFocus="CurrentPageBox_LostFocus"
+                         Text="{Binding CurrentPageNumber, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" >
                     <!-- ViewModel.CurrentPageNumber updates in code-behind -->
 
                     <!-- To handle enter press -->

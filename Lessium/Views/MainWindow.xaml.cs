@@ -38,12 +38,12 @@ namespace Lessium.Views
         private static readonly Regex onlyDigitsRegex = new Regex("\\d");
 
         // Filters input
-        private void CurrentPage_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void CurrentPageBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !onlyDigitsRegex.IsMatch(e.Text); // if not digit, sets event to Handled, so it won't update text.
         }
 
-        private void CurrentPage_LostFocus(object sender, RoutedEventArgs e)
+        private void CurrentPageBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var textBox = sender as TextBox;
             int page;

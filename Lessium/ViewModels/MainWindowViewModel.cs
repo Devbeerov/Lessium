@@ -22,6 +22,7 @@ namespace Lessium.ViewModels
         #region Private properties
 
         private readonly MainWindowModel model;
+        private bool currentPageIsNotLast = false;
 
         #endregion
 
@@ -100,7 +101,7 @@ namespace Lessium.ViewModels
             }
         }
 
-        // Use SelectSection method for Set.
+        // Use SelectSection method to "Set" CurrentSection.
         public Section CurrentSection
         {
             get { return model.CurrentSection[SelectedTab]; }
@@ -197,9 +198,16 @@ namespace Lessium.ViewModels
                         CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
                     }
 
+                    UpdateCurrentPageNotLast();
                     RaisePropertyChanged();
                 }
             }
+        }
+
+        public bool CurrentPageIsNotLast
+        {
+            get { return currentPageIsNotLast; }
+            set { SetProperty(ref currentPageIsNotLast, value); }
         }
 
         #endregion
@@ -259,6 +267,18 @@ namespace Lessium.ViewModels
             CurrentPage.Add(control);
 
             HasChanges = true;
+        }
+
+        private void UpdateCurrentPageNotLast()
+        {
+            bool notLast = false;
+
+            if (Pages != null && Pages.Count > 0)
+            {
+                notLast = CurrentPage != Pages.Last();
+            }
+
+            CurrentPageIsNotLast = notLast;
         }
 
         #region Section
@@ -330,8 +350,8 @@ namespace Lessium.ViewModels
                 }
 
                 // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
-                RaisePropertyChanged("CurrentPageIndex");
-                RaisePropertyChanged("CurrentPageNumber");
+                RaisePropertyChanged(nameof(CurrentPageIndex));
+                RaisePropertyChanged(nameof(CurrentPageNumber));
 
                 section = newSection;
 
@@ -393,12 +413,12 @@ namespace Lessium.ViewModels
 
             else
             {
-                RaisePropertyChanged("CurrentSection");
+                RaisePropertyChanged(nameof(CurrentSection));
             }
 
             // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
-            RaisePropertyChanged("CurrentPageIndex");
-            RaisePropertyChanged("CurrentPageNumber");
+            RaisePropertyChanged(nameof(CurrentPageIndex));
+            RaisePropertyChanged(nameof(CurrentPageNumber));
 
             // Shows section if not null.
 
@@ -547,7 +567,7 @@ namespace Lessium.ViewModels
 
             newSection.SetEditable(!ReadOnly);
 
-            // Updates model
+            // Adds newSection.SelectedPage to model LastSelectedPage dictionary.
 
             model.LastSelectedPage.Add(newSection, newSection.GetSelectedPage());
 
@@ -557,6 +577,16 @@ namespace Lessium.ViewModels
             if (CurrentSection == null)
             {
                 SelectSection(newSection);
+
+                // Because we don't use private field for CurrentPage, setting value won't work because it's already same.
+                // To bypass it, we just manually raise PropertyChanged for CurrentPage, CurrentPageIndex and CurrentPageNumber.
+
+                RaisePropertyChanged(nameof(CurrentPage));
+
+                // Also for Index and Number
+
+                RaisePropertyChanged(nameof(CurrentPageIndex));
+                RaisePropertyChanged(nameof(CurrentPageNumber));
             }
 
             HasChanges = true;
@@ -762,12 +792,12 @@ namespace Lessium.ViewModels
 
             SelectedTab = param;
 
-            RaisePropertyChanged("Sections"); // Sections[SelectedTab]
+            RaisePropertyChanged(nameof(Sections)); // Sections[SelectedTab]
 
             SelectSection(model.LastSelectedSection[param], previousSection);
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
-            RaisePropertyChanged("CurrentSectionID");
+            RaisePropertyChanged(nameof(CurrentSectionID));
 
             if (CurrentSection != null)
             {
@@ -790,10 +820,18 @@ namespace Lessium.ViewModels
 
             oldPage.Remove(content);
 
-            var newPage = new ContentPage();
-            newPage.Add(content);
+            if (currentPageIsNotLast)
+            {
+                Pages[CurrentPageIndex + 1].Add(content, true);
+            }
 
-            Pages.Add(newPage);
+            else
+            {
+                var newPage = new ContentPage();
+                newPage.Add(content);
+
+                CurrentSection.Add(newPage);
+            }
         }
 
         #endregion

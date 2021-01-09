@@ -100,7 +100,6 @@
     <Compile Include="Converters\VisibilityAndConverter.cs" />
     <Compile Include="Converters\UIElementsDistanceConverter.cs" />
     <Compile Include="Converters\ArithmeticConverter.cs" />
-    <Compile Include="Converters\NotLastConverter.cs" />
     <Compile Include="Converters\ThicknessConverter.cs" />
     <Compile Include="Converters\StringNotEmptyConverter.cs" />
     <Compile Include="Converters\NotNullConverter.cs" />

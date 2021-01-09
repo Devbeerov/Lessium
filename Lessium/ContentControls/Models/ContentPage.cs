@@ -15,7 +15,7 @@ namespace Lessium.ContentControls.Models
         // Private
 
         private double actualWidth = PageWidth;
-        private double actualHeight = PageWidth;
+        private double actualHeight = PageHeight;
         
         private bool editable = false;
 
@@ -40,7 +40,7 @@ namespace Lessium.ContentControls.Models
 
         }
 
-        public void Add(IContentControl element)
+        public void Add(IContentControl element, bool intoBeginning = false)
         {
             element.SetMaxWidth(actualWidth);
             element.SetMaxHeight(actualHeight);
@@ -48,7 +48,16 @@ namespace Lessium.ContentControls.Models
             element.RemoveControl += OnRemove;
             element.Resize += OnItemResize;
 
-            Items.Add(element);
+            if (!intoBeginning)
+            {
+                Items.Add(element);
+            }
+
+            else
+            {
+                Items.Insert(0, element);
+            }
+
             UpdateItemEditable(element);
         }
 
