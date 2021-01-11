@@ -13,7 +13,7 @@ using System.Windows.Input;
 using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
-using static Lessium.ContentControls.ContentPageControl;
+using static Lessium.ContentControls.Models.ContentPage;
 
 namespace Lessium.ViewModels
 {
@@ -757,6 +757,9 @@ namespace Lessium.ViewModels
         {
             Pages.Remove(CurrentPage);
 
+            // Selects (next) page, which index became same as CurrentPageIndex.
+            CurrentPage = Pages[CurrentPageIndex];
+
             HasChanges = true;
         }
 
@@ -822,7 +825,20 @@ namespace Lessium.ViewModels
 
             if (currentPageIsNotLast)
             {
-                Pages[CurrentPageIndex + 1].Add(content, true);
+                var nextPageIndex = CurrentPageIndex + 1;
+                var lastPageIndex = Pages.Count - 1;
+
+                // Will check all pages from next one to the last one exlusively.
+                for (int i = nextPageIndex; i < lastPageIndex; i++)
+                {
+                    var page = Pages[i];
+
+                    if (page.IsContentFits(content))
+                    {
+                        page.Add(content, true);
+                        break;
+                    }
+                }
             }
 
             else
