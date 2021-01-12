@@ -186,7 +186,11 @@ namespace Lessium.ViewModels
             {
                 if (CurrentPage != value)
                 {
+                    CurrentPage.AddedExceedingContent -= OnExceedingContent;
+
                     CurrentSection.SetSelectedPage(value);
+
+                    CurrentPage.AddedExceedingContent += OnExceedingContent;
 
                     if (CurrentPage == null)
                     {
@@ -434,6 +438,44 @@ namespace Lessium.ViewModels
 
         #endregion
 
+        #region Events
+
+        private void OnExceedingContent(object sender, ExceedingContentEventArgs e)
+        {
+            var content = e.ExceedingItem;
+            var oldPage = sender as ContentPage;
+
+            oldPage.Remove(content);
+
+            if (currentPageIsNotLast)
+            {
+                var nextPageIndex = CurrentPageIndex + 1;
+                var lastPageIndex = Pages.Count - 1;
+
+                // Will check all pages from next excluding last.
+                for (int i = nextPageIndex; i < lastPageIndex; i++)
+                {
+                    var page = Pages[i];
+
+                    if (page.IsContentFits(content))
+                    {
+                        page.Add(content, true);
+                        break;
+                    }
+                }
+            }
+
+            else
+            {
+                var newPage = CreateWithPageControlInjection(oldPage);
+                newPage.Add(content);
+
+                CurrentSection.Add(newPage);
+            }
+        }
+
+        #endregion
+
         #region Commands
 
         #region Lesson Commands
@@ -577,6 +619,10 @@ namespace Lessium.ViewModels
             if (CurrentSection == null)
             {
                 SelectSection(newSection);
+
+                // Adds to EventHandler 
+
+                CurrentPage.AddedExceedingContent += OnExceedingContent;
 
                 // Because we don't use private field for CurrentPage, setting value won't work because it's already same.
                 // To bypass it, we just manually raise PropertyChanged for CurrentPage, CurrentPageIndex and CurrentPageNumber.
@@ -810,48 +856,6 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region HandleExceedingContent
-
-        private DelegateCommand<ExceedingContentEventArgs> HandleExceedingContentCommand;
-        public DelegateCommand<ExceedingContentEventArgs> HandleExceedingContent =>
-            HandleExceedingContentCommand ?? (HandleExceedingContentCommand = new DelegateCommand<ExceedingContentEventArgs>(ExecuteHandleExceedingContent));
-
-        void ExecuteHandleExceedingContent(ExceedingContentEventArgs e)
-        {
-            var content = e.ExceedingItem;
-            var oldPage = e.Page;
-
-            oldPage.Remove(content);
-
-            if (currentPageIsNotLast)
-            {
-                var nextPageIndex = CurrentPageIndex + 1;
-                var lastPageIndex = Pages.Count - 1;
-
-                // Will check all pages from next one to the last one exlusively.
-                for (int i = nextPageIndex; i < lastPageIndex; i++)
-                {
-                    var page = Pages[i];
-
-                    if (page.IsContentFits(content))
-                    {
-                        page.Add(content, true);
-                        break;
-                    }
-                }
-            }
-
-            else
-            {
-                var newPage = new ContentPage();
-                newPage.Add(content);
-
-                CurrentSection.Add(newPage);
-            }
-        }
-
-        #endregion
-
         #endregion
 
         #endregion
@@ -1050,5 +1054,7 @@ namespace Lessium.ViewModels
         #endregion
 
         #endregion
+
+        
     }
 }

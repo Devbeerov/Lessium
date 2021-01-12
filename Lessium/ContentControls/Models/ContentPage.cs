@@ -1,9 +1,8 @@
 ﻿using Lessium.Interfaces;
+using Prism.Commands;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Media;
-
 namespace Lessium.ContentControls.Models
 {
     // Model
@@ -16,12 +15,14 @@ namespace Lessium.ContentControls.Models
 
         // Private
 
-        private double actualWidth = PageWidth;
-        private double actualHeight = PageHeight;
-        
+        private double maxWidth = PageWidth;
+        private double maxHeight = PageHeight;
+
         private bool editable = false;
 
         private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
+
+        private ContentPageControl pageControl;
 
         #region Properties
 
@@ -38,10 +39,17 @@ namespace Lessium.ContentControls.Models
 
         }
 
+        public static ContentPage CreateWithPageControlInjection(ContentPage oldPage)
+        {
+            var newPage = new ContentPage();
+            newPage.SetPageControl(oldPage.pageControl);
+            return newPage;
+        }
+
         public void Add(IContentControl element, bool intoBeginning = false)
         {
-            element.SetMaxWidth(actualWidth);
-            element.SetMaxHeight(actualHeight);
+            element.SetMaxWidth(maxWidth);
+            element.SetMaxHeight(maxHeight);
 
             element.Resize += OnContentResized;
             element.RemoveControl += OnRemove;
@@ -85,35 +93,39 @@ namespace Lessium.ContentControls.Models
 
         public void SetMaxWidth(double width)
         {
-            if(actualWidth == width) { return; }
+            if(maxWidth == width) { return; }
 
-            actualWidth = width;
+            maxWidth = width;
 
             foreach (var childControl in Items)
             {
-                childControl.SetMaxWidth(actualWidth);
+                childControl.SetMaxWidth(maxWidth);
             }
         }
 
         public void SetMaxHeight(double height)
         {
-            if (actualHeight == height) { return; }
+            if (maxHeight == height) { return; }
 
-            actualHeight = height;
+            maxHeight = height;
 
             foreach(var childControl in Items)
             {
-                childControl.SetMaxHeight(actualHeight);
+                childControl.SetMaxHeight(maxHeight);
             }
         }
 
         public bool IsContentFits(IContentControl content)
         {
             var contentElement = content as FrameworkElement;
-            var contentParent = VisualTreeHelper.GetParent(contentElement) as UIElement; // Assuming ContentPageControl
-            var contentLocation = contentElement.TranslatePoint(new Point(0, 0), contentParent);
+            var contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
 
-            return contentElement.ActualHeight + contentLocation.Y > this.actualHeight;
+            return contentElement.ActualHeight + contentLocation.Y < maxHeight;
+        }
+
+        public void SetPageControl(ContentPageControl newPageControl)
+        {
+            pageControl = newPageControl;
         }
 
         #endregion
@@ -146,8 +158,12 @@ namespace Lessium.ContentControls.Models
 
         public class ExceedingContentEventArgs : EventArgs
         {
-            public ContentPage Page { get; set; }
             public IContentControl ExceedingItem { get; set; }
+
+            public ExceedingContentEventArgs(IContentControl ExceedingItem)
+            {
+                this.ExceedingItem = ExceedingItem;
+            }
         }
 
         private void OnRemove(object sender, RoutedEventArgs e)
@@ -160,21 +176,17 @@ namespace Lessium.ContentControls.Models
             if (e.HeightChanged)
             {
                 var control = e.Source as IContentControl;
-
                 var collection = Items;
                 var controlPos = collection.IndexOf(control);
 
-                if (ValidateContentPlacement(control))
+                var lastControlPosition = collection.Count - 1;
+                var lastControl = collection[lastControlPosition];
+
+                // Checks LAST control on this page, if it's not fits, validates backwards to this control including.
+                if (ValidateContentPlacement(lastControl))
                 {
-                    // 0 1 2 3 4 5 6 7
-                    //           | <-
-                    // 0 1 2 3 4 5 6
-                    // item with index 6 become item with index 5
-                    // we checked previous 5, so we check new 5 too
-
-                    // If content gone to the next page, we also check all content from upper bound to previous content position.
-
-                    for (int pos = collection.Count - 1; pos >= controlPos; pos--)
+                    // If lastControl was (current)control, it won't iterate.
+                    for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
                     {
                         var item = collection[pos];
                         ValidateContentPlacement(item);
@@ -191,20 +203,33 @@ namespace Lessium.ContentControls.Models
         /// <returns>True if event throwed, otherwise - false.</returns>
         private bool ValidateContentPlacement(IContentControl item)
         {
-            if (IsContentFits(item))
+            if (!IsContentFits(item))
             {
-                var args = new ExceedingContentEventArgs()
-                {
-                    ExceedingItem = item,
-                    Page = this
-                };
-
+                var args = new ExceedingContentEventArgs(item);
                 AddedExceedingContent?.Invoke(this, args);
+
+                // Updates position of elements after moving item forward.
+
+                pageControl.UpdateLayout();
 
                 return true;
             }
 
             return false;
+        }
+
+        #endregion
+
+        #region Event-Commands
+
+        private DelegateCommand<double?> UpdateMaxHeightCommand;
+        public DelegateCommand<double?> UpdateMaxHeight =>
+            UpdateMaxHeightCommand ?? (UpdateMaxHeightCommand = new DelegateCommand<double?>(ExecuteUpdateMaxHeight));
+
+        void ExecuteUpdateMaxHeight(double? maxHeight)
+        {
+            if(!maxHeight.HasValue) { throw new ArgumentNullException(); }
+            this.maxHeight = maxHeight.Value;
         }
 
         #endregion

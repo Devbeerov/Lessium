@@ -56,8 +56,8 @@ namespace Lessium.ContentControls
             MaxWidth = ContentPage.PageWidth;
             MaxHeight = ContentPage.PageHeight;
 
-            Width = ContentPage.PageWidth;
-            Height = ContentPage.PageHeight;
+            Width = MaxWidth;
+            Height = MaxHeight;
 
             Orientation = Orientation.Vertical;
 
@@ -88,6 +88,11 @@ namespace Lessium.ContentControls
         {
             model = e.NewValue as ContentPage;
 
+            // We set PageControl of model here and keep it for later. 
+            // Therefore, we could check IsContentFit even from older model.
+
+            model.SetPageControl(this);
+
             // Items
 
             SetItems(model.Items);
@@ -95,7 +100,7 @@ namespace Lessium.ContentControls
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (sender == this) { return; } // important
+            //if (sender == this) { return; } // important
 
             var newSize = new Size(e.NewSize.Width, e.NewSize.Height);
 

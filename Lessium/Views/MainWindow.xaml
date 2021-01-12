@@ -284,9 +284,9 @@
                 <ContentControl x:Name="CurrentPage" 
                                 Content="{Binding CurrentPage}" HorizontalAlignment="Left"
                                 Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}" >
-                    
+
                     <ContentControl.MaxHeight>
-                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
                             <Binding ElementName="section" Path="MaxHeight" />
                             <Binding ElementName="toolbar" Path="ActualHeight" />
                         </MultiBinding>

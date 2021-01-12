@@ -205,15 +205,14 @@
     <!--#region Other Data Templates -->
 
     <DataTemplate x:Key="PageTemplate">
-        <controls:ContentPageControl x:Name="contentPageControl" >
+        <controls:ContentPageControl x:Name="contentPageControl" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=MaxHeight}">
             <ItemsControl ItemsSource="{Binding ElementName=contentPageControl, Path=Items}" />
 
             <i:Interaction.Triggers>
-                <i:EventTrigger EventName="AddedExceedingContent">
-                    <prism:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=DataContext.HandleExceedingContent}"/>
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding UpdateMaxHeight}" CommandParameter="{Binding ElementName=contentPageControl, Path=MaxHeight}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-
         </controls:ContentPageControl>
     </DataTemplate>
 
