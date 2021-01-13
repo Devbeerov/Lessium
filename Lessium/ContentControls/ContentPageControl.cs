@@ -2,8 +2,10 @@
 using Lessium.Interfaces;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace Lessium.ContentControls
 {
@@ -51,15 +53,20 @@ namespace Lessium.ContentControls
 
         public void Initialize()
         {
-            // Visual
+            // Default properties
 
             MaxWidth = ContentPage.PageWidth;
-            MaxHeight = ContentPage.PageHeight;
-
             Width = MaxWidth;
-            Height = MaxHeight;
 
             Orientation = Orientation.Vertical;
+
+            // Binding
+
+            var binding = new Binding(nameof(MaxHeight));
+            binding.Source = this;
+            binding.FallbackValue = ContentPage.PageHeight;
+
+            SetBinding(HeightProperty, binding);
 
             // Events
 

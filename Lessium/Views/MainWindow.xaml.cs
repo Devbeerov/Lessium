@@ -1,4 +1,5 @@
 ﻿using Lessium.ViewModels;
+using System;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,13 +12,37 @@ namespace Lessium.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
+        private readonly MainWindowViewModel viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+            viewModel = DataContext as MainWindowViewModel;
         }
 
         #region UI related code-behind
         // Code in this region affects visual part only, it's not breaking MVVM pattern.
+
+        #region Window-Wide Events
+
+        private void MainWindow_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (viewModel.CurrentPage != null && viewModel.Pages.Count > 1)
+            {
+                if (e.Delta < 0) // Down one page (index is Top-Down)
+                {
+                    // Number > index, because of bindings to Number, it will also do all validations with value.
+                    viewModel.CurrentPageNumber++;
+                }
+                else
+                {
+                    viewModel.CurrentPageNumber--;
+                }
+            }
+        }
+
+        #endregion
 
         #region SectionsItemControl
 
@@ -55,9 +80,6 @@ namespace Lessium.Views
 
             textBox.Text = page.ToString();
             
-            // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
-
-            var viewModel = DataContext as MainWindowViewModel;
             viewModel.CurrentPageNumber = page;
         }
 

@@ -11,6 +11,7 @@
         xmlns:models="clr-namespace:Lessium.ContentControls.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
+        MouseWheel="MainWindow_MouseWheel"
         x:Name="MainWindowReference"> <!-- Used for referencing -->
     
     <!--#region Resources -->
@@ -200,7 +201,7 @@
                               MaxWidth="{x:Static models:ContentPage.PageWidth}"
                               MaxHeight="{x:Static models:ContentPage.PageHeight}"
                               Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
-                              Style="{StaticResource CurrentSectionStyle}" >
+                              Style="{StaticResource CurrentSectionStyle}">
 
                 <!-- Keep in mind that Section inherited from StackPanel! -->
 
@@ -283,7 +284,7 @@
                 <!-- CurrentPage Content -->
                 <ContentControl x:Name="CurrentPage" 
                                 Content="{Binding CurrentPage}" HorizontalAlignment="Left"
-                                Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}" >
+                                Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}">
 
                     <ContentControl.MaxHeight>
                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
@@ -291,7 +292,7 @@
                             <Binding ElementName="toolbar" Path="ActualHeight" />
                         </MultiBinding>
                     </ContentControl.MaxHeight>
-                    
+                   
                 </ContentControl>
 
             </controls:Section>

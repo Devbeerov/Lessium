@@ -13,7 +13,6 @@ using System.Windows.Input;
 using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
-using static Lessium.ContentControls.Models.ContentPage;
 
 namespace Lessium.ViewModels
 {
@@ -344,6 +343,7 @@ namespace Lessium.ViewModels
                 if (prevSection != null)
                 {
                     model.LastSelectedPage[prevSection] = prevPage;
+                    prevSection.PageAdded -= OnPageAdded;
                 }
 
                 // Updates new
@@ -351,6 +351,7 @@ namespace Lessium.ViewModels
                 if (newSection != null)
                 {
                     CurrentPage = model.LastSelectedPage[newSection];
+                    newSection.PageAdded += OnPageAdded;
                 }
 
                 // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
@@ -453,25 +454,41 @@ namespace Lessium.ViewModels
                 var lastPageIndex = Pages.Count - 1;
 
                 // Will check all pages from next excluding last.
-                for (int i = nextPageIndex; i < lastPageIndex; i++)
+                for (int i = nextPageIndex; i <= lastPageIndex; i++)
                 {
                     var page = Pages[i];
 
-                    if (page.IsContentFits(content))
+                    if (i != lastPageIndex)
+                    {
+                        if (page.IsContentFits(content, true))
+                        {
+                            page.Add(content, true);
+                            break;
+                        }
+                    }
+                    else
                     {
                         page.Add(content, true);
-                        break;
                     }
                 }
             }
 
             else
             {
-                var newPage = CreateWithPageControlInjection(oldPage);
+                var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
                 newPage.Add(content);
 
                 CurrentSection.Add(newPage);
+                RaisePropertyChanged(nameof(Pages));
             }
+        }
+
+        /// <summary>
+        /// Handles CurrentSection.PageAdded event. CurrentPage already updated to added page.
+        /// </summary>
+        private void OnPageAdded(object sender, PageAddedEventArgs e)
+        {
+            UpdateCurrentPageNotLast();
         }
 
         #endregion

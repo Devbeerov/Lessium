@@ -1,5 +1,4 @@
 ﻿using Lessium.Interfaces;
-using Prism.Commands;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -69,7 +68,15 @@ namespace Lessium.ContentControls.Models
             // If Element is already loaded (for example, moved from another page to this one), validates it's position
             if ((element as FrameworkElement).IsLoaded)
             {
-                ValidateContentPlacement(element);
+                if (intoBeginning)
+                {
+                    ValidateAllForward(element);
+                }
+
+                else
+                {
+                    ValidateContentPlacement(element);
+                }
             }
         }
 
@@ -115,10 +122,14 @@ namespace Lessium.ContentControls.Models
             }
         }
 
-        public bool IsContentFits(IContentControl content)
+        public bool IsContentFits(IContentControl content, bool ignoreLocation = false)
         {
             var contentElement = content as FrameworkElement;
-            var contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
+            Point contentLocation = default(Point);
+            if (!ignoreLocation) 
+            {
+                contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
+            }
 
             return contentElement.ActualHeight + contentLocation.Y < maxHeight;
         }
@@ -148,6 +159,34 @@ namespace Lessium.ContentControls.Models
             }
         }
 
+        /// <summary>
+        /// Validates all controls after specified.
+        /// </summary>
+        private void ValidateAllForward(IContentControl control)
+        {
+            var collection = Items;
+            var lastControlPosition = collection.Count - 1;
+            var lastControl = collection[lastControlPosition];
+
+            // Checks LAST control on this page, if it's not fits, validates backwards to this control including.
+            if (ValidateContentPlacement(lastControl))
+            {
+                var controlPos = collection.IndexOf(control);
+
+                // In case (current)control was lastControl, it will be deleted during validation, therefore sets position to zero.
+                if (controlPos == -1)
+                {
+                    controlPos = 0;
+                }
+
+                for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
+                {
+                    var item = collection[pos];
+                    ValidateContentPlacement(item);
+                }
+            }
+        }
+
         #endregion
 
         #endregion
@@ -155,16 +194,6 @@ namespace Lessium.ContentControls.Models
         #region Events
 
         public event EventHandler<ExceedingContentEventArgs> AddedExceedingContent;
-
-        public class ExceedingContentEventArgs : EventArgs
-        {
-            public IContentControl ExceedingItem { get; set; }
-
-            public ExceedingContentEventArgs(IContentControl ExceedingItem)
-            {
-                this.ExceedingItem = ExceedingItem;
-            }
-        }
 
         private void OnRemove(object sender, RoutedEventArgs e)
         {
@@ -175,23 +204,7 @@ namespace Lessium.ContentControls.Models
         {
             if (e.HeightChanged)
             {
-                var control = e.Source as IContentControl;
-                var collection = Items;
-                var controlPos = collection.IndexOf(control);
-
-                var lastControlPosition = collection.Count - 1;
-                var lastControl = collection[lastControlPosition];
-
-                // Checks LAST control on this page, if it's not fits, validates backwards to this control including.
-                if (ValidateContentPlacement(lastControl))
-                {
-                    // If lastControl was (current)control, it won't iterate.
-                    for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
-                    {
-                        var item = collection[pos];
-                        ValidateContentPlacement(item);
-                    }
-                }
+                ValidateAllForward(e.Source as IContentControl);
             }
         }
 
@@ -201,9 +214,9 @@ namespace Lessium.ContentControls.Models
         /// </summary>
         /// <param name="item">Element to check</param>
         /// <returns>True if event throwed, otherwise - false.</returns>
-        private bool ValidateContentPlacement(IContentControl item)
+        private bool ValidateContentPlacement(IContentControl item, bool ignoreLocation = false)
         {
-            if (!IsContentFits(item))
+            if (!IsContentFits(item, ignoreLocation))
             {
                 var args = new ExceedingContentEventArgs(item);
                 AddedExceedingContent?.Invoke(this, args);
@@ -220,19 +233,15 @@ namespace Lessium.ContentControls.Models
 
         #endregion
 
-        #region Event-Commands
+    }
 
-        private DelegateCommand<double?> UpdateMaxHeightCommand;
-        public DelegateCommand<double?> UpdateMaxHeight =>
-            UpdateMaxHeightCommand ?? (UpdateMaxHeightCommand = new DelegateCommand<double?>(ExecuteUpdateMaxHeight));
+    public class ExceedingContentEventArgs : EventArgs
+    {
+        public IContentControl ExceedingItem { get; private set; }
 
-        void ExecuteUpdateMaxHeight(double? maxHeight)
+        public ExceedingContentEventArgs(IContentControl ExceedingItem)
         {
-            if(!maxHeight.HasValue) { throw new ArgumentNullException(); }
-            this.maxHeight = maxHeight.Value;
+            this.ExceedingItem = ExceedingItem;
         }
-
-        #endregion
-
     }
 }

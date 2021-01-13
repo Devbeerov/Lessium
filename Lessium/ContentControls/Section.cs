@@ -195,6 +195,12 @@ namespace Lessium.ContentControls
         public void Add(ContentPage page)
         {
             pages.Add(page);
+
+            // Raising event
+
+            var args = new PageAddedEventArgs(page);
+            PageAdded?.Invoke(this, args);
+
             UpdatePageEditable(page);
         }
 
@@ -232,6 +238,12 @@ namespace Lessium.ContentControls
 
         #endregion
 
+        #region Events
+
+        public event EventHandler<PageAddedEventArgs> PageAdded;
+
+        #endregion
+
         #region Dependency Properties
 
         public static readonly DependencyProperty Title =
@@ -253,7 +265,15 @@ namespace Lessium.ContentControls
         #endregion
     }
 
-    
+    public class PageAddedEventArgs
+    {
+        public ContentPage AddedPage { get; private set; }
+
+        public PageAddedEventArgs(ContentPage page)
+        {
+            AddedPage = page;
+        }
+    }
 
     [Serializable]
     public class SectionSerializationInfo
