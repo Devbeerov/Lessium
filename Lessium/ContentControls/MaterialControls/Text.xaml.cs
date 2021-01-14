@@ -100,8 +100,8 @@ namespace Lessium.ContentControls.MaterialControls
 
             raiseResizeEvent = false;
 
-            textBox.Width = adjusted;
             textBox.MaxWidth = adjusted;
+            textBox.Width = adjusted;
 
             raiseResizeEvent = true;
         }

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using Lessium.ContentControls.Models;
+using System.ComponentModel;
 
 namespace Lessium.ContentControls
 {
@@ -198,8 +199,8 @@ namespace Lessium.ContentControls
 
             // Raising event
 
-            var args = new PageAddedEventArgs(page);
-            PageAdded?.Invoke(this, args);
+            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Add);
+            PagesChanged?.Invoke(this, args);
 
             UpdatePageEditable(page);
         }
@@ -207,6 +208,11 @@ namespace Lessium.ContentControls
         public void Remove(ContentPage page)
         {
             pages.Remove(page);
+
+            // Raising event
+
+            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Remove);
+            PagesChanged?.Invoke(this, args);
         }
 
         public bool GetEditable()
@@ -240,7 +246,7 @@ namespace Lessium.ContentControls
 
         #region Events
 
-        public event EventHandler<PageAddedEventArgs> PageAdded;
+        public event EventHandler<PagesChangedEventArgs> PagesChanged;
 
         #endregion
 
@@ -265,13 +271,15 @@ namespace Lessium.ContentControls
         #endregion
     }
 
-    public class PageAddedEventArgs
+    public class PagesChangedEventArgs
     {
-        public ContentPage AddedPage { get; private set; }
+        public ContentPage Page { get; private set; }
+        public CollectionChangeAction Action { get; private set; }
 
-        public PageAddedEventArgs(ContentPage page)
+        public PagesChangedEventArgs(ContentPage page, CollectionChangeAction action)
         {
-            AddedPage = page;
+            Page = page;
+            Action = action;
         }
     }
 

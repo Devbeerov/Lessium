@@ -271,7 +271,7 @@
                             <Button.IsEnabled>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
                                     <Binding Path="ReadOnly" Converter="{StaticResource InverseBooleanConverter}" />
-                                    <Binding Path="CurrentPageIsNotLast" />
+                                    <Binding Path="CurrentPageIsNotFirst" />
                                 </MultiBinding>
                             </Button.IsEnabled>
 

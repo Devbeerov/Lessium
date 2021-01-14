@@ -13,6 +13,7 @@ using System.Windows.Input;
 using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
+using System.ComponentModel;
 
 namespace Lessium.ViewModels
 {
@@ -21,7 +22,7 @@ namespace Lessium.ViewModels
         #region Private properties
 
         private readonly MainWindowModel model;
-        private bool currentPageIsNotLast = false;
+        private bool currentPageIsNotFirst = false;
 
         #endregion
 
@@ -154,6 +155,7 @@ namespace Lessium.ViewModels
                     CurrentPage = Pages[value];
 
                     RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(CurrentPageNumber));
                 }
             }
         }
@@ -185,11 +187,7 @@ namespace Lessium.ViewModels
             {
                 if (CurrentPage != value)
                 {
-                    CurrentPage.AddedExceedingContent -= OnExceedingContent;
-
                     CurrentSection.SetSelectedPage(value);
-
-                    CurrentPage.AddedExceedingContent += OnExceedingContent;
 
                     if (CurrentPage == null)
                     {
@@ -201,16 +199,16 @@ namespace Lessium.ViewModels
                         CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
                     }
 
-                    UpdateCurrentPageNotLast();
+                    UpdateCurrentPageNotFirst();
                     RaisePropertyChanged();
                 }
             }
         }
 
-        public bool CurrentPageIsNotLast
+        public bool CurrentPageIsNotFirst
         {
-            get { return currentPageIsNotLast; }
-            set { SetProperty(ref currentPageIsNotLast, value); }
+            get { return currentPageIsNotFirst; }
+            set { SetProperty(ref currentPageIsNotFirst, value); }
         }
 
         #endregion
@@ -272,16 +270,16 @@ namespace Lessium.ViewModels
             HasChanges = true;
         }
 
-        private void UpdateCurrentPageNotLast()
+        private void UpdateCurrentPageNotFirst()
         {
-            bool notLast = false;
+            bool notFirst = false;
 
             if (Pages != null && Pages.Count > 0)
             {
-                notLast = CurrentPage != Pages.Last();
+                notFirst = CurrentPageIndex != 0;
             }
 
-            CurrentPageIsNotLast = notLast;
+            CurrentPageIsNotFirst = notFirst;
         }
 
         #region Section
@@ -343,7 +341,7 @@ namespace Lessium.ViewModels
                 if (prevSection != null)
                 {
                     model.LastSelectedPage[prevSection] = prevPage;
-                    prevSection.PageAdded -= OnPageAdded;
+                    prevSection.PagesChanged -= OnPagesChanged;
                 }
 
                 // Updates new
@@ -351,10 +349,11 @@ namespace Lessium.ViewModels
                 if (newSection != null)
                 {
                     CurrentPage = model.LastSelectedPage[newSection];
-                    newSection.PageAdded += OnPageAdded;
+                    newSection.PagesChanged += OnPagesChanged;
                 }
 
-                // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
+                // We still should call RaisePropertyChanged, because we bind to them in View.
+                // So when changing Sections, Index and Number could be the same.
                 RaisePropertyChanged(nameof(CurrentPageIndex));
                 RaisePropertyChanged(nameof(CurrentPageNumber));
 
@@ -421,7 +420,8 @@ namespace Lessium.ViewModels
                 RaisePropertyChanged(nameof(CurrentSection));
             }
 
-            // We still should call RaisePropertyChanged, because we bind to them in View, and when changing Sections, Index could be the same.
+            // We still should call RaisePropertyChanged, because we bind to them in View.
+            // So when changing Sections, Index and Number could be the same.
             RaisePropertyChanged(nameof(CurrentPageIndex));
             RaisePropertyChanged(nameof(CurrentPageNumber));
 
@@ -445,50 +445,46 @@ namespace Lessium.ViewModels
         {
             var content = e.ExceedingItem;
             var oldPage = sender as ContentPage;
+            var oldPageIndex = Pages.IndexOf(oldPage);
 
             oldPage.Remove(content);
 
-            if (currentPageIsNotLast)
+            if (oldPageIndex != Pages.Count - 1) // Not last Page
             {
-                var nextPageIndex = CurrentPageIndex + 1;
-                var lastPageIndex = Pages.Count - 1;
+                var nextPage = Pages[oldPageIndex + 1];
 
-                // Will check all pages from next excluding last.
-                for (int i = nextPageIndex; i <= lastPageIndex; i++)
-                {
-                    var page = Pages[i];
+                // Inserts content into beginning of next Page. Will validate all items forward automatically.
 
-                    if (i != lastPageIndex)
-                    {
-                        if (page.IsContentFits(content, true))
-                        {
-                            page.Add(content, true);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        page.Add(content, true);
-                    }
-                }
+                nextPage.Insert(0, content);
             }
 
             else
             {
+                // Otherwise, creates a new Page and inserts content to it
                 var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
-                newPage.Add(content);
-
                 CurrentSection.Add(newPage);
+
+                newPage.Insert(0, content);
                 RaisePropertyChanged(nameof(Pages));
             }
         }
 
         /// <summary>
-        /// Handles CurrentSection.PageAdded event. CurrentPage already updated to added page.
+        /// Handles CurrentSection.PagesChanged event. CurrentPage should be already updated.
         /// </summary>
-        private void OnPageAdded(object sender, PageAddedEventArgs e)
+        private void OnPagesChanged(object sender, PagesChangedEventArgs e)
         {
-            UpdateCurrentPageNotLast();
+            if (e.Action == CollectionChangeAction.Add)
+            {
+                e.Page.AddedExceedingContent += OnExceedingContent;
+            }
+
+            else if(e.Action == CollectionChangeAction.Remove)
+            {
+                e.Page.AddedExceedingContent -= OnExceedingContent;
+            }
+            
+            UpdateCurrentPageNotFirst();
         }
 
         #endregion
@@ -637,9 +633,8 @@ namespace Lessium.ViewModels
             {
                 SelectSection(newSection);
 
-                // Adds to EventHandler 
-
-                CurrentPage.AddedExceedingContent += OnExceedingContent;
+                // Page was added from Section constructor, so we raise handler with this page.
+                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.GetSelectedPage(), CollectionChangeAction.Add));
 
                 // Because we don't use private field for CurrentPage, setting value won't work because it's already same.
                 // To bypass it, we just manually raise PropertyChanged for CurrentPage, CurrentPageIndex and CurrentPageNumber.
@@ -820,8 +815,7 @@ namespace Lessium.ViewModels
         {
             Pages.Remove(CurrentPage);
 
-            // Selects (next) page, which index became same as CurrentPageIndex.
-            CurrentPage = Pages[CurrentPageIndex];
+            CurrentPage = Pages[CurrentPageIndex - 1];
 
             HasChanges = true;
         }

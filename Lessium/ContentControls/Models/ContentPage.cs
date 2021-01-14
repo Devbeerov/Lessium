@@ -45,44 +45,38 @@ namespace Lessium.ContentControls.Models
             return newPage;
         }
 
-        public void Add(IContentControl element, bool intoBeginning = false)
+        public void Add(IContentControl control)
         {
-            element.SetMaxWidth(maxWidth);
-            element.SetMaxHeight(maxHeight);
+            BindControl(control);
 
-            element.Resize += OnContentResized;
-            element.RemoveControl += OnRemove;
+            items.Add(control);
 
-            if (!intoBeginning)
+            // If control is already loaded (for example, moved from another page to this one), validates it
+            if ((control as FrameworkElement).IsLoaded)
             {
-                Items.Add(element);
+                ValidateContentPlacement(control);
             }
+        }
 
-            else
+        public void Insert(int position, IContentControl control)
+        {
+            BindControl(control);
+
+            Items.Insert(position, control);
+
+            // If control is already loaded (for example, moved from another page to this one), validates forward
+            if ((control as FrameworkElement).IsLoaded)
             {
-                Items.Insert(0, element);
-            }
-
-            UpdateItemEditable(element);
-
-            // If Element is already loaded (for example, moved from another page to this one), validates it's position
-            if ((element as FrameworkElement).IsLoaded)
-            {
-                if (intoBeginning)
-                {
-                    ValidateAllForward(element);
-                }
-
-                else
-                {
-                    ValidateContentPlacement(element);
-                }
+                bool ignore = position == 0; // Only skips check if inserted at zero position.
+                ValidateAllForward(control, ignore);
             }
         }
 
         public void Remove(IContentControl element)
         {
             element.RemoveControl -= OnRemove;
+            element.Resize -= OnContentResized;
+
             Items.Remove(element);
         }
 
@@ -122,21 +116,38 @@ namespace Lessium.ContentControls.Models
             }
         }
 
-        public bool IsContentFits(IContentControl content, bool ignoreLocation = false)
+        public bool IsContentFits(IContentControl content)
         {
             var contentElement = content as FrameworkElement;
-            Point contentLocation = default(Point);
-            if (!ignoreLocation) 
-            {
-                contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
-            }
 
+            // Ensures that content childs properly updated.
+
+            contentElement.UpdateLayout();
+
+            // Ensures that all items are properly placed
+
+            pageControl.UpdateLayout();
+
+            // Checks if it fits
+
+            var contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
             return contentElement.ActualHeight + contentLocation.Y < maxHeight;
         }
 
         public void SetPageControl(ContentPageControl newPageControl)
         {
             pageControl = newPageControl;
+            if (!pageControl.IsLoaded)
+            {
+                pageControl.Loaded += (s, e) =>
+                {
+                    SetMaxHeight(pageControl.MaxHeight);
+                };
+            }
+            else
+            {
+                SetMaxHeight(pageControl.MaxHeight);
+            }
         }
 
         #endregion
@@ -160,15 +171,35 @@ namespace Lessium.ContentControls.Models
         }
 
         /// <summary>
-        /// Validates all controls after specified.
+        /// Binds control to Page, updates its properties to match Page, also attaches event handlers
         /// </summary>
-        private void ValidateAllForward(IContentControl control)
+        /// <param name="control"></param>
+        private void BindControl(IContentControl control)
+        {
+            control.SetMaxWidth(maxWidth);
+            control.SetMaxHeight(maxHeight);
+
+            control.Resize += OnContentResized;
+            control.RemoveControl += OnRemove;
+
+            UpdateItemEditable(control);
+        }
+
+        /// <summary>
+        /// Validates all controls after specified.
+        /// <param name="ignoreControl">Should given control be validated or not.</param>
+        /// </summary>
+        private void ValidateAllForward(IContentControl control, bool ignoreControl = false)
         {
             var collection = Items;
+            if(!collection.Contains(control))
+            {
+                Console.WriteLine("");
+            }
             var lastControlPosition = collection.Count - 1;
             var lastControl = collection[lastControlPosition];
 
-            // Checks LAST control on this page, if it's not fits, validates backwards to this control including.
+            // Checks LAST control on this page, if it's not fits, validates backwards to this control.
             if (ValidateContentPlacement(lastControl))
             {
                 var controlPos = collection.IndexOf(control);
@@ -181,6 +212,8 @@ namespace Lessium.ContentControls.Models
 
                 for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
                 {
+                    if(ignoreControl && pos == controlPos) { return; }
+
                     var item = collection[pos];
                     ValidateContentPlacement(item);
                 }
@@ -214,16 +247,12 @@ namespace Lessium.ContentControls.Models
         /// </summary>
         /// <param name="item">Element to check</param>
         /// <returns>True if event throwed, otherwise - false.</returns>
-        private bool ValidateContentPlacement(IContentControl item, bool ignoreLocation = false)
+        private bool ValidateContentPlacement(IContentControl item)
         {
-            if (!IsContentFits(item, ignoreLocation))
+            if (!IsContentFits(item))
             {
                 var args = new ExceedingContentEventArgs(item);
                 AddedExceedingContent?.Invoke(this, args);
-
-                // Updates position of elements after moving item forward.
-
-                pageControl.UpdateLayout();
 
                 return true;
             }
