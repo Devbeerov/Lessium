@@ -456,6 +456,40 @@ namespace Lessium.ViewModels
                 // Inserts content into beginning of next Page. Will validate all items forward automatically.
 
                 nextPage.Insert(0, content);
+
+                // WPF is not updating element arrangement (positions) if they not visible at window.
+                // To bypass it, we could select next page (make visible) and wait for valid arrangement, after that - switch back.
+
+                var pageControl = nextPage.GetPageControl();
+
+                pageControl.InvalidateArrange();
+
+                // Constructing lambda handler for handling this event. WILL BE CALLED LATER.
+
+                EventHandler handler = null;
+                handler += (s, args) =>
+                {
+                    if (pageControl.IsArrangeValid)
+                    {
+                        // Removes event, validates page and switch back to previous page.
+
+                        pageControl.LayoutUpdated -= handler;
+                        CurrentPage.ValidatePage();
+
+                        // It designed to work when page can add content only to itself.
+                        // Or to move it to next page due to exceeding content.
+
+                        CurrentPage = Pages[CurrentPageIndex - 1];
+                    }
+                };
+
+                // Adding handler. EXECUTED BEFORE HANDLER CATCH EVENT!
+
+                pageControl.LayoutUpdated += handler;
+
+                // Switching to next page for validating it.
+
+                CurrentPage = nextPage;
             }
 
             else
@@ -464,7 +498,7 @@ namespace Lessium.ViewModels
                 var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
                 CurrentSection.Add(newPage);
 
-                newPage.Insert(0, content);
+                newPage.Add(content);
                 RaisePropertyChanged(nameof(Pages));
             }
         }

@@ -150,6 +150,16 @@ namespace Lessium.ContentControls.Models
             }
         }
 
+        public ContentPageControl GetPageControl()
+        {
+            return pageControl;
+        }
+
+        public void ValidatePage()
+        {
+            ValidateAllForward(Items[0], true);
+        }
+
         #endregion
 
         #region Private
@@ -192,10 +202,6 @@ namespace Lessium.ContentControls.Models
         private void ValidateAllForward(IContentControl control, bool ignoreControl = false)
         {
             var collection = Items;
-            if(!collection.Contains(control))
-            {
-                Console.WriteLine("");
-            }
             var lastControlPosition = collection.Count - 1;
             var lastControl = collection[lastControlPosition];
 
@@ -213,7 +219,7 @@ namespace Lessium.ContentControls.Models
                 for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
                 {
                     if(ignoreControl && pos == controlPos) { return; }
-
+                    if (pos == 0) { return; } // Don't check if its in zero position, it will be always valid.
                     var item = collection[pos];
                     ValidateContentPlacement(item);
                 }
