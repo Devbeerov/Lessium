@@ -1,0 +1,217 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Lessium.Converters" 
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:utility="clr-namespace:Lessium.Utility" 
+                    xmlns:controls="clr-namespace:Lessium.ContentControls" 
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
+                    xmlns:prism="http://www.codeplex.com/prism" >
+
+    <!-- Temp: diag:PresentationTraceSources.TraceLevel=High -->
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="MainWindowView.Icons.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--#region Converters -->
+    
+    <!--#region Custom -->
+    
+    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
+    <converters:NotNullConverter x:Key="NotNullConverter" />
+    <converters:ThicknessConverter x:Key="ThicknessConverter" />
+    <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+    <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
+
+    <!--#endregion-->
+
+    <!--#region Built-in -->
+    
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    
+    <!--#endregion-->
+
+    <!--#region Converter Chains -->
+
+    <converters:ConverterChain x:Key="InverseVisiblityConverter">
+        <converters:InverseBooleanConverter />
+        <BooleanToVisibilityConverter />
+    </converters:ConverterChain>
+
+    <converters:ConverterChain x:Key="NotNullToVisbilityConverter">
+        <converters:NotNullConverter />
+        <BooleanToVisibilityConverter />
+    </converters:ConverterChain>
+
+    <!--#endregion-->
+    
+    <!--#endregion-->
+    
+    <!--#region Styles -->
+
+    <Style x:Key="CurrentPageControlStyle" TargetType="{x:Type ContentControl}">
+        <Setter Property="Focusable" Value="False" />
+        <Style.Triggers>
+            <Trigger Property="HasContent" Value="True">
+                <Trigger.Setters>
+                    <Setter Property="Focusable" Value="True"/>
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="CurrentSectionStyle" TargetType="{x:Type controls:Section}">
+        <Setter Property="IsEnabled" Value="False" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding CurrentSection, Converter={StaticResource NotNullConverter}}" Value="True">
+                <Setter Property="IsEnabled" Value="True" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--#region Buttons-->
+
+    <Style x:Key="AddSectionButtonStyle" TargetType="Button">
+        <Style.Triggers>
+            <Trigger Property="ToolTipService.IsEnabled" Value="True">
+                <Trigger.Setters>
+                    <!-- Gray -->
+                    <Setter Property="Foreground" Value="#ADADAD"/>
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region ContentItems -->
+
+    <Style x:Key="ContentItem" TargetType="MenuItem">
+        <Style.Setters>
+            <!-- Items should be only visible if suitable Tab selected, so they are collapsed if not -->
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="Visibility" Value="Collapsed" />
+            <!-- Passing ContentName to CommandParameter for later -->
+            <Setter Property="CommandParameter" Value="{Binding Name, RelativeSource={RelativeSource Self}}" />
+        </Style.Setters>
+
+    </Style>
+
+    <Style x:Key="MaterialItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+
+        <Setter Property="Command" Value="{Binding AddMaterial}" />
+
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
+                <DataTrigger.Setters>
+                    <Setter Property="IsEnabled" Value="True" />
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger.Setters>
+            </DataTrigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style x:Key="TestItem" BasedOn="{StaticResource ContentItem}" TargetType="MenuItem">
+
+        <Setter Property="Command" Value="{Binding AddTest}" />
+
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
+                <DataTrigger.Setters>
+                    <Setter Property="IsEnabled" Value="True" />
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger.Setters>
+            </DataTrigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#endregion-->
+
+    <!--#region Templates -->
+    
+    <!--#region Control Templates -->
+
+    <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
+        <Border x:Name="border" Background="LightSteelBlue"
+                HorizontalAlignment="Stretch" Height="Auto">
+
+            <Viewbox Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Left">
+
+                <Grid x:Name="grid" Height="24" Width="{Binding ElementName=border, Path=ActualWidth}" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image x:Name="plusIcon" Source="{StaticResource PlusIcon}" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="4" />
+
+                    <TextBlock x:Name="addSection" Grid.Column="1" Text="{Binding AddSectionText}"
+                               VerticalAlignment="Center" TextAlignment="Center"
+                               Foreground="{TemplateBinding Foreground}"
+                               Margin="0,0,4,0" />
+
+                </Grid>
+            </Viewbox>
+        </Border>
+    </ControlTemplate>
+
+    <!--#endregion-->
+    
+    <!--#region Item Templates -->
+
+    <DataTemplate x:Key="SectionTemplate">
+        <Canvas x:Name="canvas" Height="{Binding ElementName=Title, Path=ActualHeight}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <TextBox x:Name="Title" Text="{Binding Path=Title}"
+                     HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
+                     TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
+                     IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
+                     Padding="{Binding ElementName=removeSectionButton, Path=ActualWidth, Converter={StaticResource ThicknessConverter}, ConverterParameter=Right}">
+
+                <i:Interaction.Behaviors>
+                    <utility:TextBoxNewlineBehavior />
+                    <utility:DoubleClickTextBoxBehavior />
+                </i:Interaction.Behaviors>
+
+            </TextBox>
+
+            <Button x:Name="removeSectionButton" Canvas.Right="0" Canvas.Top="0"
+                    VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
+                    Width="16" Height="16"
+                    Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
+                    IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
+                    Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
+
+                <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+
+            </Button>
+
+        </Canvas>
+    </DataTemplate>
+
+    <!--#endregion-->
+    
+    <!--#region Other Data Templates -->
+
+    <DataTemplate x:Key="PageTemplate">
+        <controls:ContentPageControl x:Name="contentPageControl" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=MaxHeight}">
+            <ItemsControl ItemsSource="{Binding ElementName=contentPageControl, Path=Items}" />
+        </controls:ContentPageControl>
+    </DataTemplate>
+
+    <!--#endregion-->
+    
+    <!--#endregion-->
+
+</ResourceDictionary>

@@ -118,129 +118,129 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ActionsInCaseHeader" xml:space="preserve">
-    <value>Actions in case</value>
+    <value>Действия в ситуации:</value>
   </data>
   <data name="AddSectionText" xml:space="preserve">
-    <value>Add Section</value>
+    <value>Добавить раздел</value>
   </data>
   <data name="AudioHeader" xml:space="preserve">
-    <value>Audio</value>
+    <value>Аудио</value>
   </data>
   <data name="ButtonAddHeader" xml:space="preserve">
-    <value>Add</value>
-    <comment>Buttons</comment>
+    <value>Добавить</value>
+    <comment>Кнопки</comment>
   </data>
   <data name="ButtonRemoveHeader" xml:space="preserve">
-    <value>Remove</value>
+    <value>Удалить</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
-    <value>Close Lesson</value>
-    <comment>Menu</comment>
+    <value>Закрыть Урок</value>
+    <comment>Меню</comment>
   </data>
   <data name="CompareHeader" xml:space="preserve">
-    <value>Compare</value>
+    <value>Сравнение</value>
   </data>
   <data name="DifferencesHeader" xml:space="preserve">
-    <value>Differences</value>
-    <comment>TestControls</comment>
+    <value>Отличия</value>
+    <comment>Тесты</comment>
   </data>
   <data name="EditHeader" xml:space="preserve">
-    <value>Edit</value>
+    <value>Редактировать</value>
   </data>
   <data name="ExitHeader" xml:space="preserve">
-    <value>Exit</value>
+    <value>Выход</value>
   </data>
   <data name="ImageHeader" xml:space="preserve">
-    <value>Image</value>
+    <value>Изображение</value>
   </data>
   <data name="JokeHeader" xml:space="preserve">
-    <value>Joke</value>
+    <value>Шутка</value>
   </data>
   <data name="LessonHeader" xml:space="preserve">
-    <value>Lesson</value>
+    <value>Урок</value>
   </data>
   <data name="LinkTogetherHeader" xml:space="preserve">
-    <value>Link-Together Test</value>
+    <value>Соответствия</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
-    <value>Load</value>
+    <value>Загрузить</value>
   </data>
   <data name="MaterialHeader" xml:space="preserve">
-    <value>Material</value>
+    <value>Материал</value>
   </data>
   <data name="MiniGameHeader" xml:space="preserve">
-    <value>Mini-game</value>
+    <value>Мини-игра</value>
   </data>
   <data name="NewLessonHeader" xml:space="preserve">
-    <value>New Lesson</value>
+    <value>Новый Урок</value>
   </data>
   <data name="NewSection" xml:space="preserve">
-    <value>Section</value>
+    <value>Раздел</value>
   </data>
   <data name="PrintLessonHeader" xml:space="preserve">
-    <value>Print</value>
+    <value>Печать</value>
   </data>
   <data name="PrioritiesHeader" xml:space="preserve">
-    <value>Priorities</value>
+    <value>Расстановка приоритетов</value>
   </data>
   <data name="RecentHeader" xml:space="preserve">
-    <value>Recent</value>
+    <value>Недавнее</value>
   </data>
   <data name="SaveLessonHeader" xml:space="preserve">
-    <value>Save</value>
+    <value>Сохранить</value>
   </data>
   <data name="SelectCorrectHeader" xml:space="preserve">
-    <value>Select Correct</value>
+    <value>Выбор правильного</value>
   </data>
   <data name="SIGameHeader" xml:space="preserve">
-    <value>SI Game "Svoya Igra"</value>
+    <value>Своя Игра</value>
   </data>
   <data name="SimpleTestHeader" xml:space="preserve">
-    <value>Test</value>
+    <value>Тест</value>
   </data>
   <data name="TestsHeader" xml:space="preserve">
-    <value>Tests</value>
+    <value>Тесты</value>
   </data>
   <data name="TextHeader" xml:space="preserve">
-    <value>Text</value>
-    <comment>MaterialControls</comment>
+    <value>Текст</value>
+    <comment>Материалы</comment>
   </data>
   <data name="TrickyQuestionHeader" xml:space="preserve">
-    <value>Tricky Question</value>
+    <value>Вопрос с подвохом</value>
   </data>
   <data name="TrueFalseHeader" xml:space="preserve">
-    <value>True/False</value>
+    <value>Правда/ложь</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
-    <value>Undo</value>
+    <value>Отменить</value>
   </data>
   <data name="VideoHeader" xml:space="preserve">
-    <value>Video</value>
+    <value>Видео</value>
   </data>
   <data name="AddContentHeader" xml:space="preserve">
-    <value>Add</value>
+    <value>Добавить</value>
   </data>
   <data name="ReadOnlyToolTip" xml:space="preserve">
-    <value>Disabled in Read-Only.
-To edit lesson, select "Lesson" at top-left and press "Edit".</value>
-    <comment>ToolTips</comment>
+    <value>Не поддерживается в режиме "Для чтения".
+Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по "Редактировать".</value>
+    <comment>Подсказки</comment>
   </data>
   <data name="TextControl_DefaultText" xml:space="preserve">
-    <value>Enter text here.</value>
+    <value>Введите текст здесь.</value>
   </data>
   <data name="TextControl_Tooltip" xml:space="preserve">
-    <value>Text borders visible only at editing.</value>
-  </data>
-  <data name="SimpleTestControl_DefaultText" xml:space="preserve">
-    <value>Enter question here.</value>
+    <value>Рамки текста видны только при редактировании.</value>
   </data>
   <data name="DefaultAnswerHeader" xml:space="preserve">
-    <value>Answer</value>
+    <value>Ответ</value>
+  </data>
+  <data name="SimpleTestControl_DefaultText" xml:space="preserve">
+    <value>Введите вопрос здесь.</value>
   </data>
   <data name="DoubleClickToEditTooltip" xml:space="preserve">
-    <value>Click twice to edit.</value>
+    <value>Для редактирования нажмите дважды.</value>
   </data>
   <data name="StopEditingHeader" xml:space="preserve">
-    <value>Stop editing</value>
+    <value>Прекратить редактирование</value>
   </data>
 </root>

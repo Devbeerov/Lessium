@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="Lessium.ContentControls.TestControls.SimpleTest"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lessium.ContentControls.TestControls"
+             xmlns:properties="clr-namespace:Lessium.Properties"
+             xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             xmlns:tests="clr-namespace:Lessium.ContentControls.TestControls"
+             xmlns:converters="clr-namespace:Lessium.Converters"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:utility="clr-namespace:Lessium.Utility"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
+    </UserControl.Resources>
+
+    <Border x:Name="border" MinWidth="16" MinHeight="16" SizeChanged="Border_SizeChanged">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
+
+            <StackPanel Orientation="Vertical">
+
+                <TextBox x:Name="testQuestion"
+                     TextWrapping="Wrap" Background="Transparent"
+                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                     Text="{x:Static properties:Resources.SimpleTestControl_DefaultText}">
+
+                    <i:Interaction.Behaviors>
+                        <utility:TextBoxNewlineBehavior />
+                    </i:Interaction.Behaviors>
+                    
+                </TextBox>
+
+                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" x:Name="dataPanel">
+                                <RadioButton x:Name="radioButton" 
+                                             GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
+                                    <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
+                                    <materials:Text x:Name="TextContainer"
+                                                    Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
+                                                    Loaded="TextContainer_Loaded"
+                                                    Unloaded="TextContainer_Unloaded"
+                                                    RemoveControl="RemoveAnswer_Click" >
+
+                                        <materials:Text.Tag>
+                                            <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
+                                                <Binding ElementName="TextContainer" />
+                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                            </MultiBinding>
+                                        </materials:Text.Tag>
+
+                                        <materials:Text.MaxWidth>
+                                            <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
+                                                <Binding Path="Tag" />
+                                            </MultiBinding>
+                                        </materials:Text.MaxWidth>
+                                        
+                                    </materials:Text>
+                                </RadioButton>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
+                        HorizontalAlignment="Left">
+
+                    <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
+                </Button>
+
+            </StackPanel>
+
+            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
+                    HorizontalAlignment="Right" VerticalAlignment="Top">
+
+                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+            </Button>
+
+        </StackPanel>
+    </Border>
+</UserControl>
