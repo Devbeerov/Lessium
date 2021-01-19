@@ -206,6 +206,7 @@ namespace Lessium.Utility
             raiseEvent = false;
 
             textBox.Text = newText;
+            textBox.UpdateLayout();
 
             raiseEvent = true;
         }

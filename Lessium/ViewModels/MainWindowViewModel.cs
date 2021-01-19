@@ -151,6 +151,9 @@ namespace Lessium.ViewModels
             {
                 if (CurrentPageIndex != value)
                 {
+                    if (value < 0) { value = 0; }
+                    else if (value >= Pages.Count) { value = Pages.Count - 1; }
+
                     CurrentSection.SetSelectedPageIndex(value);
                     CurrentPage = Pages[value];
 
@@ -446,7 +449,7 @@ namespace Lessium.ViewModels
             var content = e.ExceedingItem;
             var oldPage = sender as ContentPage;
             var oldPageIndex = Pages.IndexOf(oldPage);
-
+            
             oldPage.Remove(content);
 
             if (oldPageIndex != Pages.Count - 1) // Not last Page
@@ -458,38 +461,17 @@ namespace Lessium.ViewModels
                 nextPage.Insert(0, content);
 
                 // WPF is not updating element arrangement (positions) if they not visible at window.
-                // To bypass it, we could select next page (make visible) and wait for valid arrangement, after that - switch back.
+                // To bypass it, we could select next page (make visible) and update it's layout, after that - switch back.
 
                 var pageControl = nextPage.GetPageControl();
-
-                pageControl.InvalidateArrange();
-
-                // Constructing lambda handler for handling this event. WILL BE CALLED LATER.
-
-                EventHandler handler = null;
-                handler += (s, args) =>
-                {
-                    if (pageControl.IsArrangeValid)
-                    {
-                        // Removes event, validates page and switch back to previous page.
-
-                        pageControl.LayoutUpdated -= handler;
-                        CurrentPage.ValidatePage();
-
-                        // It designed to work when page can add content only to itself.
-                        // Or to move it to next page due to exceeding content.
-
-                        CurrentPage = Pages[CurrentPageIndex - 1];
-                    }
-                };
-
-                // Adding handler. EXECUTED BEFORE HANDLER CATCH EVENT!
-
-                pageControl.LayoutUpdated += handler;
-
-                // Switching to next page for validating it.
+                var oldIndex = CurrentPageIndex;
 
                 CurrentPage = nextPage;
+                pageControl.InvalidateArrange();
+                pageControl.UpdateLayout();
+
+                CurrentPage.ValidatePage();
+                CurrentPageIndex = oldIndex;
             }
 
             else
@@ -849,7 +831,9 @@ namespace Lessium.ViewModels
         {
             Pages.Remove(CurrentPage);
 
-            CurrentPage = Pages[CurrentPageIndex - 1];
+            // Back to previous page index
+
+            CurrentPageIndex++;
 
             HasChanges = true;
         }

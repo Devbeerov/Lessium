@@ -131,7 +131,7 @@ namespace Lessium.ContentControls.Models
             // Checks if it fits
 
             var contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
-            return contentElement.ActualHeight + contentLocation.Y < maxHeight;
+            return contentElement.ActualHeight + contentLocation.Y <= maxHeight;
         }
 
         public void SetPageControl(ContentPageControl newPageControl)
@@ -157,7 +157,10 @@ namespace Lessium.ContentControls.Models
 
         public void ValidatePage()
         {
-            ValidateAllForward(Items[0], true);
+            if (Items.Count > 0)
+            {
+                ValidateAllForward(Items[0], true);
+            }
         }
 
         #endregion
