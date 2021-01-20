@@ -1,16 +1,13 @@
-﻿using Lessium.Converters;
+﻿using Lessium.ContentControls;
+using Lessium.Converters;
 using Lessium.Properties;
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
-using System.Windows.Media;
-using System.Linq;
-using System.Text;
 
 namespace Lessium.Utility
 {
@@ -154,6 +151,7 @@ namespace Lessium.Utility
             }
         }
 
+
         protected override void OnDetaching()
         {
             if (this.AssociatedObject != null)
@@ -165,7 +163,7 @@ namespace Lessium.Utility
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if(!raiseEvent) { return; }
+            if (!raiseEvent) { return; }
 
             TextBox textBox = sender as TextBox;
 
@@ -199,6 +197,7 @@ namespace Lessium.Utility
                 textBox.CaretIndex = prevCaret;
 
             }
+
         }
 
         private void UpdateTextWithoutFiring(TextBox textBox, string newText)
@@ -210,7 +209,6 @@ namespace Lessium.Utility
 
             raiseEvent = true;
         }
-
     }
 
     #endregion

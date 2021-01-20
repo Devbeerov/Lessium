@@ -74,6 +74,13 @@ namespace Lessium.ContentControls
             SizeChanged += OnSizeChanged;
         }
 
+        public bool IsElementFits(FrameworkElement element)
+        {
+            var pos = element.TranslatePoint(default(Point), this);
+            var fits = pos.Y + element.ActualHeight <= ActualHeight;
+            return fits;
+        }
+
         #endregion
 
         #region Private

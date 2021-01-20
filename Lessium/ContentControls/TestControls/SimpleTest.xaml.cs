@@ -1,13 +1,17 @@
 ﻿using Lessium.ContentControls.MaterialControls;
 using Lessium.Interfaces;
+using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interactivity;
+using System.Windows.Media;
 
 namespace Lessium.ContentControls.TestControls
 {
@@ -37,6 +41,8 @@ namespace Lessium.ContentControls.TestControls
         {
             get { return id.ToString(); }
         }
+
+        public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
 
         #endregion
 
@@ -82,7 +88,7 @@ namespace Lessium.ContentControls.TestControls
 
         #region ISerializable
 
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Answers", answers.ToList());
@@ -96,16 +102,9 @@ namespace Lessium.ContentControls.TestControls
         {
             this.editable = editable;
 
-            // ReadOnly
+            // Text Editable
 
-            testQuestion.IsReadOnly = !editable;
-
-            // Border
-
-            var converter = new ThicknessConverter();
-            var thickness = (Thickness)converter.ConvertFrom(editable);
-
-            testQuestion.BorderThickness = thickness;
+            testQuestion.SetEditable(editable);
 
             // Buttons
 
@@ -133,18 +132,13 @@ namespace Lessium.ContentControls.TestControls
                 Text textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as Text;
                 textContainer.SetEditable(editable);
             }
-
-            // Tooltip
-
-            ToolTipService.SetIsEnabled(testQuestion, editable);
         }
 
         public void SetMaxWidth(double width)
         {
             var adjustedWidth = width - removeButton.Width;
 
-            testQuestion.Width = adjustedWidth;
-            testQuestion.MaxWidth = adjustedWidth;
+            testQuestion.SetMaxWidth(width);
 
             AnswersItemControl.MaxWidth = adjustedWidth;
         }
@@ -153,7 +147,7 @@ namespace Lessium.ContentControls.TestControls
         {
             // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
 
-            testQuestion.MaxHeight = height;
+            testQuestion.SetMaxHeight(height);
             AnswersItemControl.MaxHeight = height;
         }
 
@@ -177,6 +171,65 @@ namespace Lessium.ContentControls.TestControls
 
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            if(AnswersItemControl.Items.Count > 0)
+            {
+                var lastIndex = AnswersItemControl.Items.Count - 1;
+                var last = AnswersItemControl.Items.GetItemAt(lastIndex);
+                var lastContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
+                if  (lastContainer != null)
+                {
+                    DataTemplate dataTemplate = lastContainer.ContentTemplate;
+                    var text = dataTemplate.FindName("TextContainer", lastContainer) as Text;
+
+                    var pageControl = this.FindParent<ContentPageControl>();
+
+                    if (text != null && !pageControl.IsElementFits(text))
+                    {
+                        var textBox = text.textBox;
+                        var formattedText = new FormattedText(
+                            "1",
+                            CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
+                            textBox.FontSize,
+                            Brushes.Black,
+                            new NumberSubstitution(),
+                            1);
+
+
+                        var lineHeight = formattedText.Height;
+                        var pos = textBox.TranslatePoint(default(Point), pageControl);
+                        var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight));
+
+                        if (textBox.LineCount > maxLineCount - 1)
+                        {
+                            int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
+
+                            // Calculates values of MaxLine
+
+                            int MaxLineIndex = maxLineCount - 1;
+                            int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
+                            int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
+                            int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
+
+                            // Removes everything past MaxLine
+
+                            var newText = textBox.Text.Remove(lastPositionInMaxLine - 1);
+                            textBox.Text = newText;
+
+                            // Restores caret
+
+                            if (prevCaret > newText.Length)
+                            {
+                                prevCaret = newText.Length - 1;
+                            }
+
+                            textBox.CaretIndex = prevCaret;
+                        }
+                    }
+                }
+            }
+
             // Sets source to SimpleTest Control, not Border
 
             e.Source = this;
@@ -209,9 +262,10 @@ namespace Lessium.ContentControls.TestControls
 
         private void TextContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as Text;
+            var control = e.Source as Text; // TextContainer
 
             control.SetEditable(editable);
+
             textControls.Add(control);
         }
 
@@ -221,6 +275,12 @@ namespace Lessium.ContentControls.TestControls
 
             control.SetEditable(editable);
             textControls.Remove(control);
+        }
+
+        private void SimpleTest_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ContentPageControl pageControl = addAnswerButton.FindParent<ContentPageControl>();
+            addAnswerButton.IsEnabled = pageControl.IsElementFits(addAnswerButton);
         }
 
         #endregion

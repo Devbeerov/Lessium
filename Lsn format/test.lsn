@@ -1,8 +1,10 @@
 ﻿<Lesson Title="Петр 1">
 	<Materials>
 		<Section Title="Реформы Петра">
-			<Text Text="Петр 1 ввел следующие реформы..." />
-			<Image Source="Reforms.jpg" />
+			<Page>
+				<Text Text="Петр 1 ввел следующие реформы..." />
+				<Image Source="Reforms.jpg" />
+			</Page>
 		</Section>
 	</Materials>
 	<Tests>

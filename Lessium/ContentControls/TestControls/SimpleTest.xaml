@@ -12,28 +12,29 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             
+             d:DesignHeight="450" d:DesignWidth="800" SizeChanged="SimpleTest_SizeChanged">
 
     <UserControl.Resources>
-        <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
-        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
+        <!--<converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />-->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Themes/MainWindowView.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Border x:Name="border" MinWidth="16" MinHeight="16" SizeChanged="Border_SizeChanged">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
 
-            <StackPanel Orientation="Vertical">
+            <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
-                <TextBox x:Name="testQuestion"
-                     TextWrapping="Wrap" Background="Transparent"
+                <materials:Text x:Name="testQuestion"
                      ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{x:Static properties:Resources.SimpleTestControl_DefaultText}">
+                     Text="{Binding Question, Mode=TwoWay}" ShowRemoveButton="False">
 
-                    <i:Interaction.Behaviors>
-                        <utility:TextBoxNewlineBehavior />
-                    </i:Interaction.Behaviors>
-                    
-                </TextBox>
+                </materials:Text>
 
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
                     <ItemsControl.ItemTemplate>
@@ -61,7 +62,7 @@
                                                 <Binding Path="Tag" />
                                             </MultiBinding>
                                         </materials:Text.MaxWidth>
-                                        
+
                                     </materials:Text>
                                 </RadioButton>
                             </StackPanel>
@@ -70,7 +71,8 @@
                 </ItemsControl>
 
                 <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
-                        HorizontalAlignment="Left">
+                        HorizontalAlignment="Left" 
+                        Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                     <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
                 </Button>

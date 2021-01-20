@@ -5,6 +5,9 @@ using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interactivity;
+using System.Linq;
+using Lessium.Utility;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -45,14 +48,29 @@ namespace Lessium.ContentControls.MaterialControls
             this.DataContext = this;
         }
 
-        #endregion
+        public void RemoveBehavior<T>() where T : Behavior
+        {
+            var behaviors = Interaction.GetBehaviors(textBox);
+            var behavior = GetBehavior<T>();
+            if (behavior != null)
+            {
+                behaviors.Remove(behavior);
+            }
+        }
+
+        public T GetBehavior<T>() where T : Behavior
+        {
+            var behaviors = Interaction.GetBehaviors(textBox);
+            return behaviors.OfType<T>().FirstOrDefault();
+        }
 
         #endregion
 
+        #endregion
 
         #region ISerializable
 
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Text", textBox.Text);
@@ -71,22 +89,18 @@ namespace Lessium.ContentControls.MaterialControls
             // Border
 
             var converter = new ThicknessConverter();
+
+            // Size 0 if not editable, size 1 if editable.
+
             var thickness = (Thickness)converter.ConvertFrom(editable);
 
             textBox.BorderThickness = thickness;
 
             // Button
 
-            removeButton.IsEnabled = editable;
-
-            if (editable)
+            if (GetShowRemoveButton(this))
             {
-                removeButton.Visibility = Visibility.Visible;
-            }
-
-            else
-            {
-                removeButton.Visibility = Visibility.Collapsed;
+                removeButton.IsEnabled = editable;
             }
 
             // Tooltip
@@ -176,6 +190,25 @@ namespace Lessium.ContentControls.MaterialControls
 
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(Text), new PropertyMetadata(Properties.Resources.TextControl_DefaultText));
+
+        public static void SetShowRemoveButton(DependencyObject obj, bool show)
+        {
+            obj.SetValue(ShowRemoveButtonProperty, show);
+        }
+
+        public static bool GetShowRemoveButton(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ShowRemoveButtonProperty);
+        }
+
+
+        public void SetShowRemoveButton(bool show)
+        {
+            SetShowRemoveButton(this, show);
+        }
+
+        public static readonly DependencyProperty ShowRemoveButtonProperty =
+            DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(Text), new PropertyMetadata(true));
 
         #endregion
     }

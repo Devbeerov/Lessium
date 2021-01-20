@@ -120,6 +120,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Utility\Behaviors.cs" />
+    <Compile Include="Utility\Extensions.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

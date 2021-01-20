@@ -9,10 +9,12 @@
              xmlns:utility="clr-namespace:Lessium.Utility"
              xmlns:converters="clr-namespace:Lessium.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="20" d:DesignWidth="20" >
+             d:DesignHeight="20" d:DesignWidth="20" 
+             x:Name="control">
 
     <UserControl.Resources>
         <converters:ThicknessConverter x:Key="ThicknessConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     
     <Border x:Name="border" SizeChanged="Border_SizeChanged" >
@@ -41,7 +43,9 @@
 
             <Button x:Name="removeButton" Click="RemoveButton_Click"
                     HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1"
-                    Width="16" Height="16" >
+                    Width="16" Height="16" 
+                    IsEnabled="{Binding ShowRemoveButton}" 
+                    Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                 <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
             </Button>
