@@ -60,7 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ContentControls\MaterialControls\Text.xaml">
+    <Page Include="ContentControls\MaterialControls\TextControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -107,8 +107,8 @@
     <Compile Include="Interfaces\ITestControl.cs" />
     <Compile Include="Interfaces\IMaterialControl.cs" />
     <Compile Include="Interfaces\IContentControl.cs" />
-    <Compile Include="ContentControls\MaterialControls\Text.xaml.cs">
-      <DependentUpon>Text.xaml</DependentUpon>
+    <Compile Include="ContentControls\MaterialControls\TextControl.xaml.cs">
+      <DependentUpon>TextControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />

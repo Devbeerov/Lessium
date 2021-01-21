@@ -15,17 +15,17 @@ namespace Lessium.ContentControls.MaterialControls
     /// Simple TextBlock with wrapping.
     /// </summary>
     [Serializable]
-    public partial class Text : UserControl, IMaterialControl
+    public partial class TextControl : UserControl, IMaterialControl
     {
         #region Constructors
 
-        public Text()
+        public TextControl()
         {
             Initialize();
         }
 
         // For serialization
-        protected Text(SerializationInfo info, StreamingContext context)
+        protected TextControl(SerializationInfo info, StreamingContext context)
         {
             // Initializes component
 
@@ -33,7 +33,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Serializes properties
 
-            textBox.Text = info.GetString("Text");
+            SetText(info.GetString("Text"));
         }
 
         #endregion
@@ -138,7 +138,7 @@ namespace Lessium.ContentControls.MaterialControls
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Sets source to Text Control, not Button
+            // Sets source to TextControl, not Button
 
             e.Source = this;
 
@@ -155,7 +155,7 @@ namespace Lessium.ContentControls.MaterialControls
                 return;
             }
 
-            // Sets source to Text Control, not Border
+            // Sets source to TextControl, not Border
 
             e.Source = this;
 
@@ -188,8 +188,15 @@ namespace Lessium.ContentControls.MaterialControls
             SetText(this, text);
         }
 
+        public string Text
+        {
+            get { return GetText(); }
+            set { SetText(value); }
+        }
+
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(Text), new PropertyMetadata(Properties.Resources.TextControl_DefaultText));
+            DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
+                new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
 
         public static void SetShowRemoveButton(DependencyObject obj, bool show)
         {
@@ -208,7 +215,7 @@ namespace Lessium.ContentControls.MaterialControls
         }
 
         public static readonly DependencyProperty ShowRemoveButtonProperty =
-            DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(Text), new PropertyMetadata(true));
+            DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
 
         #endregion
     }

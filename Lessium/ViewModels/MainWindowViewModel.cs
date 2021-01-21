@@ -203,7 +203,8 @@ namespace Lessium.ViewModels
                     }
 
                     UpdateCurrentPageNotFirst();
-                    RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(CurrentPageNumber));
+                    RaisePropertyChanged(nameof(CurrentPage));
                 }
             }
         }
@@ -314,128 +315,79 @@ namespace Lessium.ViewModels
             }
         }
 
-        private void SelectSection(Section section)
-        {
-            if (CurrentSection == section) { return; }
-
-            TryCollapseCurrentSection(); // colapses old selected section
-
-            // Sets CurrentSection
-
-            var prevSection = CurrentSection;
-            var prevPage = CurrentPage;
-
-            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
-            {
-                var newSection = model.CurrentSection[SelectedTab];
-
-                if (newSection == null)
-                {
-                    CurrentSectionID = -1;
-                }
-
-                else
-                {
-                    CurrentSectionID = Sections.IndexOf(section);
-                }
-
-                // Updates previous
-
-                if (prevSection != null)
-                {
-                    model.LastSelectedPage[prevSection] = prevPage;
-                    prevSection.PagesChanged -= OnPagesChanged;
-                }
-
-                // Updates new
-
-                if (newSection != null)
-                {
-                    CurrentPage = model.LastSelectedPage[newSection];
-                    newSection.PagesChanged += OnPagesChanged;
-                }
-
-                // We still should call RaisePropertyChanged, because we bind to them in View.
-                // So when changing Sections, Index and Number could be the same.
-                RaisePropertyChanged(nameof(CurrentPageIndex));
-                RaisePropertyChanged(nameof(CurrentPageNumber));
-
-                section = newSection;
-
-            }
-
-            // Shows section if not null.
-
-            if (section != null)
-            {
-                ShowSection(section);
-            }
-
-            
-        }
-
         /// <summary>
         /// Should be used when changing tabs.
         /// Checks section with manually providen previousSection to avoid wrong comprasion.
         /// </summary>
         /// <param name="section">New Section</param>
         /// <param name="previousSection">Previous Section (to check with new)</param>
-        private void SelectSection(Section section, Section previousSection)
+        /// <param name="tabChange">Does it selected from tab changing? If so, will clear CurrentSection for this tab.</param>
+        private void SelectSection(Section section, Section previousSection = null, bool tabChange = false)
         {
-            if (CurrentSection == previousSection) { return; }
-
-            // Updates previous
-
-            if (previousSection != null)
+            if(tabChange)
             {
-                model.LastSelectedPage[previousSection] = previousSection.GetSelectedPage();
+                SetDictionaryProperty(ref model.CurrentSection, SelectedTab, null, nameof(CurrentSection));
             }
 
             // Sets CurrentSection
 
-            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
+            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, nameof(CurrentSection)))
             {
-                var newSection = model.CurrentSection[SelectedTab];
+                // Each section have it's own pages
 
-                if (newSection == null)
+                 RaisePropertyChanged(nameof(Pages));
+
+                // Updates previous
+
+                if (previousSection != null)
                 {
-                    CurrentSectionID = -1;
+                    model.LastSelectedPage[previousSection] = previousSection.GetSelectedPage();
+                    previousSection.PagesChanged -= OnPagesChanged;
+                }
+
+                if (section != null)
+                {
+                    CurrentSectionID = Sections.IndexOf(section);
+                    section.PagesChanged += OnPagesChanged;
+
+                    var storedPage = model.LastSelectedPage[section];
+
+                    if (storedPage != null)
+                    {
+                        // For proper update of CurrentPage property
+
+                        CurrentSection.SetSelectedPage(null);
+
+                        // Updates CurrentPage property
+
+                        CurrentPage = storedPage;
+                    }
+                    else
+                    {
+                        // Storing selected page
+
+                        var selectedPage = CurrentSection.GetSelectedPage();
+
+                        // For proper setting of property, we need to set Section SelectedPage to null.
+
+                        section.SetSelectedPage(null);
+
+                        CurrentPage = selectedPage;
+                    }
+
+                    // We still should call RaisePropertyChanged, because we bind to them in View.
+                    // So when changing Sections, Index and Number could be the same.
+                    RaisePropertyChanged(nameof(CurrentPageIndex));
+                    RaisePropertyChanged(nameof(CurrentPageNumber));
+
+                    ShowSection(section);
                 }
 
                 else
                 {
-                    CurrentSectionID = Sections.IndexOf(section);
+                    CurrentSectionID = -1;
                 }
-
-                // Updates new
-
-                if (newSection != null)
-                {
-                    CurrentPage = model.LastSelectedPage[newSection];
-                }
-
-                section = newSection;
-
             }
-
-            else
-            {
-                RaisePropertyChanged(nameof(CurrentSection));
-            }
-
-            // We still should call RaisePropertyChanged, because we bind to them in View.
-            // So when changing Sections, Index and Number could be the same.
-            RaisePropertyChanged(nameof(CurrentPageIndex));
-            RaisePropertyChanged(nameof(CurrentPageNumber));
-
-            // Shows section if not null.
-
-            if (section != null)
-            {
-                ShowSection(section);
-            }
-
-
         }
 
         #endregion
@@ -480,7 +432,7 @@ namespace Lessium.ViewModels
                 var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
                 CurrentSection.Add(newPage);
 
-                newPage.Add(content);
+                newPage.Insert(0, content);
                 RaisePropertyChanged(nameof(Pages));
             }
         }
@@ -492,12 +444,18 @@ namespace Lessium.ViewModels
         {
             if (e.Action == CollectionChangeAction.Add)
             {
-                e.Page.AddedExceedingContent += OnExceedingContent;
+                foreach(var page in e.Pages)
+                {
+                    page.AddedExceedingContent += OnExceedingContent;
+                }
             }
 
             else if(e.Action == CollectionChangeAction.Remove)
             {
-                e.Page.AddedExceedingContent -= OnExceedingContent;
+                foreach (var page in e.Pages)
+                {
+                    page.AddedExceedingContent -= OnExceedingContent;
+                }
             }
             
             UpdateCurrentPageNotFirst();
@@ -638,9 +596,9 @@ namespace Lessium.ViewModels
 
             newSection.SetEditable(!ReadOnly);
 
-            // Adds newSection.SelectedPage to model LastSelectedPage dictionary.
+            // Adds newSection key to LastSelectedPage dictionary.
 
-            model.LastSelectedPage.Add(newSection, newSection.GetSelectedPage());
+            model.LastSelectedPage.Add(newSection, null);
 
             // Adds newSection to Sections dictionary.
             Sections.Add(newSection);
@@ -650,17 +608,7 @@ namespace Lessium.ViewModels
                 SelectSection(newSection);
 
                 // Page was added from Section constructor, so we raise handler with this page.
-                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.GetSelectedPage(), CollectionChangeAction.Add));
-
-                // Because we don't use private field for CurrentPage, setting value won't work because it's already same.
-                // To bypass it, we just manually raise PropertyChanged for CurrentPage, CurrentPageIndex and CurrentPageNumber.
-
-                RaisePropertyChanged(nameof(CurrentPage));
-
-                // Also for Index and Number
-
-                RaisePropertyChanged(nameof(CurrentPageIndex));
-                RaisePropertyChanged(nameof(CurrentPageNumber));
+                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.GetPages(), CollectionChangeAction.Add));
             }
 
             HasChanges = true;
@@ -780,7 +728,7 @@ namespace Lessium.ViewModels
             switch (MaterialName)
             {
                 case "Text":
-                    control = new Text();
+                    control = new TextControl();
                     break;
                 default:
                     throw new NotImplementedException($"{MaterialName} not supported!");
@@ -872,15 +820,10 @@ namespace Lessium.ViewModels
 
             RaisePropertyChanged(nameof(Sections)); // Sections[SelectedTab]
 
-            SelectSection(model.LastSelectedSection[param], previousSection);
+            SelectSection(model.LastSelectedSection[param], previousSection, true);
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
             RaisePropertyChanged(nameof(CurrentSectionID));
-
-            if (CurrentSection != null)
-            {
-                ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
-            }
         }
 
         #endregion

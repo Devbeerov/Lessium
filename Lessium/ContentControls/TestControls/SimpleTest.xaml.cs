@@ -24,6 +24,7 @@ namespace Lessium.ContentControls.TestControls
         private Guid id;
 
         private bool editable;
+        private bool raiseResizeEvent = true;
 
         private ObservableCollection<AnswerModel> answers = new ObservableCollection<AnswerModel>();
 
@@ -75,9 +76,12 @@ namespace Lessium.ContentControls.TestControls
 
         public void Initialize()
         {
+            // Custom control initialization
+
             id = Guid.NewGuid();
 
             InitializeComponent();
+
             this.DataContext = this;
         }
 
@@ -129,7 +133,7 @@ namespace Lessium.ContentControls.TestControls
             {
                 var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
                 DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-                Text textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as Text;
+                TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
                 textContainer.SetEditable(editable);
             }
         }
@@ -138,8 +142,8 @@ namespace Lessium.ContentControls.TestControls
         {
             var adjustedWidth = width - removeButton.Width;
 
+            border.MaxHeight = adjustedWidth;
             testQuestion.SetMaxWidth(width);
-
             AnswersItemControl.MaxWidth = adjustedWidth;
         }
 
@@ -147,6 +151,7 @@ namespace Lessium.ContentControls.TestControls
         {
             // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
 
+            border.MaxHeight = height;
             testQuestion.SetMaxHeight(height);
             AnswersItemControl.MaxHeight = height;
         }
@@ -171,6 +176,8 @@ namespace Lessium.ContentControls.TestControls
 
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            if(!raiseResizeEvent) { return; }
+
             if(AnswersItemControl.Items.Count > 0)
             {
                 var lastIndex = AnswersItemControl.Items.Count - 1;
@@ -179,7 +186,7 @@ namespace Lessium.ContentControls.TestControls
                 if  (lastContainer != null)
                 {
                     DataTemplate dataTemplate = lastContainer.ContentTemplate;
-                    var text = dataTemplate.FindName("TextContainer", lastContainer) as Text;
+                    var text = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
 
                     var pageControl = this.FindParent<ContentPageControl>();
 
@@ -201,8 +208,10 @@ namespace Lessium.ContentControls.TestControls
                         var pos = textBox.TranslatePoint(default(Point), pageControl);
                         var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight));
 
-                        if (textBox.LineCount > maxLineCount - 1)
+                        if (textBox.LineCount > maxLineCount)
                         {
+                            raiseResizeEvent = false;
+
                             int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
 
                             // Calculates values of MaxLine
@@ -214,8 +223,13 @@ namespace Lessium.ContentControls.TestControls
 
                             // Removes everything past MaxLine
 
-                            var newText = textBox.Text.Remove(lastPositionInMaxLine - 1);
-                            textBox.Text = newText;
+                            var actualText = text.GetText();
+                            var newText = actualText.Remove(lastPositionInMaxLine - 1);
+                            text.SetText(newText);
+                            text.InvalidateMeasure();
+                            text.UpdateLayout();
+                            border.InvalidateMeasure();
+                            border.UpdateLayout();
 
                             // Restores caret
 
@@ -225,6 +239,8 @@ namespace Lessium.ContentControls.TestControls
                             }
 
                             textBox.CaretIndex = prevCaret;
+
+                            e.Handled = true;
                         }
                     }
                 }
@@ -237,6 +253,8 @@ namespace Lessium.ContentControls.TestControls
             // Invokes event
 
             Resize?.Invoke(sender, e);
+
+            raiseResizeEvent = true;
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
@@ -246,7 +264,7 @@ namespace Lessium.ContentControls.TestControls
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
         {
-            var textControl = (Text)e.Source;
+            var textControl = (TextControl)e.Source;
 
             foreach (var answer in answers)
             {
@@ -262,8 +280,9 @@ namespace Lessium.ContentControls.TestControls
 
         private void TextContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as Text; // TextContainer
+            var control = e.Source as TextControl; // TextContainer
 
+            control.RemoveBehavior<TextBoxCutBehavior>();
             control.SetEditable(editable);
 
             textControls.Add(control);
@@ -271,7 +290,7 @@ namespace Lessium.ContentControls.TestControls
 
         private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as Text;
+            var control = e.Source as TextControl;
 
             control.SetEditable(editable);
             textControls.Remove(control);
@@ -279,7 +298,7 @@ namespace Lessium.ContentControls.TestControls
 
         private void SimpleTest_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ContentPageControl pageControl = addAnswerButton.FindParent<ContentPageControl>();
+            var pageControl = this.FindParent<ContentPageControl>();
             addAnswerButton.IsEnabled = pageControl.IsElementFits(addAnswerButton);
         }
 

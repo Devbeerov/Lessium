@@ -30,11 +30,12 @@
 
             <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
-                <materials:Text x:Name="testQuestion"
+                <materials:TextControl x:Name="testQuestion"
                      ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{Binding Question, Mode=TwoWay}" ShowRemoveButton="False">
+                     Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                     ShowRemoveButton="False">
 
-                </materials:Text>
+                </materials:TextControl>
 
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
                     <ItemsControl.ItemTemplate>
@@ -43,27 +44,27 @@
                                 <RadioButton x:Name="radioButton" 
                                              GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
                                     <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
-                                    <materials:Text x:Name="TextContainer"
+                                    <materials:TextControl x:Name="TextContainer"
                                                     Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
                                                     Loaded="TextContainer_Loaded"
                                                     Unloaded="TextContainer_Unloaded"
                                                     RemoveControl="RemoveAnswer_Click" >
 
-                                        <materials:Text.Tag>
+                                        <materials:TextControl.Tag>
                                             <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
                                                 <Binding ElementName="TextContainer" />
                                                 <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
                                             </MultiBinding>
-                                        </materials:Text.Tag>
+                                        </materials:TextControl.Tag>
 
-                                        <materials:Text.MaxWidth>
+                                        <materials:TextControl.MaxWidth>
                                             <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
                                                 <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
                                                 <Binding Path="Tag" />
                                             </MultiBinding>
-                                        </materials:Text.MaxWidth>
+                                        </materials:TextControl.MaxWidth>
 
-                                    </materials:Text>
+                                    </materials:TextControl>
                                 </RadioButton>
                             </StackPanel>
                         </DataTemplate>

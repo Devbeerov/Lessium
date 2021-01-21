@@ -280,20 +280,23 @@
                     </Grid>
 
                 </Border>
+                
+                <!-- ContentPageControl -->
 
-                <!-- CurrentPage Content -->
-                <ContentControl x:Name="CurrentPage" 
-                                Content="{Binding CurrentPage}" HorizontalAlignment="Left"
-                                Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}">
+                <controls:ContentPageControl x:Name="contentPageControl" HorizontalAlignment="Left"
+                                             DataContext="{Binding CurrentPage, UpdateSourceTrigger=PropertyChanged, diag:PresentationTraceSources.TraceLevel=High}"
+                                             Style="{StaticResource CurrentPageControlStyle}">
 
-                    <ContentControl.MaxHeight>
+                    <ItemsControl x:Name="itemsControl" ItemsSource="{Binding ElementName=contentPageControl, Path=Items}" />
+
+                    <controls:ContentPageControl.MaxHeight>
                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
                             <Binding ElementName="section" Path="MaxHeight" />
                             <Binding ElementName="toolbar" Path="ActualHeight" />
                         </MultiBinding>
-                    </ContentControl.MaxHeight>
-                   
-                </ContentControl>
+                    </controls:ContentPageControl.MaxHeight>
+
+                </controls:ContentPageControl>
 
             </controls:Section>
         </Viewbox>

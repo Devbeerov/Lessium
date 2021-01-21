@@ -199,7 +199,10 @@ namespace Lessium.ContentControls
 
             // Raising event
 
-            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Add);
+            var affectedPages = new Collection<ContentPage>();
+            affectedPages.Add(page);
+
+            var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Add);
             PagesChanged?.Invoke(this, args);
 
             UpdatePageEditable(page);
@@ -211,7 +214,10 @@ namespace Lessium.ContentControls
 
             // Raising event
 
-            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Remove);
+            var affectedPages = new Collection<ContentPage>();
+            affectedPages.Add(page);
+
+            var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Remove);
             PagesChanged?.Invoke(this, args);
         }
 
@@ -273,12 +279,12 @@ namespace Lessium.ContentControls
 
     public class PagesChangedEventArgs
     {
-        public ContentPage Page { get; private set; }
+        public Collection<ContentPage> Pages { get; private set; }
         public CollectionChangeAction Action { get; private set; }
 
-        public PagesChangedEventArgs(ContentPage page, CollectionChangeAction action)
+        public PagesChangedEventArgs(Collection<ContentPage> pages, CollectionChangeAction action)
         {
-            Page = page;
+            Pages = pages;
             Action = action;
         }
     }

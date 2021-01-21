@@ -51,14 +51,14 @@
     
     <!--#region Styles -->
 
-    <Style x:Key="CurrentPageControlStyle" TargetType="{x:Type ContentControl}">
+    <Style x:Key="CurrentPageControlStyle" TargetType="{x:Type controls:ContentPageControl}">
         <Setter Property="Focusable" Value="False" />
         <Style.Triggers>
-            <Trigger Property="HasContent" Value="True">
-                <Trigger.Setters>
+            <DataTrigger Binding="{Binding ElementName=itemsControl, Path=HasItems}" Value="True" >
+                <DataTrigger.Setters>
                     <Setter Property="Focusable" Value="True"/>
-                </Trigger.Setters>
-            </Trigger>
+                </DataTrigger.Setters>
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
@@ -199,16 +199,6 @@
             </Button>
 
         </Canvas>
-    </DataTemplate>
-
-    <!--#endregion-->
-    
-    <!--#region Other Data Templates -->
-
-    <DataTemplate x:Key="PageTemplate">
-        <controls:ContentPageControl x:Name="contentPageControl" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=MaxHeight}">
-            <ItemsControl ItemsSource="{Binding ElementName=contentPageControl, Path=Items}" />
-        </controls:ContentPageControl>
     </DataTemplate>
 
     <!--#endregion-->

@@ -47,6 +47,13 @@ namespace Lessium.ContentControls.Models
 
         public void Add(IContentControl control)
         {
+            // To skip unwanted validating.
+            if(items.Count == 0)
+            {
+                Insert(0, control);
+                return;
+            }
+
             BindControl(control);
 
             items.Add(control);
@@ -58,6 +65,7 @@ namespace Lessium.ContentControls.Models
             }
         }
 
+        // Won't validate control if it's in zero position.
         public void Insert(int position, IContentControl control)
         {
             BindControl(control);
@@ -209,7 +217,8 @@ namespace Lessium.ContentControls.Models
             var lastControl = collection[lastControlPosition];
 
             // Checks LAST control on this page, if it's not fits, validates backwards to this control.
-            if (ValidateContentPlacement(lastControl))
+            // If lastControl is given control and we ignoreControl, then ignores whole cycle, because there's nothing after Last.
+            if ((ignoreControl && control == lastControl) || ValidateContentPlacement(lastControl))
             {
                 var controlPos = collection.IndexOf(control);
 
@@ -244,6 +253,8 @@ namespace Lessium.ContentControls.Models
 
         private void OnContentResized(object sender, SizeChangedEventArgs e)
         {
+            if (e.Handled) { return; }
+
             if (e.HeightChanged)
             {
                 ValidateAllForward(e.Source as IContentControl);
