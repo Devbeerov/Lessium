@@ -6,18 +6,15 @@
              xmlns:local="clr-namespace:Lessium.ContentControls.TestControls"
              xmlns:properties="clr-namespace:Lessium.Properties"
              xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
-             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              xmlns:tests="clr-namespace:Lessium.ContentControls.TestControls"
              xmlns:converters="clr-namespace:Lessium.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
-             
-             d:DesignHeight="450" d:DesignWidth="800" SizeChanged="SimpleTest_SizeChanged">
+             d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
-        <!--<converters:ArithmeticConverter x:Key="ArithmeticConverter" />
-        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />-->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Themes/MainWindowView.xaml" />
@@ -31,13 +28,14 @@
             <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
                 <materials:TextControl x:Name="testQuestion"
-                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                     ShowRemoveButton="False">
+                                       ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                                       Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       ShowRemoveButton="False" 
+                                       SizeChanged="Question_SizeChanged">
 
                 </materials:TextControl>
 
-                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
+                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
@@ -45,10 +43,10 @@
                                              GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
                                     <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
                                     <materials:TextControl x:Name="TextContainer"
-                                                    Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
-                                                    Loaded="TextContainer_Loaded"
-                                                    Unloaded="TextContainer_Unloaded"
-                                                    RemoveControl="RemoveAnswer_Click" >
+                                                           Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
+                                                           Loaded="TextContainer_Loaded"
+                                                           Unloaded="TextContainer_Unloaded"
+                                                           RemoveControl="RemoveAnswer_Click" >
 
                                         <materials:TextControl.Tag>
                                             <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
@@ -72,8 +70,7 @@
                 </ItemsControl>
 
                 <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
-                        HorizontalAlignment="Left" 
-                        Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        HorizontalAlignment="Left" > <!-- Have additional properties changes in code-behind (Border_SizeChanged) -->
 
                     <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
                 </Button>

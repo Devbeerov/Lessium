@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Lessium.Utility
@@ -20,5 +22,27 @@ namespace Lessium.Utility
             else
                 return FindParent<T>(parentObject);
         }
+
+        #region TextBox
+
+        public static double CalculateLineHeight(this TextBox textBox)
+        {
+            var formattedText = new FormattedText
+            (
+                "1",
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                new Typeface(textBox.FontFamily, textBox.FontStyle,
+                textBox.FontWeight, textBox.FontStretch),
+                textBox.FontSize,
+                Brushes.Black,
+                new NumberSubstitution(),
+                1
+            );
+
+            return formattedText.Height;
+        }
+
+        #endregion
     }
 }

@@ -255,10 +255,8 @@ namespace Lessium.ContentControls.Models
         {
             if (e.Handled) { return; }
 
-            if (e.HeightChanged)
-            {
-                ValidateAllForward(e.Source as IContentControl);
-            }
+            ValidateAllForward(e.Source as IContentControl);
+            
         }
 
         /// <summary>

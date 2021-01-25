@@ -4,12 +4,15 @@ using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Interactivity;
 using System.Windows.Media;
 
@@ -80,9 +83,9 @@ namespace Lessium.ContentControls.TestControls
 
             id = Guid.NewGuid();
 
-            InitializeComponent();
-
             this.DataContext = this;
+
+            InitializeComponent();
         }
 
         #endregion
@@ -174,16 +177,24 @@ namespace Lessium.ContentControls.TestControls
             RemoveControl?.Invoke(sender, e);
         }
 
-        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void Question_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if(!raiseResizeEvent) { return; }
+            // Sets ItemControl MaxHeight to parent border (holder of Question and ItemsControl) MaxHeight minus NewSize.
+            AnswersItemControl.MaxHeight = border.MaxHeight - e.NewSize.Height;
+        }
 
-            if(AnswersItemControl.Items.Count > 0)
+        private void AnswersItemControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (!raiseResizeEvent) { return; }
+
+            double? lineHeight = new Nullable<double>(); // Declares variable here to avoid double-calculating.
+
+            if (AnswersItemControl.Items.Count > 0)
             {
                 var lastIndex = AnswersItemControl.Items.Count - 1;
                 var last = AnswersItemControl.Items.GetItemAt(lastIndex);
                 var lastContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
-                if  (lastContainer != null)
+                if (lastContainer != null)
                 {
                     DataTemplate dataTemplate = lastContainer.ContentTemplate;
                     var text = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
@@ -193,20 +204,9 @@ namespace Lessium.ContentControls.TestControls
                     if (text != null && !pageControl.IsElementFits(text))
                     {
                         var textBox = text.textBox;
-                        var formattedText = new FormattedText(
-                            "1",
-                            CultureInfo.CurrentCulture,
-                            FlowDirection.LeftToRight,
-                            new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch),
-                            textBox.FontSize,
-                            Brushes.Black,
-                            new NumberSubstitution(),
-                            1);
-
-
-                        var lineHeight = formattedText.Height;
+                        lineHeight = textBox.CalculateLineHeight();
                         var pos = textBox.TranslatePoint(default(Point), pageControl);
-                        var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight));
+                        var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
 
                         if (textBox.LineCount > maxLineCount)
                         {
@@ -246,6 +246,22 @@ namespace Lessium.ContentControls.TestControls
                 }
             }
 
+            double toSubstract = 0d;
+
+            for (int i = 0; i < AnswersItemControl.Items.Count; i++)
+            {
+                var item = AnswersItemControl.Items.GetItemAt(i);
+                var itemContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
+                toSubstract += itemContainer.ActualHeight;
+            }
+
+            var maxHeight = border.MaxHeight - toSubstract;
+
+            if (!lineHeight.HasValue) { lineHeight = testQuestion.textBox.CalculateLineHeight(); }
+
+            testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
+            testQuestion.SetMaxHeight(maxHeight);
+
             // Sets source to SimpleTest Control, not Border
 
             e.Source = this;
@@ -255,6 +271,21 @@ namespace Lessium.ContentControls.TestControls
             Resize?.Invoke(sender, e);
 
             raiseResizeEvent = true;
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var pageControl = this.FindParent<ContentPageControl>();
+
+            bool show = false;
+
+            if (addAnswerButton.Visibility != Visibility.Collapsed)
+            {
+                show = pageControl.IsElementFits(addAnswerButton);
+            }
+
+            addAnswerButton.IsEnabled = show;
+            addAnswerButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
@@ -294,12 +325,6 @@ namespace Lessium.ContentControls.TestControls
 
             control.SetEditable(editable);
             textControls.Remove(control);
-        }
-
-        private void SimpleTest_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            var pageControl = this.FindParent<ContentPageControl>();
-            addAnswerButton.IsEnabled = pageControl.IsElementFits(addAnswerButton);
         }
 
         #endregion

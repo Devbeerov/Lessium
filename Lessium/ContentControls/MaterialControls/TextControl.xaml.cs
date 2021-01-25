@@ -114,6 +114,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             raiseResizeEvent = false;
 
+            this.MaxWidth = width;
             textBox.MaxWidth = adjusted;
             textBox.Width = adjusted;
 
@@ -124,6 +125,7 @@ namespace Lessium.ContentControls.MaterialControls
         {
             // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
 
+            this.MaxHeight = height;
             textBox.MaxHeight = height;
         }
 
@@ -168,6 +170,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region Dependency Properties
 
+        #region Text
+
         public static string GetText(DependencyObject obj)
         {
             return (string)obj.GetValue(TextProperty);
@@ -198,6 +202,10 @@ namespace Lessium.ContentControls.MaterialControls
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
 
+        #endregion
+
+        #region ShowRemoveButton
+
         public static void SetShowRemoveButton(DependencyObject obj, bool show)
         {
             obj.SetValue(ShowRemoveButtonProperty, show);
@@ -216,6 +224,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         public static readonly DependencyProperty ShowRemoveButtonProperty =
             DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
+
+        #endregion
 
         #endregion
     }
