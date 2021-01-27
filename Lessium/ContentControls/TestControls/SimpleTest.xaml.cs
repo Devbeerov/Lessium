@@ -68,7 +68,7 @@ namespace Lessium.ContentControls.TestControls
 
             var answersList = (List<AnswerModel>) info.GetValue("Answers", typeof(List<AnswerModel>));
 
-            answers = new ObservableCollection<AnswerModel>(answersList);
+            answers.AddRange(answersList);
         }
 
         #endregion
@@ -89,17 +89,6 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
-
-        #endregion
-
-
-        #region ISerializable
-
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Answers", answers.ToList());
-        }
 
         #endregion
 
@@ -325,6 +314,15 @@ namespace Lessium.ContentControls.TestControls
 
             control.SetEditable(editable);
             textControls.Remove(control);
+        }
+
+        #endregion
+
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Answers", Answers);
         }
 
         #endregion

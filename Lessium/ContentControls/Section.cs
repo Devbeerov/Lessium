@@ -6,10 +6,12 @@ using System.Windows.Controls;
 using System.Linq;
 using Lessium.ContentControls.Models;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace Lessium.ContentControls
 {
-    public class Section : StackPanel
+    [Serializable]
+    public class Section : StackPanel, ISerializable
     {
         private bool editable = false;
         private SectionType sectionType;
@@ -28,17 +30,25 @@ namespace Lessium.ContentControls
             Initialize(type);
         }
 
-        // Custom Serialization
-        public Section(SectionSerializationInfo info) : base()
+        protected Section(SerializationInfo info, StreamingContext context) : base()
         {
-            Initialize(info.sectionType);
+            var type = (SectionType) info.GetValue("SectionType", typeof(SectionType));
+            var title = info.GetString("Title");
+            var storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
-            SetTitle(info.title);
-            SetEditable(info.editable);
-            pages.AddRange(info.pages);
+            Initialize(type);
+            SetTitle(title);
+            pages.AddRange(storedPages);
+            
         }
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
+
+        #region Public CLR Properties
+
+        public SectionType SectionType { get { return sectionType; } }
+
+        #endregion
 
         #region Dependency Properties Methods
 
@@ -233,19 +243,6 @@ namespace Lessium.ContentControls
             UpdatePagesEditable();
         }
 
-        public SectionSerializationInfo GetSerializationInfo()
-        {
-            SectionSerializationInfo info = new SectionSerializationInfo
-            {
-                title = GetTitle(),
-                editable = editable,
-                pages = pages.ToList(), // Linq does copying
-                sectionType = sectionType
-            };
-
-            return info;
-        }
-
         #endregion
 
         #endregion
@@ -257,6 +254,7 @@ namespace Lessium.ContentControls
         #endregion
 
         #region Dependency Properties
+
 
         public static readonly DependencyProperty Title =
             DependencyProperty.RegisterAttached("Title", typeof(string), typeof(Section), new PropertyMetadata(string.Empty));
@@ -275,6 +273,17 @@ namespace Lessium.ContentControls
                 typeof(Section), new PropertyMetadata(null));
 
         #endregion
+
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Title", GetTitle());
+            info.AddValue("Pages", GetPages().ToList(), typeof(List<ContentPage>));
+            info.AddValue("SectionType", sectionType);
+        }
+
+        #endregion
     }
 
     public class PagesChangedEventArgs
@@ -287,20 +296,6 @@ namespace Lessium.ContentControls
             Pages = pages;
             Action = action;
         }
-    }
-
-    [Serializable]
-    public class SectionSerializationInfo
-    {
-        #pragma warning disable S1104 // Fields should not have public accessibility
-
-        public string title;
-        public bool editable;
-        public List<ContentPage> pages; // COPY of ObservableCollection as List!
-
-        public SectionType sectionType;
-
-        #pragma warning restore S1104 // Fields should not have public accessibility
     }
 
     public enum SectionType

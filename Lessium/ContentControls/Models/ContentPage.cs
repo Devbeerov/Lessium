@@ -1,11 +1,17 @@
 ﻿using Lessium.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Windows;
+using System.Linq;
 namespace Lessium.ContentControls.Models
 {
     // Model
-    public class ContentPage
+    [Serializable]
+    public class ContentPage : ISerializable
     {
         // Public
 
@@ -48,7 +54,7 @@ namespace Lessium.ContentControls.Models
         public void Add(IContentControl control)
         {
             // To skip unwanted validating.
-            if(items.Count == 0)
+            if (items.Count == 0)
             {
                 Insert(0, control);
                 return;
@@ -102,7 +108,7 @@ namespace Lessium.ContentControls.Models
 
         public void SetMaxWidth(double width)
         {
-            if(maxWidth == width) { return; }
+            if (maxWidth == width) { return; }
 
             maxWidth = width;
 
@@ -118,7 +124,7 @@ namespace Lessium.ContentControls.Models
 
             maxHeight = height;
 
-            foreach(var childControl in Items)
+            foreach (var childControl in Items)
             {
                 childControl.SetMaxHeight(maxHeight);
             }
@@ -173,6 +179,20 @@ namespace Lessium.ContentControls.Models
 
         #endregion
 
+        #region Protected
+
+        protected ContentPage(SerializationInfo info, StreamingContext context)
+        {
+            var storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
+
+            //foreach (var item in storedItems)
+            //{
+            //    Add(item);
+            //}
+        }
+
+        #endregion
+
         #region Private
 
         private void UpdateItemEditable(IContentControl contentControl)
@@ -206,6 +226,12 @@ namespace Lessium.ContentControls.Models
             UpdateItemEditable(control);
         }
 
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext c)
+        {
+            
+        }
+
         /// <summary>
         /// Validates all controls after specified.
         /// <param name="ignoreControl">Should given control be validated or not.</param>
@@ -230,7 +256,7 @@ namespace Lessium.ContentControls.Models
 
                 for (int pos = lastControlPosition - 1; pos >= controlPos; pos--)
                 {
-                    if(ignoreControl && pos == controlPos) { return; }
+                    if (ignoreControl && pos == controlPos) { return; }
                     if (pos == 0) { return; } // Don't check if its in zero position, it will be always valid.
                     var item = collection[pos];
                     ValidateContentPlacement(item);
@@ -256,7 +282,7 @@ namespace Lessium.ContentControls.Models
             if (e.Handled) { return; }
 
             ValidateAllForward(e.Source as IContentControl);
-            
+
         }
 
         /// <summary>
@@ -280,6 +306,15 @@ namespace Lessium.ContentControls.Models
 
         #endregion
 
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("ItemsCount", items.Count);
+            info.AddValue("Items", Items.ToList(), typeof(List<IContentControl>));
+        }
+
+        #endregion
     }
 
     public class ExceedingContentEventArgs : EventArgs

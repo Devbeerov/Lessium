@@ -70,10 +70,9 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region ISerializable
 
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Text", textBox.Text);
+            info.AddValue("Text", Text);
         }
 
         #endregion
@@ -127,6 +126,11 @@ namespace Lessium.ContentControls.MaterialControls
 
             this.MaxHeight = height;
             textBox.MaxHeight = height;
+        }
+
+        public IContentControl Deserialize(SerializationInfo info, StreamingContext context)
+        {
+            return new TextControl(info, context);
         }
 
         public event RoutedEventHandler RemoveControl;

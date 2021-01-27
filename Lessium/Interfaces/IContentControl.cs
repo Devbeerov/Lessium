@@ -9,6 +9,8 @@ namespace Lessium.Interfaces
     /// </summary>
     public interface IContentControl : ISerializable
     {
+        //IContentControl Deserialize(SerializationInfo info, StreamingContext context);
+
         // Similar to IsReadOnly
         void SetEditable(bool editable);
 

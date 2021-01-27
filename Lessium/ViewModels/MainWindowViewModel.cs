@@ -14,6 +14,7 @@ using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace Lessium.ViewModels
 {
@@ -670,29 +671,26 @@ namespace Lessium.ViewModels
 
                 if (Keyboard.IsKeyDown(Key.C))
                 {
-                    var serializationInfo = CurrentSection.GetSerializationInfo();
+                    var dataObject = new DataObject(DataFormats.Serializable, CurrentSection);
                     Clipboard.Clear();
-                    Clipboard.SetDataObject(serializationInfo);
+                    Clipboard.SetDataObject(dataObject);
 
                 }
 
                 if (Keyboard.IsKeyDown(Key.V))
                 {
                     IDataObject dataObject = Clipboard.GetDataObject();
-                    var dataType = typeof(SectionSerializationInfo);
-                    if (dataObject.GetDataPresent(dataType))
+                    if (dataObject.GetDataPresent(DataFormats.Serializable))
                     {
-                        // Retrieves SerializationInfo
+                        // Serializes Section
 
-                        var info = dataObject.GetData(dataType) as SectionSerializationInfo;
+                        var section = dataObject.GetData(DataFormats.Serializable) as Section;
 
-                        // Checks if SelectedTab (as SectionType) is same as SectionType
+                        // Checks if SelectedTab (as SectionType) is same as Section's SectionType
 
-                        if (SelectedTabToSectionType() == info.sectionType)
+                        if (SelectedTabToSectionType() == section.SectionType)
                         {
-                            // Constructs section from SerializationInfo
-
-                            var section = new Section(info);
+                            section.SetEditable(!ReadOnly);
 
                             // Adds to sections
 
@@ -703,7 +701,7 @@ namespace Lessium.ViewModels
                             SelectSection(section);
                         }
 
-                        
+
                     }
                 }
 
