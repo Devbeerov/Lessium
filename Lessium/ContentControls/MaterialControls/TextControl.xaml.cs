@@ -128,11 +128,6 @@ namespace Lessium.ContentControls.MaterialControls
             textBox.MaxHeight = height;
         }
 
-        public IContentControl Deserialize(SerializationInfo info, StreamingContext context)
-        {
-            return new TextControl(info, context);
-        }
-
         public event RoutedEventHandler RemoveControl;
         public event SizeChangedEventHandler Resize;
 

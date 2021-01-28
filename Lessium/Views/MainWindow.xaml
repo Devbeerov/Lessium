@@ -165,10 +165,6 @@
                                 <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
                             </i:EventTrigger>
 
-                            <i:EventTrigger EventName="KeyDown">
-                                <i:InvokeCommandAction Command="{Binding SectionInput}" />
-                            </i:EventTrigger>
-
                         </i:Interaction.Triggers>
 
                     </ListBox>
@@ -184,6 +180,12 @@
 
                 </StackPanel>
             </ScrollViewer>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="KeyDown">
+                    <i:InvokeCommandAction Command="{Binding SectionInput}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
          </Border>
 
 

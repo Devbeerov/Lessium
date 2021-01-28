@@ -351,7 +351,17 @@ namespace Lessium.ViewModels
                     CurrentSectionID = Sections.IndexOf(section);
                     section.PagesChanged += OnPagesChanged;
 
-                    var storedPage = model.LastSelectedPage[section];
+                    ContentPage storedPage = null;
+
+                    if (model.LastSelectedPage.ContainsKey(section))
+                    {
+                        storedPage = model.LastSelectedPage[section];
+                    }
+
+                    else
+                    {
+                        model.LastSelectedPage.Add(section, section.GetSelectedPage());
+                    }
 
                     if (storedPage != null)
                     {
@@ -679,6 +689,8 @@ namespace Lessium.ViewModels
 
                 if (Keyboard.IsKeyDown(Key.V))
                 {
+                    if(ReadOnly) { return; }
+
                     IDataObject dataObject = Clipboard.GetDataObject();
                     if (dataObject.GetDataPresent(DataFormats.Serializable))
                     {

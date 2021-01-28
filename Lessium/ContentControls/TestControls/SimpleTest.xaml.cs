@@ -31,7 +31,9 @@ namespace Lessium.ContentControls.TestControls
 
         private ObservableCollection<AnswerModel> answers = new ObservableCollection<AnswerModel>();
 
-        private readonly Collection<IContentControl> textControls = new Collection<IContentControl>();
+        // Serialization
+
+        private List<AnswerModel> storedAnswers;
 
         #region Properties
 
@@ -66,9 +68,8 @@ namespace Lessium.ContentControls.TestControls
 
             // Serializes properties
 
-            var answersList = (List<AnswerModel>) info.GetValue("Answers", typeof(List<AnswerModel>));
-
-            answers.AddRange(answersList);
+            this.Question = info.GetString("Question");
+            storedAnswers = (List<AnswerModel>)info.GetValue("Answers", typeof(List<AnswerModel>));
         }
 
         #endregion
@@ -82,8 +83,7 @@ namespace Lessium.ContentControls.TestControls
             // Custom control initialization
 
             id = Guid.NewGuid();
-
-            this.DataContext = this;
+            DataContext = this;
 
             InitializeComponent();
         }
@@ -124,9 +124,12 @@ namespace Lessium.ContentControls.TestControls
             foreach (var item in AnswersItemControl.Items)
             {
                 var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
-                DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-                TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
-                textContainer.SetEditable(editable);
+                if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
+                {
+                    DataTemplate dataTemplate = contentPresenter.ContentTemplate;
+                    TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
+                    textContainer.SetEditable(editable);
+                }
             }
         }
 
@@ -176,7 +179,7 @@ namespace Lessium.ContentControls.TestControls
         {
             if (!raiseResizeEvent) { return; }
 
-            double? lineHeight = new Nullable<double>(); // Declares variable here to avoid double-calculating.
+            double? lineHeight = new double?(); // Declares variable here to avoid double-calculating.
 
             if (AnswersItemControl.Items.Count > 0)
             {
@@ -304,8 +307,6 @@ namespace Lessium.ContentControls.TestControls
 
             control.RemoveBehavior<TextBoxCutBehavior>();
             control.SetEditable(editable);
-
-            textControls.Add(control);
         }
 
         private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
@@ -313,7 +314,6 @@ namespace Lessium.ContentControls.TestControls
             var control = e.Source as TextControl;
 
             control.SetEditable(editable);
-            textControls.Remove(control);
         }
 
         #endregion
@@ -322,16 +322,46 @@ namespace Lessium.ContentControls.TestControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Answers", Answers);
+            info.AddValue("Question", Question);
+            info.AddValue("Answers", Answers.ToList());
         }
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext c)
+        {
+            answers.AddRange(storedAnswers);
+
+            // Clears and sets to null, so GC will collect List instance.
+
+            storedAnswers.Clear();
+            storedAnswers = null;
+        }
+        
 
         #endregion
     }
 
-    public class AnswerModel
+    [Serializable]
+    public class AnswerModel : ISerializable
     {
         private string text = string.Copy(Properties.Resources.DefaultAnswerHeader);
 
         public string Text { get => text; set => text = value; }
+
+        public AnswerModel()
+        {
+
+        }
+
+        // For serialization
+        protected AnswerModel(SerializationInfo info, StreamingContext context)
+        {
+            this.Text = info.GetString("Text");
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Text", Text);
+        }
     }
 }

@@ -13,11 +13,17 @@ namespace Lessium.ContentControls
     [Serializable]
     public class Section : StackPanel, ISerializable
     {
+        public const double PageWidth = 795;
+        public const double PageHeight = 637;
+
         private bool editable = false;
         private SectionType sectionType;
 
-        public const double PageWidth = 795;
-        public const double PageHeight = 637;
+        private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
+
+        // Serialization
+
+        private List<ContentPage> storedPages;
 
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
@@ -34,15 +40,14 @@ namespace Lessium.ContentControls
         {
             var type = (SectionType) info.GetValue("SectionType", typeof(SectionType));
             var title = info.GetString("Title");
-            var storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
+            storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
-            Initialize(type);
+            this.sectionType = type;
             SetTitle(title);
-            pages.AddRange(storedPages);
+
+            // Further initialization at OnSerialized method.
             
         }
-
-        private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
         #region Public CLR Properties
 
@@ -170,6 +175,21 @@ namespace Lessium.ContentControls
             }
         }
 
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext c)
+        {
+            pages.AddRange(storedPages);
+
+            // Initializes with already added pages, so it won't create new page.
+
+            Initialize(sectionType);
+
+            // Clears and sets to null, so GC will collect List instance.
+
+            storedPages.Clear();
+            storedPages = null;
+        }
+
         #endregion
 
         #region Public
@@ -189,17 +209,20 @@ namespace Lessium.ContentControls
             VerticalAlignment = VerticalAlignment.Top;
             Orientation = Orientation.Vertical;
 
-            // Section should contain at least 1 page.
+            if (pages.Count == 0)
+            {
+                // Section should contain at least 1 page.
 
-            var page = new ContentPage();
-            pages.Add(page);
+                var page = new ContentPage();
+                pages.Add(page);
+            }
 
             // Sets Items and pages reference to internal variables.
 
             SetPages(pages);
 
             SetSelectedPageIndex(0);
-            SetSelectedPage(page);
+            SetSelectedPage(pages[0]);
             
         }
 
@@ -279,7 +302,7 @@ namespace Lessium.ContentControls
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Title", GetTitle());
-            info.AddValue("Pages", GetPages().ToList(), typeof(List<ContentPage>));
+            info.AddValue("Pages", GetPages().ToList());
             info.AddValue("SectionType", sectionType);
         }
 

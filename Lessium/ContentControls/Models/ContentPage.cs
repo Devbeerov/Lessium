@@ -29,6 +29,10 @@ namespace Lessium.ContentControls.Models
 
         private ContentPageControl pageControl;
 
+        // Serialization
+
+        private List<IContentControl> storedItems;
+
         #region Properties
 
         public ObservableCollection<IContentControl> Items => items;
@@ -183,12 +187,7 @@ namespace Lessium.ContentControls.Models
 
         protected ContentPage(SerializationInfo info, StreamingContext context)
         {
-            var storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
-
-            //foreach (var item in storedItems)
-            //{
-            //    Add(item);
-            //}
+            storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
         }
 
         #endregion
@@ -227,9 +226,17 @@ namespace Lessium.ContentControls.Models
         }
 
         [OnDeserialized]
-        void OnDeserialized(StreamingContext c)
+        private void OnDeserialized(StreamingContext c)
         {
-            
+            foreach (var item in storedItems)
+            {
+                Add(item);
+            }
+
+            // Clears and sets to null, so GC will collect List instance.
+
+            storedItems.Clear();
+            storedItems = null;
         }
 
         /// <summary>
@@ -311,7 +318,8 @@ namespace Lessium.ContentControls.Models
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("ItemsCount", items.Count);
-            info.AddValue("Items", Items.ToList(), typeof(List<IContentControl>));
+            info.AddValue("Items", Items.ToList());
+            
         }
 
         #endregion

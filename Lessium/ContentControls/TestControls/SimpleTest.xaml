@@ -35,7 +35,7 @@
 
                 </materials:TextControl>
 
-                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" >
+                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
