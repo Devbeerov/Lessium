@@ -243,4 +243,19 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="StopEditingHeader" xml:space="preserve">
     <value>Stop editing</value>
   </data>
+  <data name="NewLessonMessageHeader" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="NewLessonMessageText" xml:space="preserve">
+    <value>Will create new blank Lesson. All unsaved changes will be lost!</value>
+  </data>
+  <data name="LoadingHeader" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="SavingHeader" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="LessonFilter" xml:space="preserve">
+    <value>Lesson (*.lsn)|*.lsn</value>
+  </data>
 </root>

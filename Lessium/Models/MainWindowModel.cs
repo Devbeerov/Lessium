@@ -10,7 +10,7 @@ namespace Lessium.Models
 {
     public class MainWindowModel
     {
-        // NOTE: Avoid static fields!
+        // NOTE: Avoid const fields!
 
         #region Window
 
@@ -77,9 +77,14 @@ namespace Lessium.Models
 
         #region Localisation
 
-        #region Headers
+        #region Windows
 
-        // Lesson Menu
+        public string ProgressWindowTitle_Saving = Resources.SavingHeader;
+        public string ProgressWindowTitle_Loading = Resources.LoadingHeader;
+
+        #endregion
+
+        #region Lesson Menu
 
         public string LessonHeader = Resources.LessonHeader;
         public string EditHeader = Resources.EditHeader;
@@ -93,7 +98,18 @@ namespace Lessium.Models
         public string PrintLessonHeader = Resources.PrintLessonHeader;
         public string ExitHeader = Resources.ExitHeader;
 
-        // Tabs
+        #endregion
+
+        #region MessageBoxes, Dialog-related
+
+        public string NewLessonMessageHeader = Resources.NewLessonMessageHeader;
+        public string NewLessonMessageText = Resources.NewLessonMessageText;
+
+        public string LessonFilter = Resources.LessonFilter;
+
+        #endregion
+
+        #region Tabs
 
         public string MaterialHeader = Resources.MaterialHeader;
         public string TestsHeader = Resources.TestsHeader;

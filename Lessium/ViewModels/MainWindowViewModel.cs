@@ -14,16 +14,21 @@ using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
-using System.Runtime.Serialization;
+using Lessium.Classes;
+using Microsoft.Win32;
+using System.Diagnostics;
+using Lessium.Views;
+using System.Windows.Data;
 
 namespace Lessium.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        #region Private properties
+        #region Private fields
 
         private readonly MainWindowModel model;
         private bool currentPageIsNotFirst = false;
+        private bool savingOrLoading = false;
 
         #endregion
 
@@ -540,22 +545,58 @@ namespace Lessium.ViewModels
 
         #region Lesson_Save
 
-        private DelegateCommand Lesson_SaveCommand;
-        public DelegateCommand Lesson_Save =>
-            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand(ExecuteLesson_Save, CanExecuteLesson_Save)
-            .ObservesProperty(() => ReadOnly) // We don't check for !bool, because we observe property change, not property value.
-            .ObservesProperty(() => HasChanges)
-            );
+        private DelegateCommand<Window> Lesson_SaveCommand;
+        public DelegateCommand<Window> Lesson_Save =>
+            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand<Window>(ExecuteLesson_Save, CanExecuteLesson_Save));
 
-        void ExecuteLesson_Save()
+        async void ExecuteLesson_Save(Window window) // Yes, async void ICommand. Why? - https://prismlibrary.com/docs/commanding.html
         {
-            // TODO: Implement save
-            HasChanges = false;
+            savingOrLoading = true;
+            var saveDialog = new SaveFileDialog()
+            {
+                CheckPathExists = true,
+                AddExtension = true,
+                Filter = model.LessonFilter,
+                DefaultExt = "lsn",
+            };
+
+            if (saveDialog.ShowDialog(window) == true)
+            {
+                // New window
+
+                var progressView = new ProgressWindow()
+                {
+                    Owner = window,
+                    Title = model.ProgressWindowTitle_Saving,
+                };
+
+                var childViewModel = progressView.DataContext as ProgressWindowViewModel;
+                var progress = new Progress<int>(childViewModel.SetProgressValue);
+                progressView.Closed += (s, a) => LsnWriter.Cancel();
+
+                progressView.Show();
+
+                // Pauses method until SaveAsync method is completed.
+                var result = await LsnWriter.SaveAsync(this, saveDialog.FileName, progress);
+                if (result == LsnWriter.Result.Sucessful)
+                {
+                    HasChanges = false;
+                }
+
+                else if (result != LsnWriter.Result.Cancelled)
+                {
+                    MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {result}",
+                        "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                progressView.Close();
+            }
+            savingOrLoading = false;
         }
 
-        bool CanExecuteLesson_Save()
+        bool CanExecuteLesson_Save(Window window)
         {
-            return !ReadOnly && HasChanges;
+            return !savingOrLoading;
         }
 
         #endregion
@@ -568,8 +609,18 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_New()
         {
-            // TODO: Implement new lesson
-            HasChanges = true;
+            var result = MessageBox.Show(model.NewLessonMessageText, model.NewLessonMessageHeader, MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.OK)
+            {
+                foreach (var key in model.Sections.Keys)
+                {
+                    model.Sections[key].Clear();
+                    model.LastSelectedSection[key] = null;
+                }
+                RaisePropertyChanged(nameof(Sections));
+                SelectSection(null);
+                HasChanges = true;
+            }
         }
 
         #endregion

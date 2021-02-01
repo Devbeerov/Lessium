@@ -76,7 +76,7 @@
                 <Separator />
                 <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
                 <!-- There's no need to do checks for IsEnabled, because Command already handles it. -->
-                <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" />
+                <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" CommandParameter="{Binding ElementName=MainWindowReference}" />
                 <MenuItem Header="{Binding LoadLessonHeader}" />
                 <MenuItem Header="{Binding CloseLessonHeader}" />
                 <Separator />

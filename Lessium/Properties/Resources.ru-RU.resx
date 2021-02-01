@@ -243,4 +243,19 @@
   <data name="StopEditingHeader" xml:space="preserve">
     <value>Прекратить редактирование</value>
   </data>
+  <data name="NewLessonMessageHeader" xml:space="preserve">
+    <value>Вы уверены?</value>
+  </data>
+  <data name="NewLessonMessageText" xml:space="preserve">
+    <value>Создаст новый пустой урок. Все несохраненные изменения будут потеряны!</value>
+  </data>
+  <data name="LoadingHeader" xml:space="preserve">
+    <value>Загрузка...</value>
+  </data>
+  <data name="SavingHeader" xml:space="preserve">
+    <value>Сохранение...</value>
+  </data>
+  <data name="LessonFilter" xml:space="preserve">
+    <value>Урок (*.lsn)|*.lsn</value>
+  </data>
 </root>

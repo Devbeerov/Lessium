@@ -45,7 +45,7 @@ namespace Lessium.ContentControls.Models
 
         public ContentPage()
         {
-
+            
         }
 
         public static ContentPage CreateWithPageControlInjection(ContentPage oldPage)
@@ -317,9 +317,7 @@ namespace Lessium.ContentControls.Models
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("ItemsCount", items.Count);
             info.AddValue("Items", Items.ToList());
-            
         }
 
         #endregion

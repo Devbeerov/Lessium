@@ -196,6 +196,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Lesson (*.lsn)|*.lsn.
+        /// </summary>
+        public static string LessonFilter {
+            get {
+                return ResourceManager.GetString("LessonFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Lesson.
         /// </summary>
         public static string LessonHeader {
@@ -210,6 +219,15 @@ namespace Lessium.Properties {
         public static string LinkTogetherHeader {
             get {
                 return ResourceManager.GetString("LinkTogetherHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Loading....
+        /// </summary>
+        public static string LoadingHeader {
+            get {
+                return ResourceManager.GetString("LoadingHeader", resourceCulture);
             }
         }
         
@@ -246,6 +264,24 @@ namespace Lessium.Properties {
         public static string NewLessonHeader {
             get {
                 return ResourceManager.GetString("NewLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Are you sure?.
+        /// </summary>
+        public static string NewLessonMessageHeader {
+            get {
+                return ResourceManager.GetString("NewLessonMessageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Will create new blank Lesson. All unsaved changes will be lost!.
+        /// </summary>
+        public static string NewLessonMessageText {
+            get {
+                return ResourceManager.GetString("NewLessonMessageText", resourceCulture);
             }
         }
         
@@ -301,6 +337,15 @@ namespace Lessium.Properties {
         public static string SaveLessonHeader {
             get {
                 return ResourceManager.GetString("SaveLessonHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Saving....
+        /// </summary>
+        public static string SavingHeader {
+            get {
+                return ResourceManager.GetString("SavingHeader", resourceCulture);
             }
         }
         
