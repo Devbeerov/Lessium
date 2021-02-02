@@ -10,11 +10,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interactivity;
 using System.Windows.Media;
+using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
 {
@@ -336,7 +339,40 @@ namespace Lessium.ContentControls.TestControls
             storedAnswers.Clear();
             storedAnswers = null;
         }
-        
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        {
+            #region SimpleTest
+
+            await writer.WriteStartElementAsync(GetType().Name);
+            await writer.WriteAttributeStringAsync("Question", Question);
+
+            foreach (var answer in Answers)
+            {
+                #region Answer
+
+                await writer.WriteStartElementAsync("Answer");
+
+                await writer.WriteStringAsync(answer.Text);
+
+                await writer.WriteEndElementAsync();
+
+                #endregion
+            }
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

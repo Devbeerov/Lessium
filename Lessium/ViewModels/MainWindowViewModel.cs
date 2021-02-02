@@ -19,6 +19,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using Lessium.Views;
 using System.Windows.Data;
+using Lessium.Classes.IO;
 
 namespace Lessium.ViewModels
 {
@@ -105,6 +106,11 @@ namespace Lessium.ViewModels
             {
                 SetDictionaryProperty(ref model.Sections, SelectedTab, value);
             }
+        }
+
+        public Dictionary<string, ObservableCollection<Section>> SectionsByTab
+        {
+            get { return model.Sections; }
         }
 
         // Use SelectSection method to "Set" CurrentSection.
@@ -290,6 +296,18 @@ namespace Lessium.ViewModels
             }
 
             CurrentPageIsNotFirst = notFirst;
+        }
+
+        private void ClearLesson()
+        {
+            foreach (var key in model.Sections.Keys)
+            {
+                model.Sections[key].Clear();
+                model.LastSelectedSection[key] = null;
+            }
+            RaisePropertyChanged(nameof(Sections));
+            SelectSection(null);
+            HasChanges = true;
         }
 
         #region Section
@@ -578,12 +596,12 @@ namespace Lessium.ViewModels
 
                 // Pauses method until SaveAsync method is completed.
                 var result = await LsnWriter.SaveAsync(this, saveDialog.FileName, progress);
-                if (result == LsnWriter.Result.Sucessful)
+                if (result == IOResult.Sucessful)
                 {
                     HasChanges = false;
                 }
 
-                else if (result != LsnWriter.Result.Cancelled)
+                else if (result != IOResult.Cancelled)
                 {
                     MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {result}",
                         "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -601,6 +619,72 @@ namespace Lessium.ViewModels
 
         #endregion
 
+        #region Lesson_Load
+
+        private DelegateCommand<Window> Lesson_LoadCommand;
+        public DelegateCommand<Window> Lesson_Load =>
+            Lesson_LoadCommand ?? (Lesson_LoadCommand = new DelegateCommand<Window>(ExecuteLesson_Load, CanExecuteLesson_Load));
+
+        async void ExecuteLesson_Load(Window window) // Yes, async void ICommand. Why? - https://prismlibrary.com/docs/commanding.html
+        {
+            savingOrLoading = true;
+            var loadDialog = new OpenFileDialog()
+            {
+                CheckPathExists = true,
+                AddExtension = true,
+                Filter = model.LessonFilter,
+                DefaultExt = "lsn",
+            };
+
+            if (loadDialog.ShowDialog(window) == true)
+            {
+                // New window
+
+                var progressView = new ProgressWindow()
+                {
+                    Owner = window,
+                    Title = model.ProgressWindowTitle_Loading,
+                };
+
+                var childViewModel = progressView.DataContext as ProgressWindowViewModel;
+                var progress = new Progress<int>(childViewModel.SetProgressValue);
+                progressView.Closed += (s, a) => LsnWriter.Cancel();
+
+                progressView.Show();
+
+                // Pauses method until LoadAsync method is completed.
+                var result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
+                var resultCode = result.Item1;
+                var resultLessonModel = result.Item2;
+
+                if (resultCode == IOResult.Sucessful && resultLessonModel != null)
+                {
+                    ClearLesson();
+
+                    SectionsByTab["Materials"].AddRange(resultLessonModel.MaterialSections);
+                    SectionsByTab["Tests"].AddRange(resultLessonModel.TestSections);
+
+                    HasChanges = false;
+                }
+
+                else if (resultCode != IOResult.Cancelled)
+                {
+                    MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {resultCode}",
+                        "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                progressView.Close();
+            }
+            savingOrLoading = false;
+        }
+
+        bool CanExecuteLesson_Load(Window window)
+        {
+            return !savingOrLoading;
+        }
+
+        #endregion
+
         #region Lesson_New
 
         private DelegateCommand Lesson_NewCommand;
@@ -612,14 +696,7 @@ namespace Lessium.ViewModels
             var result = MessageBox.Show(model.NewLessonMessageText, model.NewLessonMessageHeader, MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (result == MessageBoxResult.OK)
             {
-                foreach (var key in model.Sections.Keys)
-                {
-                    model.Sections[key].Clear();
-                    model.LastSelectedSection[key] = null;
-                }
-                RaisePropertyChanged(nameof(Sections));
-                SelectSection(null);
-                HasChanges = true;
+                ClearLesson();
             }
         }
 

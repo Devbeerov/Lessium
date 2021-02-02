@@ -7,11 +7,16 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Windows;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using Lessium.Utility;
+
 namespace Lessium.ContentControls.Models
 {
     // Model
     [Serializable]
-    public class ContentPage : ISerializable
+    public class ContentPage : ISerializable, ILsnSerializable
     {
         // Public
 
@@ -318,6 +323,33 @@ namespace Lessium.ContentControls.Models
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Items", Items.ToList());
+        }
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        {
+            #region Page
+
+            await writer.WriteStartElementAsync("Page");
+
+            foreach (var item in Items)
+            {
+                if (token.HasValue && token.Value.IsCancellationRequested) { break; }
+
+                await item.WriteXmlAsync(writer, token, progress);
+            }
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

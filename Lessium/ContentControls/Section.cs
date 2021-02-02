@@ -7,11 +7,18 @@ using System.Linq;
 using Lessium.ContentControls.Models;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using Lessium.Interfaces;
+using System.Threading.Tasks;
+using Lessium.Utility;
+using System.Threading;
 
 namespace Lessium.ContentControls
 {
     [Serializable]
-    public class Section : StackPanel, ISerializable
+    public class Section : StackPanel, ISerializable, ILsnSerializable
     {
         public const double PageWidth = 795;
         public const double PageHeight = 637;
@@ -304,6 +311,43 @@ namespace Lessium.ContentControls
             info.AddValue("Title", GetTitle());
             info.AddValue("Pages", GetPages().ToList());
             info.AddValue("SectionType", sectionType);
+        }
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        {
+            #region Section
+
+            await writer.WriteStartElementAsync("Section");
+            await writer.WriteAttributeStringAsync("Title", GetTitle());
+
+            #region Page(s)
+
+            for (int i = 0; i < pages.Count; i++)
+            {
+                if(token.HasValue && token.Value.IsCancellationRequested) { break; }
+
+                var page = pages[i];
+                await page.WriteXmlAsync(writer, token, progress);
+                    
+                double calculatedProgress = i * 100d / pages.Count; // Careful with math here
+                progress?.Report((int)calculatedProgress); // Casting to integer will "floor" calculatedProgress
+            }
+
+
+            #endregion
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -8,6 +8,9 @@ using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Linq;
 using Lessium.Utility;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -65,15 +68,6 @@ namespace Lessium.ContentControls.MaterialControls
         }
 
         #endregion
-
-        #endregion
-
-        #region ISerializable
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Text", Text);
-        }
 
         #endregion
 
@@ -225,6 +219,37 @@ namespace Lessium.ContentControls.MaterialControls
             DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
 
         #endregion
+
+        #endregion
+
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Text", Text);
+        }
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        {
+            #region TextControl
+
+            await writer.WriteStartElementAsync(GetType().Name);
+
+            await writer.WriteStringAsync(Text);
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
