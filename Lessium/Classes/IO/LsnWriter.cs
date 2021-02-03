@@ -61,9 +61,10 @@ namespace Lessium.Classes.IO
         private static async Task SaveInternal(MainWindowViewModel viewModel, string fileName, CancellationToken token,
             IProgress<int> progress)
         {
+            token.ThrowIfCancellationRequested();
+
             using (XmlWriter writer = XmlWriter.Create(fileName, settings))
             {
-                token.ThrowIfCancellationRequested();
                 await writer.WriteStartDocumentAsync();
 
                 #region Lesson
@@ -120,6 +121,8 @@ namespace Lessium.Classes.IO
 
                 writer.Close();
             }
+
+            token.ThrowIfCancellationRequested();
         }
     }
 }

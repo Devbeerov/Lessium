@@ -7,13 +7,13 @@ using System.Linq;
 using Lessium.ContentControls.Models;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 using System.Xml;
-using System.Xml.Schema;
 using Lessium.Interfaces;
 using System.Threading.Tasks;
 using Lessium.Utility;
 using System.Threading;
+using System.IO;
+using Lessium.Utility;
 
 namespace Lessium.ContentControls
 {
@@ -24,7 +24,6 @@ namespace Lessium.ContentControls
         public const double PageHeight = 637;
 
         private bool editable = false;
-        private SectionType sectionType;
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
@@ -35,21 +34,21 @@ namespace Lessium.ContentControls
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
-            Initialize(SectionType.MaterialSection);
+            Initialize(ContentType.Material);
         }
 
-        public Section(SectionType type) : base()
+        public Section(ContentType type) : base()
         {
             Initialize(type);
         }
 
         protected Section(SerializationInfo info, StreamingContext context) : base()
         {
-            var type = (SectionType) info.GetValue("SectionType", typeof(SectionType));
+            var type = (ContentType) info.GetValue("ContentType", typeof(ContentType));
             var title = info.GetString("Title");
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
-            this.sectionType = type;
+            ContentType = type;
             SetTitle(title);
 
             // Further initialization at OnSerialized method.
@@ -58,7 +57,7 @@ namespace Lessium.ContentControls
 
         #region Public CLR Properties
 
-        public SectionType SectionType { get { return sectionType; } }
+        public ContentType ContentType { get; set; }
 
         #endregion
 
@@ -189,7 +188,7 @@ namespace Lessium.ContentControls
 
             // Initializes with already added pages, so it won't create new page.
 
-            Initialize(sectionType);
+            Initialize(ContentType);
 
             // Clears and sets to null, so GC will collect List instance.
 
@@ -201,11 +200,11 @@ namespace Lessium.ContentControls
 
         #region Public
 
-        public void Initialize(SectionType sectionType)
+        public void Initialize(ContentType SectionType)
         {
             // Internal
 
-            this.sectionType = sectionType;
+            this.ContentType = SectionType;
 
             // Visible
 
@@ -220,7 +219,7 @@ namespace Lessium.ContentControls
             {
                 // Section should contain at least 1 page.
 
-                var page = new ContentPage();
+                var page = new ContentPage(this.ContentType);
                 pages.Add(page);
             }
 
@@ -235,6 +234,9 @@ namespace Lessium.ContentControls
 
         public void Add(ContentPage page)
         {
+            if(page.ContentType != this.ContentType) { throw new InvalidOperationException
+                    ("You can only add pages with same ContentType to Section!"); }
+
             pages.Add(page);
 
             // Raising event
@@ -310,7 +312,7 @@ namespace Lessium.ContentControls
         {
             info.AddValue("Title", GetTitle());
             info.AddValue("Pages", GetPages().ToList());
-            info.AddValue("SectionType", sectionType);
+            info.AddValue("ContentType", ContentType);
         }
 
         #endregion
@@ -347,7 +349,39 @@ namespace Lessium.ContentControls
 
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
-            throw new NotImplementedException();
+            var title = reader.GetAttribute("Title");
+
+            if (title == null)
+            {
+                throw new ArgumentNullException(title);
+            }
+
+            SetTitle(title);
+
+            int pageNumber = 1;
+            while (await reader.ReadAsync())
+            {
+                token?.ThrowIfCancellationRequested();
+
+                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Page")
+                {
+                    var page = new ContentPage(this.ContentType);
+
+                    // Considering that page doesn't have any attributes, we pass reader.ReadSubtree() as parameter.
+
+                    await page.ReadXmlAsync(reader.ReadSubtree(), token);
+                    Add(page);
+
+                    // TODO: REPORT FIX, REFACTOR
+                    progress.Report(pageNumber);
+                    pageNumber++;
+                }
+            }
+
+            if (GetPages().Count == 0)
+            {
+                throw new InvalidDataException("Section must have at least 1 Page. Something is wrong with Section.");
+            }
         }
 
         #endregion
@@ -365,8 +399,8 @@ namespace Lessium.ContentControls
         }
     }
 
-    public enum SectionType
+    public enum ContentType
     {
-        MaterialSection, TestSection
+        Material, Test
     }
 }

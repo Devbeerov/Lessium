@@ -20,6 +20,7 @@ using System.Diagnostics;
 using Lessium.Views;
 using System.Windows.Data;
 using Lessium.Classes.IO;
+using Lessium.Utility;
 
 namespace Lessium.ViewModels
 {
@@ -255,14 +256,14 @@ namespace Lessium.ViewModels
             this.model = model;
         }
 
-        public SectionType SelectedTabToSectionType()
+        public ContentType SelectedTabToContentType()
         {
             if (SelectedTab == "Materials")
             {
-                return SectionType.MaterialSection;
+                return ContentType.Material;
             }
 
-            return SectionType.TestSection;
+            return ContentType.Test;
         }
 
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
@@ -581,17 +582,9 @@ namespace Lessium.ViewModels
             if (saveDialog.ShowDialog(window) == true)
             {
                 // New window
-
-                var progressView = new ProgressWindow()
-                {
-                    Owner = window,
-                    Title = model.ProgressWindowTitle_Saving,
-                };
-
-                var childViewModel = progressView.DataContext as ProgressWindowViewModel;
-                var progress = new Progress<int>(childViewModel.SetProgressValue);
-                progressView.Closed += (s, a) => LsnWriter.Cancel();
-
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving, IOType.Write);
+                var progress = IOTools.CreateProgressForProgressView(progressView);
+               
                 progressView.Show();
 
                 // Pauses method until SaveAsync method is completed.
@@ -639,20 +632,15 @@ namespace Lessium.ViewModels
             if (loadDialog.ShowDialog(window) == true)
             {
                 // New window
-
-                var progressView = new ProgressWindow()
-                {
-                    Owner = window,
-                    Title = model.ProgressWindowTitle_Loading,
-                };
-
-                var childViewModel = progressView.DataContext as ProgressWindowViewModel;
-                var progress = new Progress<int>(childViewModel.SetProgressValue);
-                progressView.Closed += (s, a) => LsnWriter.Cancel();
-
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading, IOType.Read);
+                var progress = IOTools.CreateProgressForProgressView(progressView);
                 progressView.Show();
 
-                // Pauses method until LoadAsync method is completed.
+                // Sets ProgressCount property to total amount of (Section's) pages in file.
+                var viewModel = progressView.DataContext as ProgressWindowViewModel;
+                viewModel.ProgressCount = await LsnReader.CountPages(loadDialog.FileName);
+
+                // Pauses method until LoadAsync will be completed.
                 var result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
                 var resultCode = result.Item1;
                 var resultLessonModel = result.Item2;
@@ -727,7 +715,7 @@ namespace Lessium.ViewModels
             }
 
 
-            var sectionType = SelectedTabToSectionType();
+            var sectionType = SelectedTabToContentType();
             var newSection = new Section(sectionType);
             newSection.SetTitle(sectionTitle);
 
@@ -826,9 +814,9 @@ namespace Lessium.ViewModels
 
                         var section = dataObject.GetData(DataFormats.Serializable) as Section;
 
-                        // Checks if SelectedTab (as SectionType) is same as Section's SectionType
+                        // Checks if SelectedTab (as ContentType) is same as Section's ContentType
 
-                        if (SelectedTabToSectionType() == section.SectionType)
+                        if (SelectedTabToContentType() == section.ContentType)
                         {
                             section.SetEditable(!ReadOnly);
 

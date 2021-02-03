@@ -6,12 +6,12 @@ namespace Lessium.Utility
 {
     public static class XmlWriterExtensions
     {
-        public async static Task WriteStartElementAsync(this XmlWriter writer, string localName)
+        public static async Task WriteStartElementAsync(this XmlWriter writer, string localName)
         {
             await writer.WriteStartElementAsync(null, localName, null);
         }
 
-        public async static Task WriteAttributeStringAsync(this XmlWriter writer, string localName, string value)
+        public static async Task WriteAttributeStringAsync(this XmlWriter writer, string localName, string value)
         {
             await writer.WriteAttributeStringAsync(null, localName, null, value);
         }
@@ -35,6 +35,18 @@ namespace Lessium.Utility
                 }
             }
             return false;
+        }
+
+        public static async Task<int> CountChildsAsync(this XmlReader reader)
+        {
+            int count = 0;
+            int childDepth = reader.Depth + 1; // Will be lower (higher value) than parent depth
+            while (await reader.ReadAsync())
+            {
+                if (reader.NodeType == XmlNodeType.Element && reader.Depth == childDepth)
+                    ++count;
+            }
+            return count;
         }
     }
 }

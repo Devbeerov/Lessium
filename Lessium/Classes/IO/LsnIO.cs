@@ -4,4 +4,9 @@
     {
         Null, Error, Sucessful, Cancelled, Timeout
     }
+
+    public enum IOType
+    {
+        Unknown, Read, Write
+    }
 }

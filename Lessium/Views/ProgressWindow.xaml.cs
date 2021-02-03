@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Lessium.ViewModels;
+using System.Windows;
 
 namespace Lessium.Views
 {
@@ -7,9 +8,19 @@ namespace Lessium.Views
     /// </summary>
     public partial class ProgressWindow : Window
     {
+        private ProgressWindowViewModel viewModel;
+
         public ProgressWindow()
         {
             InitializeComponent();
+            viewModel = DataContext as ProgressWindowViewModel;
+        }
+
+        public ProgressWindow(string title)
+        {
+            InitializeComponent();
+            viewModel = DataContext as ProgressWindowViewModel;
+            viewModel.OriginalTitle = title;
         }
     }
 }

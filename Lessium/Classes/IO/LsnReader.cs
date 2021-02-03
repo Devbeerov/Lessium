@@ -1,14 +1,12 @@
 ﻿using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
 using Lessium.Utility;
-using Lessium.ViewModels;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Schema;
 
 namespace Lessium.Classes.IO
 {
@@ -75,37 +73,39 @@ namespace Lessium.Classes.IO
 
         private static async Task<SerializedLessonModel> LoadInternal(string fileName, CancellationToken token, IProgress<int> progress)
         {
+            /// NOTE: Unlike in SaveInternal, we always call token.ThrowIfCancellationRequested().
+            /// We could save file incompletly, but still compatible, BUT NOT LOAD FILE IF ITS CANCELLED DURING PARSING!
+            /// So in case of cancellation, we throw as soon as possible.
+            
+            token.ThrowIfCancellationRequested();
+
             var model = new SerializedLessonModel();
 
             using (XmlReader reader = XmlReader.Create(fileName, settings))
             {
-                token.ThrowIfCancellationRequested();
-                while(await reader.ReadAsync())
+                while (await reader.ReadAsync())
                 {
-                    if(token.IsCancellationRequested) { break; }
+                    token.ThrowIfCancellationRequested();
 
                     #region Lesson
 
-                    switch(reader.NodeType)
+                    if (reader.NodeType == XmlNodeType.Element)
                     {
-                        case XmlNodeType.Element:
-
-                            if(reader.Name == "Materials" || reader.Name == "Tests")
-                            {
-                                var type = (SectionType)Enum.Parse(typeof(SectionType), reader.Name);
-                                var sections = await ReadTab(reader.ReadSubtree(), token, progress, type);
-
-                                if(type == SectionType.MaterialSection)
+                        switch (reader.Name)
+                        {
+                            case "Materials":
                                 {
+                                    var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Material);
                                     model.MaterialSections.AddRange(sections);
+                                    break;
                                 }
-
-                                else
+                            case "Tests":
                                 {
+                                    var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Test);
                                     model.TestSections.AddRange(sections);
+                                    break;
                                 }
-                            }
-                            break;
+                        }
                     }
 
                     #endregion
@@ -114,52 +114,64 @@ namespace Lessium.Classes.IO
                 reader.Close();
             }
 
+            token.ThrowIfCancellationRequested();
+
             return model;
         }
 
+        /// <summary>
+        /// Iterates over Lsn file to get total pages count
+        /// </summary>
+        public static async Task<int> CountPages(string fileName)
+        {
+            cts = new CancellationTokenSource();
+            bool emptyLesson = true;
+            int pageCount = 0;
+
+            using (XmlReader reader = XmlReader.Create(fileName, settings))
+            {
+                while (await reader.ReadAsync())
+                {
+                    if(cts.Token.IsCancellationRequested)
+                    {
+                        pageCount = -1;
+                        break;
+                    }
+
+                    if (await reader.ReadToFollowingAsync("Section")) // Advances forward next Section, no matter which tab.
+                    {
+                        // Contains at least one Section
+                        emptyLesson = false;
+                    }
+
+                    pageCount += await reader.CountChildsAsync();
+                }
+                reader.Close();
+            }
+
+            cts = null;
+
+            if(pageCount < 1 && !emptyLesson) { throw new InvalidDataException("Non-empty Lesson should contain at least one page!"); }
+
+            return pageCount;
+        }
+
         private static async Task<Collection<Section>> ReadTab(XmlReader reader, CancellationToken token, IProgress<int> progress,
-            SectionType type)
+            ContentType type)
         {
             var sections = new Collection<Section>();
             while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "Section")
                 {
-                    sections.Add(await ReadSection(reader.ReadSubtree(), token, progress, type));
+                    // Do not pass reader.ReadSubstree() here! ReadSection will get Section title and handle further reading.
+                    var section = new Section(type);
+                    await section.ReadXmlAsync(reader, token, progress);
+                    sections.Add(section);
                 }
             }
             return sections;
         }
-
-        private static async Task<Section> ReadSection(XmlReader reader, CancellationToken token, IProgress<int> progress,
-            SectionType type)
-        {
-            var section = new Section(type);
-
-            while(await reader.ReadAsync())
-            {
-                if(reader.NodeType == XmlNodeType.Element && reader.Name == "Page")
-                {
-                    var page = await ReadPage(reader.ReadSubtree(), token, progress);
-                    section.Add(page);
-                }
-            }
-
-            if(section.GetPages().Count == 0)
-            {
-                throw new InvalidOperationException("Section must have at least 1 Page. Something is wrong with Section.");
-            }
-
-            return section;
-        }
-
-        private static async Task<ContentPage> ReadPage(XmlReader reader, CancellationToken token, IProgress<int> progress)
-        {
-            return null; //TODO:
-        }
-
-            //var t = Type.GetType($"Lessium.ContentControls.MaterialControls.{"TextControl"}");
-            //var ob = Activator.CreateInstance(t);
     }
 
     public class SerializedLessonModel

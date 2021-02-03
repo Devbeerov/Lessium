@@ -29,18 +29,16 @@ namespace Lessium.ContentControls.Models
         private double maxHeight = PageHeight;
 
         private bool editable = false;
-
-        private readonly ObservableCollection<IContentControl> items = new ObservableCollection<IContentControl>();
-
         private ContentPageControl pageControl;
 
         // Serialization
 
         private List<IContentControl> storedItems;
 
-        #region Properties
+        #region CLR Properties
 
-        public ObservableCollection<IContentControl> Items => items;
+        public ObservableCollection<IContentControl> Items { get; } = new ObservableCollection<IContentControl>();
+        public ContentType ContentType { get; set; }
 
         #endregion
 
@@ -48,22 +46,25 @@ namespace Lessium.ContentControls.Models
 
         #region Public
 
-        public ContentPage()
+        public ContentPage(ContentType contentType)
         {
-            
+            this.ContentType = contentType;
         }
 
-        public static ContentPage CreateWithPageControlInjection(ContentPage oldPage)
+        public static ContentPage CreateWithPageControlInjection(ContentPage oldPage, ContentType? contentType = null)
         {
-            var newPage = new ContentPage();
+            var newPage = new ContentPage(contentType ?? oldPage.ContentType);
             newPage.SetPageControl(oldPage.pageControl);
             return newPage;
         }
 
         public void Add(IContentControl control)
         {
+            if (!IsContentControlTypeValid(control)) { throw new InvalidOperationException
+                    ("You can only add ContentControls with equivalent interface!"); }
+
             // To skip unwanted validating.
-            if (items.Count == 0)
+            if (Items.Count == 0)
             {
                 Insert(0, control);
                 return;
@@ -71,7 +72,7 @@ namespace Lessium.ContentControls.Models
 
             BindControl(control);
 
-            items.Add(control);
+            Items.Add(control);
 
             // If control is already loaded (for example, moved from another page to this one), validates it
             if ((control as FrameworkElement).IsLoaded)
@@ -215,6 +216,23 @@ namespace Lessium.ContentControls.Models
             }
         }
 
+        private bool IsContentControlTypeValid(IContentControl control)
+        {
+            bool isValid;
+            switch (ContentType)
+            {
+                case ContentType.Material:
+                    isValid = control is IMaterialControl;
+                    break;
+                case ContentType.Test:
+                    isValid = control is ITestControl;
+                    break;
+                default:
+                    throw new InvalidCastException("Invalid control type detected.");
+            }
+            return isValid;
+        }
+
         /// <summary>
         /// Binds control to Page, updates its properties to match Page, also attaches event handlers
         /// </summary>
@@ -349,7 +367,36 @@ namespace Lessium.ContentControls.Models
 
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
-            throw new NotImplementedException();
+            // Converts ContentType to relative Namespace equivalent.
+            string sectionTypeNamespace = null;
+            switch (ContentType)
+            {
+                case ContentType.Material:
+                    sectionTypeNamespace = "MaterialControls";
+                    break;
+                case ContentType.Test:
+                    sectionTypeNamespace = "TestControls";
+                    break;
+            }
+
+            // Moves reader to childs.
+            await reader.ReadAsync();
+
+            while (await reader.ReadAsync())
+            {
+                token?.ThrowIfCancellationRequested();
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    var controlType = Type.GetType($"Lessium.ContentControls.{sectionTypeNamespace}.{reader.Name}");
+
+                    if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {reader.Name}"); }
+
+                    var control = (IContentControl)Activator.CreateInstance(controlType);
+                    await control.ReadXmlAsync(reader, token);
+
+                    Add(control);
+                }
+            }
         }
 
         #endregion

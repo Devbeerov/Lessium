@@ -248,7 +248,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
-            throw new NotImplementedException();
+            // Content of TextControl is string. So we just extracts it entirely.
+            SetText(await reader.GetValueAsync());
         }
 
         #endregion

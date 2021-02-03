@@ -4,19 +4,12 @@ using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Interactivity;
-using System.Windows.Media;
 using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
@@ -32,19 +25,13 @@ namespace Lessium.ContentControls.TestControls
         private bool editable;
         private bool raiseResizeEvent = true;
 
-        private ObservableCollection<AnswerModel> answers = new ObservableCollection<AnswerModel>();
-
         // Serialization
 
         private List<AnswerModel> storedAnswers;
 
-        #region Properties
+        #region CLR Properties
 
-        public ObservableCollection<AnswerModel> Answers
-        {
-            get { return answers; }
-            set { answers = value; }
-        }
+        public ObservableCollection<AnswerModel> Answers { get; set; } = new ObservableCollection<AnswerModel>();
 
         public string GUID
         {
@@ -285,20 +272,20 @@ namespace Lessium.ContentControls.TestControls
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            answers.Add(new AnswerModel());
+            Answers.Add(new AnswerModel());
         }
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
         {
             var textControl = (TextControl)e.Source;
 
-            foreach (var answer in answers)
+            foreach (var answer in Answers)
             {
                 var text = textControl.GetText();
 
                 if (ReferenceEquals(answer.Text, text)) // Checks for string reference, not value!
                 {
-                    answers.Remove(answer); // We remove Text string by it's reference, not by value!
+                    Answers.Remove(answer); // We remove Text string by it's reference, not by value!
                     return;
                 }
             }
@@ -332,7 +319,7 @@ namespace Lessium.ContentControls.TestControls
         [OnDeserialized]
         private void OnDeserialized(StreamingContext c)
         {
-            answers.AddRange(storedAnswers);
+            Answers.AddRange(storedAnswers);
 
             // Clears and sets to null, so GC will collect List instance.
 
@@ -371,7 +358,22 @@ namespace Lessium.ContentControls.TestControls
 
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
-            throw new NotImplementedException();
+            Question = reader.GetAttribute("Question");
+
+            await ReadAnswersAsync(reader.ReadSubtree(), token, progress);
+        }
+
+        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        {
+            while (await reader.ReadAsync())
+            {
+                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Answer")
+                {
+                    // Extracts content (text) and creates AnswerModel with extracted value.
+                    var answer = new AnswerModel(await reader.GetValueAsync());
+                    Answers.Add(answer);
+                }
+            }
         }
 
         #endregion
@@ -380,19 +382,22 @@ namespace Lessium.ContentControls.TestControls
     [Serializable]
     public class AnswerModel : ISerializable
     {
-        private string text = string.Copy(Properties.Resources.DefaultAnswerHeader);
-
-        public string Text { get => text; set => text = value; }
+        public string Text { get; set; } = string.Copy(Properties.Resources.DefaultAnswerHeader);
 
         public AnswerModel()
         {
 
         }
 
+        public AnswerModel(string text)
+        {
+            Text = text;
+        }
+
         // For serialization
         protected AnswerModel(SerializationInfo info, StreamingContext context)
         {
-            this.Text = info.GetString("Text");
+            Text = info.GetString("Text");
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)

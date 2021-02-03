@@ -8,7 +8,10 @@
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Height="100" Width="300" 
-        WindowStartupLocation="CenterOwner" 
-        ResizeMode="CanMinimize" >
-    <ProgressBar Minimum="0" Maximum="100" Margin="20" Value="{Binding ProgressValue}" />
+        WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" 
+        Title="{Binding TitleWithProgress}" >
+    <Grid>
+        <ProgressBar Minimum="0" Maximum="100" Margin="20" Value="{Binding ProgressValue}" />
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressText}" />
+    </Grid>
 </Window>
