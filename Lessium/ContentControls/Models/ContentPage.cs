@@ -368,14 +368,14 @@ namespace Lessium.ContentControls.Models
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
             // Converts ContentType to relative Namespace equivalent.
-            string sectionTypeNamespace = null;
+            string controlTypeNamespace = null;
             switch (ContentType)
             {
                 case ContentType.Material:
-                    sectionTypeNamespace = "MaterialControls";
+                    controlTypeNamespace = "MaterialControls";
                     break;
                 case ContentType.Test:
-                    sectionTypeNamespace = "TestControls";
+                    controlTypeNamespace = "TestControls";
                     break;
             }
 
@@ -387,7 +387,7 @@ namespace Lessium.ContentControls.Models
                 token?.ThrowIfCancellationRequested();
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    var controlType = Type.GetType($"Lessium.ContentControls.{sectionTypeNamespace}.{reader.Name}");
+                    var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{reader.Name}");
 
                     if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {reader.Name}"); }
 

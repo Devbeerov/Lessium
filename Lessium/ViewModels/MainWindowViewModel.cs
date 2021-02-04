@@ -61,10 +61,7 @@ namespace Lessium.ViewModels
             {
                 if(SetProperty(ref model.ReadOnly, value))
                 {
-                    foreach (var section in Sections)
-                    {
-                        section.SetEditable(!model.ReadOnly);
-                    }
+                    UpdateSectionsEditable();
                 }
             }
         }
@@ -337,6 +334,22 @@ namespace Lessium.ViewModels
             if (CurrentSection != null)
             {
                 CollapseSection(CurrentSection);
+            }
+        }
+
+        private void UpdateSectionsEditable()
+        {
+            var materialSections = SectionsByTab["Materials"];
+            var testSections = SectionsByTab["Tests"];
+
+            foreach (var section in materialSections)
+            {
+                section.SetEditable(!ReadOnly);
+            }
+
+            foreach (var section in testSections)
+            {
+                section.SetEditable(!ReadOnly);
             }
         }
 
@@ -649,8 +662,13 @@ namespace Lessium.ViewModels
                 {
                     ClearLesson();
 
-                    SectionsByTab["Materials"].AddRange(resultLessonModel.MaterialSections);
-                    SectionsByTab["Tests"].AddRange(resultLessonModel.TestSections);
+                    var materialSections = SectionsByTab["Materials"];
+                    var testSections = SectionsByTab["Tests"];
+
+                    materialSections.AddRange(resultLessonModel.MaterialSections);
+                    testSections.AddRange(resultLessonModel.TestSections);
+
+                    UpdateSectionsEditable();
 
                     HasChanges = false;
                 }

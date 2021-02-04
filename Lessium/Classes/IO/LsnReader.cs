@@ -2,7 +2,6 @@
 using Lessium.Utility;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +39,7 @@ namespace Lessium.Classes.IO
 
             using (cts)
             {
-                var task = LoadInternal(fileName, cts.Token, progress);
+                var task = LoadInternalAsync(fileName, cts.Token, progress);
 
                 try
                 {
@@ -71,10 +70,10 @@ namespace Lessium.Classes.IO
             return (result, model);
         }
 
-        private static async Task<SerializedLessonModel> LoadInternal(string fileName, CancellationToken token, IProgress<int> progress)
+        private static async Task<SerializedLessonModel> LoadInternalAsync(string fileName, CancellationToken token, IProgress<int> progress)
         {
-            /// NOTE: Unlike in SaveInternal, we always call token.ThrowIfCancellationRequested().
-            /// We could save file incompletly, but still compatible, BUT NOT LOAD FILE IF ITS CANCELLED DURING PARSING!
+            /// NOTE: Unlike in SaveInternalAsync, we always call token.ThrowIfCancellationRequested().
+            /// We could save file incompletly, but still compatible, BUT NOT LOAD FILE IF ITS CANCELLED DURING READING!
             /// So in case of cancellation, we throw as soon as possible.
             
             token.ThrowIfCancellationRequested();
@@ -164,9 +163,17 @@ namespace Lessium.Classes.IO
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "Section")
                 {
+                    var section = new Section(type, Section.InitializationType.Mandatory);
+
                     // Do not pass reader.ReadSubstree() here! ReadSection will get Section title and handle further reading.
-                    var section = new Section(type);
                     await section.ReadXmlAsync(reader, token, progress);
+
+                    // Continues section initialization.
+
+                    section.Initialize(Section.InitializationType.Pages);
+                        
+                    // Now we can be sure that section is fully initialized.
+
                     sections.Add(section);
                 }
             }

@@ -367,10 +367,12 @@ namespace Lessium.ContentControls.TestControls
         {
             while (await reader.ReadAsync())
             {
+                token?.ThrowIfCancellationRequested();
+
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "Answer")
                 {
                     // Extracts content (text) and creates AnswerModel with extracted value.
-                    var answer = new AnswerModel(await reader.GetValueAsync());
+                    var answer = new AnswerModel(await reader.ReadElementContentAsStringAsync());
                     Answers.Add(answer);
                 }
             }

@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Lessium.Utility;
 using System.Threading;
 using System.IO;
-using Lessium.Utility;
 
 namespace Lessium.ContentControls
 {
@@ -24,6 +23,8 @@ namespace Lessium.ContentControls
         public const double PageHeight = 637;
 
         private bool editable = false;
+        private bool initializedFirstPart = false;
+        private bool initializedSecondPart = false;
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
@@ -34,12 +35,23 @@ namespace Lessium.ContentControls
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
-            Initialize(ContentType.Material);
+            ContentType = ContentType.Material;
+            Initialize();
         }
 
-        public Section(ContentType type) : base()
+        public Section(ContentType type, bool initialize = true) : base()
         {
-            Initialize(type);
+            ContentType = type;
+            if (initialize)
+            {
+                Initialize();
+            }
+        }
+
+        public Section(ContentType type, InitializationType initializationType) : base()
+        {
+            ContentType = type;
+            Initialize(initializationType);
         }
 
         protected Section(SerializationInfo info, StreamingContext context) : base()
@@ -52,7 +64,6 @@ namespace Lessium.ContentControls
             SetTitle(title);
 
             // Further initialization at OnSerialized method.
-            
         }
 
         #region Public CLR Properties
@@ -188,7 +199,7 @@ namespace Lessium.ContentControls
 
             // Initializes with already added pages, so it won't create new page.
 
-            Initialize(ContentType);
+            Initialize();
 
             // Clears and sets to null, so GC will collect List instance.
 
@@ -200,36 +211,36 @@ namespace Lessium.ContentControls
 
         #region Public
 
-        public void Initialize(ContentType SectionType)
+        public void Initialize(InitializationType initializationType = InitializationType.Full)
         {
-            // Internal
-
-            this.ContentType = SectionType;
-
-            // Visible
-
-            Width = double.NaN;
-            Height = double.NaN;
-
-            HorizontalAlignment = HorizontalAlignment.Stretch;
-            VerticalAlignment = VerticalAlignment.Top;
-            Orientation = Orientation.Vertical;
-
-            if (pages.Count == 0)
+            if (!initializedFirstPart && initializationType != InitializationType.Pages)
             {
-                // Section should contain at least 1 page.
+                // Visible
 
-                var page = new ContentPage(this.ContentType);
-                pages.Add(page);
+                Width = double.NaN;
+                Height = double.NaN;
+
+                HorizontalAlignment = HorizontalAlignment.Stretch;
+                VerticalAlignment = VerticalAlignment.Top;
+                Orientation = Orientation.Vertical;
+
+                // Set Pages reference to private field.
+
+                SetPages(pages);
             }
 
-            // Sets Items and pages reference to internal variables.
+            if (!initializedSecondPart && initializationType != InitializationType.Mandatory)
+            {
+                if (pages.Count == 0)
+                {
+                    // Section should contain at least 1 page.
 
-            SetPages(pages);
+                    var page = new ContentPage(ContentType);
+                    pages.Add(page);
+                }
 
-            SetSelectedPageIndex(0);
-            SetSelectedPage(pages[0]);
-            
+                SetSelectedPage(pages[0]);
+            }
         }
 
         public void Add(ContentPage page)
@@ -302,7 +313,7 @@ namespace Lessium.ContentControls
         // Won't do anything with Section here. Used in ViewModel to change SelectedPage.
         public static readonly DependencyProperty SelectedPageIndex =
             DependencyProperty.Register("SelectedPageIndex", typeof(int),
-                typeof(Section), new PropertyMetadata(null));
+                typeof(Section), new PropertyMetadata(0));
 
         #endregion
 
@@ -385,6 +396,11 @@ namespace Lessium.ContentControls
         }
 
         #endregion
+
+        public enum InitializationType
+        {
+            Full, Mandatory, Pages
+        }
     }
 
     public class PagesChangedEventArgs

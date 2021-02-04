@@ -31,7 +31,7 @@ namespace Lessium.Classes.IO
 
             using (cts)
             {
-                var task = SaveInternal(viewModel, fileName, cts.Token, progress);
+                var task = SaveInternalAsync(viewModel, fileName, cts.Token, progress);
 
                 try
                 {
@@ -58,7 +58,7 @@ namespace Lessium.Classes.IO
             return result;
         }
 
-        private static async Task SaveInternal(MainWindowViewModel viewModel, string fileName, CancellationToken token,
+        private static async Task SaveInternalAsync(MainWindowViewModel viewModel, string fileName, CancellationToken token,
             IProgress<int> progress)
         {
             token.ThrowIfCancellationRequested();

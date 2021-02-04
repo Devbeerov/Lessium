@@ -1,16 +1,15 @@
 ﻿using Lessium.Interfaces;
 using System;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Linq;
 using Lessium.Utility;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Diagnostics;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -249,7 +248,8 @@ namespace Lessium.ContentControls.MaterialControls
         public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
         {
             // Content of TextControl is string. So we just extracts it entirely.
-            SetText(await reader.GetValueAsync());
+
+            SetText(await reader.ReadElementContentAsStringAsync());
         }
 
         #endregion
