@@ -258,4 +258,13 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="LessonFilter" xml:space="preserve">
     <value>Lesson (*.lsn)|*.lsn</value>
   </data>
+  <data name="Contents" xml:space="preserve">
+    <value>Contents</value>
+  </data>
+  <data name="Pages" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="Sections" xml:space="preserve">
+    <value>Sections</value>
+  </data>
 </root>

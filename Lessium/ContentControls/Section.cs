@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Lessium.Utility;
 using System.Threading;
 using System.IO;
+using Lessium.Classes.IO;
 
 namespace Lessium.ContentControls
 {
@@ -23,8 +24,6 @@ namespace Lessium.ContentControls
         public const double PageHeight = 637;
 
         private bool editable = false;
-        private bool initializedFirstPart = false;
-        private bool initializedSecondPart = false;
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
@@ -36,22 +35,18 @@ namespace Lessium.ContentControls
         public Section() : base()
         {
             ContentType = ContentType.Material;
+            SetPages(pages);
             Initialize();
         }
 
         public Section(ContentType type, bool initialize = true) : base()
         {
             ContentType = type;
+            SetPages(pages);
             if (initialize)
             {
                 Initialize();
             }
-        }
-
-        public Section(ContentType type, InitializationType initializationType) : base()
-        {
-            ContentType = type;
-            Initialize(initializationType);
         }
 
         protected Section(SerializationInfo info, StreamingContext context) : base()
@@ -211,36 +206,26 @@ namespace Lessium.ContentControls
 
         #region Public
 
-        public void Initialize(InitializationType initializationType = InitializationType.Full)
+        public void Initialize()
         {
-            if (!initializedFirstPart && initializationType != InitializationType.Pages)
+            // Visible
+
+            Width = double.NaN;
+            Height = double.NaN;
+
+            HorizontalAlignment = HorizontalAlignment.Stretch;
+            VerticalAlignment = VerticalAlignment.Top;
+            Orientation = Orientation.Vertical;
+
+            if (pages.Count == 0)
             {
-                // Visible
+                // Section should contain at least 1 page.
 
-                Width = double.NaN;
-                Height = double.NaN;
-
-                HorizontalAlignment = HorizontalAlignment.Stretch;
-                VerticalAlignment = VerticalAlignment.Top;
-                Orientation = Orientation.Vertical;
-
-                // Set Pages reference to private field.
-
-                SetPages(pages);
+                var page = new ContentPage(ContentType);
+                pages.Add(page);
             }
 
-            if (!initializedSecondPart && initializationType != InitializationType.Mandatory)
-            {
-                if (pages.Count == 0)
-                {
-                    // Section should contain at least 1 page.
-
-                    var page = new ContentPage(ContentType);
-                    pages.Add(page);
-                }
-
-                SetSelectedPage(pages[0]);
-            }
+            SetSelectedPage(pages[0]);
         }
 
         public void Add(ContentPage page)
@@ -330,7 +315,7 @@ namespace Lessium.ContentControls
 
         #region ILsnSerializable
 
-        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
             #region Section
 
@@ -344,21 +329,21 @@ namespace Lessium.ContentControls
                 if(token.HasValue && token.Value.IsCancellationRequested) { break; }
 
                 var page = pages[i];
-                await page.WriteXmlAsync(writer, token, progress);
-                    
-                double calculatedProgress = i * 100d / pages.Count; // Careful with math here
-                progress?.Report((int)calculatedProgress); // Casting to integer will "floor" calculatedProgress
+                await page.WriteXmlAsync(writer, progress, token);
             }
-
 
             #endregion
 
             await writer.WriteEndElementAsync();
 
             #endregion
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Section);
         }
 
-        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
             var title = reader.GetAttribute("Title");
 
@@ -369,23 +354,21 @@ namespace Lessium.ContentControls
 
             SetTitle(title);
 
-            int pageNumber = 1;
             while (await reader.ReadAsync())
             {
                 token?.ThrowIfCancellationRequested();
 
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Page")
+                // Read until getting to Page element.
+                if (await reader.ReadToFollowingAsync("Page"))
                 {
                     var page = new ContentPage(this.ContentType);
 
-                    // Considering that page doesn't have any attributes, we pass reader.ReadSubtree() as parameter.
-
-                    await page.ReadXmlAsync(reader.ReadSubtree(), token);
+                    await page.ReadXmlAsync(reader, progress, token);
                     Add(page);
 
-                    // TODO: REPORT FIX, REFACTOR
-                    progress.Report(pageNumber);
-                    pageNumber++;
+                    // Reports progress.
+
+                    progress.Report(ProgressType.Section);
                 }
             }
 
@@ -396,11 +379,6 @@ namespace Lessium.ContentControls
         }
 
         #endregion
-
-        public enum InitializationType
-        {
-            Full, Mandatory, Pages
-        }
     }
 
     public class PagesChangedEventArgs

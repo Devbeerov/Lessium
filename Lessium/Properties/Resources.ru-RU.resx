@@ -258,4 +258,13 @@
   <data name="LessonFilter" xml:space="preserve">
     <value>Урок (*.lsn)|*.lsn</value>
   </data>
+  <data name="Contents" xml:space="preserve">
+    <value>Содержимые элементы</value>
+  </data>
+  <data name="Pages" xml:space="preserve">
+    <value>Страницы</value>
+  </data>
+  <data name="Sections" xml:space="preserve">
+    <value>Разделы</value>
+  </data>
 </root>

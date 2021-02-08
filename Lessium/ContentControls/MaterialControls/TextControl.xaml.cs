@@ -9,7 +9,8 @@ using Lessium.Utility;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Diagnostics;
+using System.Collections.Generic;
+using Lessium.Classes.IO;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -232,7 +233,7 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region ILsnSerializable
 
-        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
             #region TextControl
 
@@ -243,13 +244,21 @@ namespace Lessium.ContentControls.MaterialControls
             await writer.WriteEndElementAsync();
 
             #endregion
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Content);
         }
 
-        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
             // Content of TextControl is string. So we just extracts it entirely.
 
             SetText(await reader.ReadElementContentAsStringAsync());
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Content);
         }
 
         #endregion

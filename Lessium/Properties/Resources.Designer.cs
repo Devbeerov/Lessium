@@ -133,6 +133,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Contents.
+        /// </summary>
+        public static string Contents {
+            get {
+                return ResourceManager.GetString("Contents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Answer.
         /// </summary>
         public static string DefaultAnswerHeader {
@@ -295,6 +304,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Pages.
+        /// </summary>
+        public static string Pages {
+            get {
+                return ResourceManager.GetString("Pages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Print.
         /// </summary>
         public static string PrintLessonHeader {
@@ -346,6 +364,15 @@ namespace Lessium.Properties {
         public static string SavingHeader {
             get {
                 return ResourceManager.GetString("SavingHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Sections.
+        /// </summary>
+        public static string Sections {
+            get {
+                return ResourceManager.GetString("Sections", resourceCulture);
             }
         }
         

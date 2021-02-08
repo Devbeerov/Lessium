@@ -651,7 +651,7 @@ namespace Lessium.ViewModels
 
                 // Sets ProgressCount property to total amount of (Section's) pages in file.
                 var viewModel = progressView.DataContext as ProgressWindowViewModel;
-                viewModel.ProgressCount = await LsnReader.CountPages(loadDialog.FileName);
+                viewModel.SetCountData(await LsnReader.CountData(loadDialog.FileName));
 
                 // Pauses method until LoadAsync will be completed.
                 var result = await LsnReader.LoadAsync(loadDialog.FileName, progress);

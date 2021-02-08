@@ -1,6 +1,7 @@
 ﻿using Lessium.Utility;
 using Lessium.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -23,7 +24,7 @@ namespace Lessium.Classes.IO
             cts?.Cancel();
         }
 
-        public async static Task<IOResult> SaveAsync(MainWindowViewModel viewModel, string fileName, IProgress<int> progress)
+        public async static Task<IOResult> SaveAsync(MainWindowViewModel viewModel, string fileName, IProgress<ProgressType> progress)
         {
             canceledManually = false;
             cts = new CancellationTokenSource();
@@ -59,7 +60,7 @@ namespace Lessium.Classes.IO
         }
 
         private static async Task SaveInternalAsync(MainWindowViewModel viewModel, string fileName, CancellationToken token,
-            IProgress<int> progress)
+            IProgress<ProgressType> progress)
         {
             token.ThrowIfCancellationRequested();
 
@@ -84,7 +85,7 @@ namespace Lessium.Classes.IO
                         if (token.IsCancellationRequested) { break; }
 
                         var section = materialTabs[i];
-                        await section.WriteXmlAsync(writer, token, progress);
+                        await section.WriteXmlAsync(writer, progress, token);
                     }
 
                     await writer.WriteEndElementAsync();
@@ -105,7 +106,7 @@ namespace Lessium.Classes.IO
                         if (token.IsCancellationRequested) { break; }
 
                         var section = testsTab[i];
-                        await section.WriteXmlAsync(writer, token, progress);
+                        await section.WriteXmlAsync(writer, progress, token);
                     }
 
                     await writer.WriteEndElementAsync();

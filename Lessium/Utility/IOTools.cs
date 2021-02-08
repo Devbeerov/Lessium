@@ -2,6 +2,7 @@
 using Lessium.ViewModels;
 using Lessium.Views;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace Lessium.Utility
@@ -32,9 +33,9 @@ namespace Lessium.Utility
             return progressView;
         }
 
-        public static Progress<int> CreateProgressForProgressView(ProgressWindow view)
+        public static Progress<ProgressType> CreateProgressForProgressView(ProgressWindow view)
         {
-            return new Progress<int>((view.DataContext as ProgressWindowViewModel).SetProgressValue);
+            return new Progress<ProgressType>((view.DataContext as ProgressWindowViewModel).UpdateProgress);
         }
     }
 }

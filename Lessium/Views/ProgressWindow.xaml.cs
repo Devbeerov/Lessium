@@ -20,7 +20,7 @@ namespace Lessium.Views
         {
             InitializeComponent();
             viewModel = DataContext as ProgressWindowViewModel;
-            viewModel.OriginalTitle = title;
+            Title = title;
         }
     }
 }

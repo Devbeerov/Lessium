@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lessium.Classes.IO;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -10,7 +11,7 @@ namespace Lessium.Interfaces
     /// </summary>
     public interface ILsnSerializable
     {
-        Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null);
-        Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null);
+        Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token);
+        Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token);
     }
 }

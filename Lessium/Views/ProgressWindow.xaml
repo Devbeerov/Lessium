@@ -4,14 +4,32 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lessium.Views"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:cc="clr-namespace:Lessium.CustomControls"
         mc:Ignorable="d"
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Height="100" Width="300" 
-        WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" 
-        Title="{Binding TitleWithProgress}" >
-    <Grid>
-        <ProgressBar Minimum="0" Maximum="100" Margin="20" Value="{Binding ProgressValue}" />
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressText}" />
-    </Grid>
+        WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" >
+
+    <Window.Resources>
+        <Style x:Name="MinimumIsOneStyle" TargetType="{x:Type cc:TitledProgressBar}">
+            <Setter Property="ProgressMinimum">
+                <Setter.Value>
+                    <sys:Int32>1</sys:Int32>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Orientation="Vertical">
+        <TextBlock Text="{Binding TabType}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <cc:TitledProgressBar x:Name="sectionProgressBar" Title="{Binding SectionsHeader}" ProgressMaximum="{Binding SectionCount}" 
+                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
+        <cc:TitledProgressBar x:Name="pageProgressBar" Title="{Binding PagesHeader}" ProgressMaximum="{Binding PageCount}" 
+                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
+        <cc:TitledProgressBar x:Name="contentProgressBar" Title="{Binding ContentsHeader}" ProgressMaximum="{Binding ContentCount}"
+                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
+    </StackPanel>
+
 </Window>

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Utility;
+using Lessium.Classes.IO;
 
 namespace Lessium.ContentControls.Models
 {
@@ -347,7 +348,7 @@ namespace Lessium.ContentControls.Models
 
         #region ILsnSerializable
 
-        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
             #region Page
 
@@ -357,15 +358,19 @@ namespace Lessium.ContentControls.Models
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) { break; }
 
-                await item.WriteXmlAsync(writer, token, progress);
+                await item.WriteXmlAsync(writer, progress, token);
             }
 
             await writer.WriteEndElementAsync();
 
             #endregion
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Page);
         }
 
-        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
             // Converts ContentType to relative Namespace equivalent.
             string controlTypeNamespace = null;
@@ -379,22 +384,28 @@ namespace Lessium.ContentControls.Models
                     break;
             }
 
-            // Moves reader to childs.
-            await reader.ReadAsync();
+            // Gets subtree reader to iterate over Page's childs.
 
-            while (await reader.ReadAsync())
+            var subtreeReader = reader.ReadSubtree();
+
+
+            while (await subtreeReader.ReadAsync())
             {
                 token?.ThrowIfCancellationRequested();
-                if (reader.NodeType == XmlNodeType.Element)
+                if (subtreeReader.NodeType == XmlNodeType.Element && subtreeReader.Name != "Page")
                 {
-                    var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{reader.Name}");
+                    var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
 
-                    if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {reader.Name}"); }
+                    if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }
 
                     var control = (IContentControl)Activator.CreateInstance(controlType);
-                    await control.ReadXmlAsync(reader, token);
+                    await control.ReadXmlAsync(subtreeReader, progress, token);
 
                     Add(control);
+
+                    // Reports progress.
+
+                    progress.Report(ProgressType.Page);
                 }
             }
         }

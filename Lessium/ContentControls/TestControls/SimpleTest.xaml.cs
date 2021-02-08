@@ -1,4 +1,5 @@
-﻿using Lessium.ContentControls.MaterialControls;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls.MaterialControls;
 using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
@@ -331,7 +332,7 @@ namespace Lessium.ContentControls.TestControls
 
         #region ILsnSerializable
 
-        public async Task WriteXmlAsync(XmlWriter writer, CancellationToken? token, IProgress<int> progress = null)
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
             #region SimpleTest
 
@@ -354,16 +355,24 @@ namespace Lessium.ContentControls.TestControls
             await writer.WriteEndElementAsync();
 
             #endregion
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Content);
         }
 
-        public async Task ReadXmlAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
             Question = reader.GetAttribute("Question");
 
             await ReadAnswersAsync(reader.ReadSubtree(), token, progress);
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Content);
         }
 
-        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token, IProgress<int> progress = null)
+        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token, IProgress<ProgressType> progress = null)
         {
             while (await reader.ReadAsync())
             {

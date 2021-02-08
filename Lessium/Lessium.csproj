@@ -62,6 +62,9 @@
     </ApplicationDefinition>
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
+    <Compile Include="CustomControls\TitledProgressBar.xaml.cs">
+      <DependentUpon>TitledProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\ILsnSerializable.cs" />
     <Compile Include="Properties\Resources.ru-RU1.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -78,6 +81,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ContentControls\TestControls\SimpleTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\TitledProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -166,6 +173,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="Properties\Settings.settings">
