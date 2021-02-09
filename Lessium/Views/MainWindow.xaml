@@ -118,7 +118,7 @@
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
-                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Material"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 
@@ -131,7 +131,7 @@
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
-                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Test"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 

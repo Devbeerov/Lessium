@@ -1,4 +1,5 @@
 ﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
 using Lessium.ViewModels;
 using Lessium.Views;
 using System;
@@ -9,9 +10,9 @@ namespace Lessium.Utility
 {
     public static class IOTools
     {
-        public static ProgressWindow CreateProgressView(Window owner, string title, IOType operationType)
+        public static ProgressWindow CreateProgressView(Window owner, string title, Dictionary<ContentType, CountData> countDataDictionary, IOType operationType)
         {
-            var progressView = new ProgressWindow(title)
+            var progressView = new ProgressWindow(title, countDataDictionary)
             {
                 Owner = owner,
             };

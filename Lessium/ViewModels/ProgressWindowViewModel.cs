@@ -1,4 +1,5 @@
 ﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
 using Lessium.Properties;
 using Prism.Mvvm;
 using System;
@@ -8,7 +9,8 @@ namespace Lessium.ViewModels
 {
     public class ProgressWindowViewModel : BindableBase
     {
-        private CountData storedData;
+        private Dictionary<ContentType, CountData> storedData;
+        private ContentType dataType = ContentType.Material;
 
         #region CLR Properties
 
@@ -71,23 +73,24 @@ namespace Lessium.ViewModels
 
         #region Public
 
-        public ProgressWindowViewModel()
+        public ProgressWindowViewModel(Dictionary<ContentType, CountData> countDataDictionary)
         {
-
+            storedData = countDataDictionary;
+            UpdateTabTitle(dataType);
         }
 
-        /// <summary>
-        /// Stores CountData for proper update properties later.
-        /// </summary>
-        public void SetCountData(CountData data)
+        public void UpdateContentType(ContentType type)
         {
-            storedData = data;   
+            dataType = type;
         }
 
         public void UpdateProgress(ProgressType type)
         {
             switch (type)
             {
+                case ProgressType.Tab:
+                    UpdateTab();
+                    break;
                 case ProgressType.Section:
                     UpdateSection();
                     break;
@@ -101,22 +104,68 @@ namespace Lessium.ViewModels
             }
         }
 
+        // Clears (sets to 0) properties related to tab.
+        private void ClearProperties()
+        {
+            // Bars values
+
+            SectionBarValue = 0;
+            PageBarValue = 0;
+            ContentBarValue = 0;
+
+            // Count values
+
+            SectionCount = 0;
+            PageCount = 0;
+            ContentCount = 0;
+        }
+
+        private void UpdateTabTitle(ContentType tabType)
+        {
+            string newTitle;
+
+            switch (tabType)
+            {
+                case ContentType.Material:
+                    newTitle = Resources.Materials;
+                    break;
+                case ContentType.Test:
+                    newTitle = Resources.Tests;
+                    break;
+                default: throw new NotSupportedException($"{tabType.ToString()} is not supported.");
+            }
+
+            TabType = newTitle;
+        }
+
+        private void UpdateTab()
+        {
+            dataType++; // Since dataType is enum, we could increment it like integer to move to next dataType.
+
+            // In case new dataType is already beyond possible ContentType, we just returns.
+            if((int)dataType > Enum.GetValues(typeof(ContentType)).GetUpperBound(0)) return;
+
+            ClearProperties();
+            UpdateTabTitle(dataType);
+        }
+
         private void UpdateSection()
         {
-            SectionBarValue++;
             PageBarValue = 0;
 
             UpdatePage();
 
-            PageCount = storedData.PageCount[SectionBarValue - 1]; // by index
+            PageCount = storedData[dataType].PageCount[SectionBarValue];
+            SectionBarValue++;
         }
 
         private void UpdatePage()
         {
-            PageBarValue++;
-            ContentBarValue = 1;
+            ContentBarValue = 0;
 
-            ContentCount = storedData.ContentCount[PageBarValue - 1]; // by index
+            ContentCount = storedData[dataType].ContentCount[PageBarValue];
+
+            PageBarValue++;
         }
 
         #endregion

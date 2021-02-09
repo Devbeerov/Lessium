@@ -387,11 +387,10 @@ namespace Lessium.ContentControls.Models
             // Gets subtree reader to iterate over Page's childs.
 
             var subtreeReader = reader.ReadSubtree();
-
-
             while (await subtreeReader.ReadAsync())
             {
-                token?.ThrowIfCancellationRequested();
+                if (token.HasValue && token.Value.IsCancellationRequested) break;
+
                 if (subtreeReader.NodeType == XmlNodeType.Element && subtreeReader.Name != "Page")
                 {
                     var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
@@ -403,11 +402,15 @@ namespace Lessium.ContentControls.Models
 
                     Add(control);
 
-                    // Reports progress.
+                    // Reports progress of Page's Content.
 
-                    progress.Report(ProgressType.Page);
+                    progress.Report(ProgressType.Content);
                 }
             }
+
+            // Reports progress of Page.
+
+            progress.Report(ProgressType.Page);
         }
 
         #endregion

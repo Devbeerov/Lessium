@@ -259,6 +259,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Materials.
+        /// </summary>
+        public static string Materials {
+            get {
+                return ResourceManager.GetString("Materials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Mini-game.
         /// </summary>
         public static string MiniGameHeader {
@@ -418,6 +427,15 @@ namespace Lessium.Properties {
         public static string StopEditingHeader {
             get {
                 return ResourceManager.GetString("StopEditingHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Tests.
+        /// </summary>
+        public static string Tests {
+            get {
+                return ResourceManager.GetString("Tests", resourceCulture);
             }
         }
         

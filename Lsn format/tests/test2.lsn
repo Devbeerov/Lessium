@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Lesson>
+  <Materials>
+    <Section Title="Раздел 1">
+      <Page>
+        <TextControl>Введите текст здесь.</TextControl>
+        <TextControl>Введите текст здесь.</TextControl>
+      </Page>
+    </Section>
+    <Section Title="Раздел 2">
+      <Page />
+    </Section>
+  </Materials>
+  <Tests>
+    <Section Title="Раздел 1">
+      <Page />
+    </Section>
+    <Section Title="Раздел 2">
+      <Page />
+    </Section>
+    <Section Title="Раздел 3">
+      <Page>
+        <SimpleTest Question="Ввеzдите вопрос здесь.">
+          <Answer>zОтвет</Answer>
+          <Answer>zОтвет</Answer>
+        </SimpleTest>
+      </Page>
+    </Section>
+  </Tests>
+</Lesson>

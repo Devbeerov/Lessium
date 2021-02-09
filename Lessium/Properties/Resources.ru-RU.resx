@@ -267,4 +267,10 @@
   <data name="Sections" xml:space="preserve">
     <value>Разделы</value>
   </data>
+  <data name="Materials" xml:space="preserve">
+    <value>Материалы</value>
+  </data>
+  <data name="Tests" xml:space="preserve">
+    <value>Тесты</value>
+  </data>
 </root>

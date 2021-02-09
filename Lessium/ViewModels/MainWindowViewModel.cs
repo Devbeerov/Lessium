@@ -14,11 +14,7 @@ using Lessium.Interfaces;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
-using Lessium.Classes;
 using Microsoft.Win32;
-using System.Diagnostics;
-using Lessium.Views;
-using System.Windows.Data;
 using Lessium.Classes.IO;
 using Lessium.Utility;
 
@@ -70,15 +66,15 @@ namespace Lessium.ViewModels
 
         #region Tabs
 
-        public string SelectedTab
+        public ContentType SelectedContentType
         {
-            get { return model.SelectedTab; }
+            get { return model.SelectedContentType; }
             set
             {
-                var prevTab = string.Copy(model.SelectedTab); // If we won't copy, it will change on SetProperty.
+                var prevTab = model.SelectedContentType;
                 var prevSection = model.CurrentSection[prevTab];
 
-                if (SetProperty(ref model.SelectedTab, value)) // Will change CurrentSection property, because it's Get method bound with SelectedTab
+                if (SetProperty(ref model.SelectedContentType, value)) // Will change CurrentSection property, because it's Get method bound with SelectedContentType
                 {
                     // Updates previous
 
@@ -89,24 +85,24 @@ namespace Lessium.ViewModels
 
         public bool SelectedTabIsMaterials
         {
-            get { return model.SelectedTab == "Materials"; }
+            get { return model.SelectedContentType == ContentType.Material; }
         }
 
         public bool SelectedTabIsTests
         {
-            get { return model.SelectedTab == "Tests"; }
+            get { return model.SelectedContentType == ContentType.Test; }
         }
 
         public ObservableCollection<Section> Sections
         {
-            get { return model.Sections[SelectedTab]; }
+            get { return model.Sections[SelectedContentType]; }
             set
             {
-                SetDictionaryProperty(ref model.Sections, SelectedTab, value);
+                SetDictionaryProperty(ref model.Sections, SelectedContentType, value);
             }
         }
 
-        public Dictionary<string, ObservableCollection<Section>> SectionsByTab
+        public Dictionary<ContentType, ObservableCollection<Section>> SectionsByType
         {
             get { return model.Sections; }
         }
@@ -114,7 +110,7 @@ namespace Lessium.ViewModels
         // Use SelectSection method to "Set" CurrentSection.
         public Section CurrentSection
         {
-            get { return model.CurrentSection[SelectedTab]; }
+            get { return model.CurrentSection[SelectedContentType]; }
 
         }
 
@@ -123,11 +119,11 @@ namespace Lessium.ViewModels
         {
             get
             {
-                return model.CurrentSectionID[SelectedTab];
+                return model.CurrentSectionID[SelectedContentType];
             }
             set
             {
-                if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value))
+                if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedContentType, value))
                 {
                     if(value == -1) { return; }
 
@@ -253,16 +249,6 @@ namespace Lessium.ViewModels
             this.model = model;
         }
 
-        public ContentType SelectedTabToContentType()
-        {
-            if (SelectedTab == "Materials")
-            {
-                return ContentType.Material;
-            }
-
-            return ContentType.Test;
-        }
-
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
             var oldValue = dictionary[key];
@@ -339,8 +325,8 @@ namespace Lessium.ViewModels
 
         private void UpdateSectionsEditable()
         {
-            var materialSections = SectionsByTab["Materials"];
-            var testSections = SectionsByTab["Tests"];
+            var materialSections = SectionsByType[ContentType.Material];
+            var testSections = SectionsByType[ContentType.Test];
 
             foreach (var section in materialSections)
             {
@@ -364,12 +350,12 @@ namespace Lessium.ViewModels
         {
             if(tabChange)
             {
-                SetDictionaryProperty(ref model.CurrentSection, SelectedTab, null, nameof(CurrentSection));
+                SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, null, nameof(CurrentSection));
             }
 
             // Sets CurrentSection
 
-            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, nameof(CurrentSection)))
+            if (SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, section, nameof(CurrentSection)))
             {
                 // Each section have it's own pages
 
@@ -594,14 +580,17 @@ namespace Lessium.ViewModels
 
             if (saveDialog.ShowDialog(window) == true)
             {
+                var fileName = saveDialog.FileName;
+
                 // New window
-                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving, IOType.Write);
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving,
+                    await LsnWriter.CountData(this, fileName), IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                
                 progressView.Show();
 
                 // Pauses method until SaveAsync method is completed.
-                var result = await LsnWriter.SaveAsync(this, saveDialog.FileName, progress);
+                var result = await LsnWriter.SaveAsync(this, fileName, progress);
                 if (result == IOResult.Sucessful)
                 {
                     HasChanges = false;
@@ -645,13 +634,10 @@ namespace Lessium.ViewModels
             if (loadDialog.ShowDialog(window) == true)
             {
                 // New window
-                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading, IOType.Read);
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading,
+                    await LsnReader.CountData(loadDialog.FileName), IOType.Read);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                 progressView.Show();
-
-                // Sets ProgressCount property to total amount of (Section's) pages in file.
-                var viewModel = progressView.DataContext as ProgressWindowViewModel;
-                viewModel.SetCountData(await LsnReader.CountData(loadDialog.FileName));
 
                 // Pauses method until LoadAsync will be completed.
                 var result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
@@ -662,8 +648,8 @@ namespace Lessium.ViewModels
                 {
                     ClearLesson();
 
-                    var materialSections = SectionsByTab["Materials"];
-                    var testSections = SectionsByTab["Tests"];
+                    var materialSections = SectionsByType[ContentType.Material];
+                    var testSections = SectionsByType[ContentType.Test];
 
                     materialSections.AddRange(resultLessonModel.MaterialSections);
                     testSections.AddRange(resultLessonModel.TestSections);
@@ -733,8 +719,7 @@ namespace Lessium.ViewModels
             }
 
 
-            var sectionType = SelectedTabToContentType();
-            var newSection = new Section(sectionType);
+            var newSection = new Section(SelectedContentType);
             newSection.SetTitle(sectionTitle);
 
             // Updates IsEditable state of Section
@@ -832,9 +817,9 @@ namespace Lessium.ViewModels
 
                         var section = dataObject.GetData(DataFormats.Serializable) as Section;
 
-                        // Checks if SelectedTab (as ContentType) is same as Section's ContentType
+                        // Checks if SelectedContentType is same as Section's ContentType
 
-                        if (SelectedTabToContentType() == section.ContentType)
+                        if (SelectedContentType == section.ContentType)
                         {
                             section.SetEditable(!ReadOnly);
 
@@ -960,11 +945,11 @@ namespace Lessium.ViewModels
                 previousSection = Sections[CurrentSectionID];
             }
 
-            SelectedTab = param;
+            SelectedContentType = (ContentType) Enum.Parse(typeof(ContentType), param);
 
-            RaisePropertyChanged(nameof(Sections)); // Sections[SelectedTab]
+            RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
 
-            SelectSection(model.LastSelectedSection[param], previousSection, true);
+            SelectSection(model.LastSelectedSection[SelectedContentType], previousSection, true);
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
             RaisePropertyChanged(nameof(CurrentSectionID));

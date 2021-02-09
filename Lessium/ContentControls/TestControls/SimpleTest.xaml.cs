@@ -365,18 +365,18 @@ namespace Lessium.ContentControls.TestControls
         {
             Question = reader.GetAttribute("Question");
 
-            await ReadAnswersAsync(reader.ReadSubtree(), token, progress);
+            await ReadAnswersAsync(reader.ReadSubtree(), token);
 
             // Reports progress.
 
             progress.Report(ProgressType.Content);
         }
 
-        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token, IProgress<ProgressType> progress = null)
+        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token)
         {
             while (await reader.ReadAsync())
             {
-                token?.ThrowIfCancellationRequested();
+                if (token.HasValue && token.Value.IsCancellationRequested) break;
 
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "Answer")
                 {

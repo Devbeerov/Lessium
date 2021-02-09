@@ -72,11 +72,7 @@ namespace Lessium.Classes.IO
         }
 
         private static async Task<SerializedLessonModel> LoadInternalAsync(string fileName, CancellationToken token, IProgress<ProgressType> progress)
-        {
-            /// NOTE: Unlike in SaveInternalAsync, we always call token.ThrowIfCancellationRequested().
-            /// We could save file incompletly, but still compatible, BUT NOT LOAD FILE IF ITS CANCELLED DURING READING!
-            /// So in case of cancellation, we throw as soon as possible.
-            
+        {            
             token.ThrowIfCancellationRequested();
 
             var model = new SerializedLessonModel();
@@ -85,7 +81,7 @@ namespace Lessium.Classes.IO
             {
                 while (await reader.ReadAsync())
                 {
-                    token.ThrowIfCancellationRequested();
+                    if (token.IsCancellationRequested) break;
 
                     #region Lesson
 
@@ -123,75 +119,86 @@ namespace Lessium.Classes.IO
         {
             int pageIndex = 0;
 
-            while (await reader.ReadAsync())
+            while (await reader.ReadToDescendantAsync("Page"))
             {
                 if (token.IsCancellationRequested) break;
 
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Page")
-                {
-                    data.ContentCount[pageIndex] = await reader.CountChildsAsync();
-                    pageIndex++;
-                }
-
-                data.PageCount[sectionIndex] += pageIndex + 1;
+                data.ContentCount.Add(pageIndex, await reader.CountChildsAsync());
+                pageIndex++;
             }
+
+            /// If we increment sectionIndex by one (pageIndex++) at the end of cycle,
+            /// it will show actual count amount before next iteration, so no need for pageIndex + 1.
+            
+            data.PageCount.Add(sectionIndex, pageIndex);
+            
         }
 
-        private static async Task CountSections(XmlReader reader, CountData data, ContentType type, CancellationToken token)
+        private static async Task CountSections(XmlReader reader, CountData data, CancellationToken token)
         {
             int sectionIndex = 0;
 
-            while (await reader.ReadAsync())
+            while (await reader.ReadToDescendantAsync("Section"))
             {
                 if (token.IsCancellationRequested) break;
 
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Section")
-                {
-                    await CountPages(reader.ReadSubtree(), data, sectionIndex, token);
-                    sectionIndex++;
-                }
-
-                data.SectionCount[type] += sectionIndex + 1;
+                await CountPages(reader.ReadSubtree(), data, sectionIndex, token);
+                sectionIndex++;
             }
+
+            /// If we increment sectionIndex by one (sectionIndex++) at the end of cycle,
+            /// it will show actual count amount before next iteration, so no need for sectionIndex + 1.
+            
+            data.SectionCount = sectionIndex;
         }
 
         /// <summary>
         /// Iterates over Lsn file to create CountData for specified fileName.
         /// </summary>
-        public static async Task<CountData> CountData(string fileName)
+        public static async Task<Dictionary<ContentType, CountData>> CountData(string fileName)
         {
             cts = new CancellationTokenSource();
             var token = cts.Token;
-            CountData data = new CountData();
+            Dictionary<ContentType, CountData> result = new Dictionary<ContentType, CountData>();
 
-            using (XmlReader reader = XmlReader.Create(fileName, settings))
+            try
             {
-                while (await reader.ReadAsync())
+                using (XmlReader reader = XmlReader.Create(fileName, settings))
                 {
-                    if(token.IsCancellationRequested)
+                    // Reads materials
+                    if (!token.IsCancellationRequested)
                     {
-                        break;
+                        var materialsData = new CountData();
+                        await reader.ReadToFollowingAsync("Materials");
+                        await CountSections(reader.ReadSubtree(), materialsData, token);
+
+                        result.Add(ContentType.Material, materialsData);
                     }
 
-                    // Reads materials
-
-                    await reader.ReadToFollowingAsync("Materials");
-                    await CountSections(reader.ReadSubtree(), data, ContentType.Material, token);
-
                     // Reads tests
+                    if (!token.IsCancellationRequested)
+                    {
+                        var testsData = new CountData();
+                        await reader.ReadToFollowingAsync("Tests");
+                        await CountSections(reader.ReadSubtree(), testsData, token);
 
-                    await reader.ReadToFollowingAsync("Tests");
-                    await CountSections(reader.ReadSubtree(), data, ContentType.Test, token);
+                        result.Add(ContentType.Test, testsData);
+                    }
+
+                    if (token.IsCancellationRequested) result = null;
+
+                    reader.Close();
                 }
+            }
 
-                if (token.IsCancellationRequested) data = null;
-
-                reader.Close();
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.ToString());
             }
 
             cts = null;
 
-            return data;
+            return result;
         }
 
         private static async Task<Collection<Section>> ReadTab(XmlReader reader, CancellationToken token, IProgress<ProgressType> progress,
@@ -205,7 +212,6 @@ namespace Lessium.Classes.IO
                     // Creates Section instance, but not initializing it yet.
 
                     var section = new Section(type, false);
-
                     await section.ReadXmlAsync(reader, progress, token);
 
                     // Now after loading XML, we can initialize Section properly.
@@ -214,6 +220,13 @@ namespace Lessium.Classes.IO
                     sections.Add(section);
                 }
             }
+
+            // Reports that current Tab is read.
+
+            progress.Report(ProgressType.Tab);
+
+            // Returns collection of Sections relative to this ContentType (tab).
+
             return sections;
         }
     }
@@ -230,23 +243,23 @@ namespace Lessium.Classes.IO
     /// </summary>
     public class CountData
     {
-        public Dictionary<ContentType, int> SectionCount { get; private set; }
+        public int SectionCount { get; set; } = 0;
 
         /// <summary>
         /// 1st - SectionIndex
         /// 2nd - Amount of pages which specified Section contains.
         /// </summary>
-        public Dictionary<int, int> PageCount { get; private set; }
+        public Dictionary<int, int> PageCount { get; private set; } = new Dictionary<int, int>();
 
         /// <summary>
         /// 1st - PageIndex
         /// 2nd - Amount of ContentControls which specified Page contains.
         /// </summary>
-        public Dictionary<int, int> ContentCount { get; private set; }
+        public Dictionary<int, int> ContentCount { get; private set; } = new Dictionary<int, int>();
     }
 
     public enum ProgressType
     {
-        Section, Page, Content
+        Tab, Section, Page, Content
     }
 }

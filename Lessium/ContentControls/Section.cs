@@ -356,7 +356,7 @@ namespace Lessium.ContentControls
 
             while (await reader.ReadAsync())
             {
-                token?.ThrowIfCancellationRequested();
+                if (token.HasValue && token.Value.IsCancellationRequested) break;
 
                 // Read until getting to Page element.
                 if (await reader.ReadToFollowingAsync("Page"))
@@ -364,13 +364,13 @@ namespace Lessium.ContentControls
                     var page = new ContentPage(this.ContentType);
 
                     await page.ReadXmlAsync(reader, progress, token);
-                    Add(page);
-
-                    // Reports progress.
-
-                    progress.Report(ProgressType.Section);
+                    Add(page);         
                 }
             }
+
+            // Reports progress.
+
+            progress.Report(ProgressType.Section);
 
             if (GetPages().Count == 0)
             {

@@ -27,22 +27,17 @@ namespace Lessium.Models
 
         #region Tabs
 
-        public enum Tab
-        {
-            Materials, Tests
-        }
-
-        public string SelectedTab = Tab.Materials.ToString();
+        public ContentType SelectedContentType = ContentType.Material;
 
         #endregion
 
         #region Pages
 
-        // Updates only on SelectedTab change!
-        public Dictionary<string, Section> LastSelectedSection = new Dictionary<string, Section>()
+        // Updates only on SelectedContentType change!
+        public Dictionary<ContentType, Section> LastSelectedSection = new Dictionary<ContentType, Section>()
         {
-            { "Materials", null },
-            { "Tests", null }
+            { ContentType.Material, null },
+            { ContentType.Test, null }
         };
 
         // Updates only on CurrentSection change!
@@ -55,22 +50,22 @@ namespace Lessium.Models
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:
         /// Section section = Sections["Materials"]["Section 1"];
-        public Dictionary<string, ObservableCollection<Section>> Sections =
-            new Dictionary<string, ObservableCollection<Section>>()
+        public Dictionary<ContentType, ObservableCollection<Section>> Sections =
+            new Dictionary<ContentType, ObservableCollection<Section>>()
             {
-                { "Materials", new ObservableCollection<Section>() },
-                { "Tests", new ObservableCollection<Section>() }
+                { ContentType.Material, new ObservableCollection<Section>() },
+                { ContentType.Test, new ObservableCollection<Section>() }
             };
 
-        public Dictionary<string, Section> CurrentSection = new Dictionary<string, Section>()
+        public Dictionary<ContentType, Section> CurrentSection = new Dictionary<ContentType, Section>()
         {
-            { "Materials", null },
-            { "Tests", null }
+            { ContentType.Material, null },
+            { ContentType.Test, null }
         };
-        public Dictionary<string, int> CurrentSectionID = new Dictionary<string, int>()
+        public Dictionary<ContentType, int> CurrentSectionID = new Dictionary<ContentType, int>()
         {
-            { "Materials", -1 },
-            { "Tests", -1 }
+            { ContentType.Material, -1 },
+            { ContentType.Test, -1 }
         };
 
         #endregion

@@ -7,13 +7,11 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:cc="clr-namespace:Lessium.CustomControls"
         mc:Ignorable="d"
-        xmlns:prism="http://prismlibrary.com/"
-        prism:ViewModelLocator.AutoWireViewModel="True"
-        Height="100" Width="300" 
+        Height="175" Width="300" 
         WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" >
 
     <Window.Resources>
-        <Style x:Name="MinimumIsOneStyle" TargetType="{x:Type cc:TitledProgressBar}">
+        <Style x:Key="MinimumIsOneStyle" TargetType="{x:Type cc:TitledProgressBar}">
             <Setter Property="ProgressMinimum">
                 <Setter.Value>
                     <sys:Int32>1</sys:Int32>
@@ -22,14 +20,22 @@
         </Style>
     </Window.Resources>
 
-    <StackPanel Orientation="Vertical">
-        <TextBlock Text="{Binding TabType}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <cc:TitledProgressBar x:Name="sectionProgressBar" Title="{Binding SectionsHeader}" ProgressMaximum="{Binding SectionCount}" 
-                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
-        <cc:TitledProgressBar x:Name="pageProgressBar" Title="{Binding PagesHeader}" ProgressMaximum="{Binding PageCount}" 
-                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
-        <cc:TitledProgressBar x:Name="contentProgressBar" Title="{Binding ContentsHeader}" ProgressMaximum="{Binding ContentCount}"
-                              Style="{StaticResource ResourceKey=MinimumIsOneStyle}" />
+    <StackPanel Orientation="Vertical" Margin="5,5,5,5" VerticalAlignment="Stretch">
+        <Border Margin="5,5,5,5" BorderBrush="Gray" BorderThickness="1">
+            <TextBlock Text="{Binding TabType}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <cc:TitledProgressBar x:Name="sectionProgressBar" Title="{Binding SectionsHeader}" 
+                              ProgressMaximum="{Binding SectionCount}" 
+                              ProgressValue="{Binding SectionBarValue}"
+                              Style="{StaticResource MinimumIsOneStyle}" />
+        <cc:TitledProgressBar x:Name="pageProgressBar" Title="{Binding PagesHeader}" 
+                              ProgressMaximum="{Binding PageCount}" 
+                              ProgressValue="{Binding PageBarValue}"
+                              Style="{StaticResource MinimumIsOneStyle}" />
+        <cc:TitledProgressBar x:Name="contentProgressBar" Title="{Binding ContentsHeader}" 
+                              ProgressMaximum="{Binding ContentCount}"
+                              ProgressValue="{Binding ContentBarValue}"
+                              Style="{StaticResource MinimumIsOneStyle}" />
     </StackPanel>
 
 </Window>

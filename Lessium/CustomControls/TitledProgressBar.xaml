@@ -5,13 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.CustomControls"
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="300">
+             d:DesignHeight="50" d:DesignWidth="150"
+             x:Name="control">
     <StackPanel Orientation="Vertical">
-        <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Text="{Binding Title, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
         <Grid>
-            <ProgressBar Minimum="{Binding ProgressMinimum}" Maximum="{Binding ProgressMaximum}"
-                         Value="{Binding ProgressValue}" />
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressText}" />
+            <ProgressBar Minimum="{Binding ProgressMinimum, ElementName=control, UpdateSourceTrigger=PropertyChanged}" 
+                         Maximum="{Binding ProgressMaximum, ElementName=control, UpdateSourceTrigger=PropertyChanged}"
+                         Value="{Binding ProgressValue, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
+                       Text="{Binding ProgressText, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
     </StackPanel>
 </UserControl>

@@ -1,4 +1,7 @@
-﻿using Lessium.ViewModels;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
+using Lessium.ViewModels;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace Lessium.Views
@@ -8,19 +11,17 @@ namespace Lessium.Views
     /// </summary>
     public partial class ProgressWindow : Window
     {
-        private ProgressWindowViewModel viewModel;
-
-        public ProgressWindow()
+        public ProgressWindow(Dictionary<ContentType, CountData> countDataDictionary)
         {
+            this.DataContext = new ProgressWindowViewModel(countDataDictionary);
             InitializeComponent();
-            viewModel = DataContext as ProgressWindowViewModel;
         }
 
-        public ProgressWindow(string title)
+        public ProgressWindow(string title, Dictionary<ContentType, CountData> countDataDictionary)
         {
-            InitializeComponent();
-            viewModel = DataContext as ProgressWindowViewModel;
             Title = title;
+            this.DataContext = new ProgressWindowViewModel(countDataDictionary);
+            InitializeComponent();
         }
     }
 }

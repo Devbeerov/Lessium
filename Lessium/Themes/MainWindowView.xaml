@@ -105,7 +105,7 @@
 
         <Style.Triggers>
 
-            <DataTrigger Binding="{Binding SelectedTab}" Value="Materials">
+            <DataTrigger Binding="{Binding SelectedContentType}" Value="{x:Static controls:ContentType.Material}">
                 <DataTrigger.Setters>
                     <Setter Property="IsEnabled" Value="True" />
                     <Setter Property="Visibility" Value="Visible" />
@@ -122,7 +122,7 @@
 
         <Style.Triggers>
 
-            <DataTrigger Binding="{Binding SelectedTab}" Value="Tests">
+            <DataTrigger Binding="{Binding SelectedContentType}" Value="{x:Static controls:ContentType.Test}">
                 <DataTrigger.Setters>
                     <Setter Property="IsEnabled" Value="True" />
                     <Setter Property="Visibility" Value="Visible" />

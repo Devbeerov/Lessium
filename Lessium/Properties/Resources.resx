@@ -267,4 +267,10 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="Sections" xml:space="preserve">
     <value>Sections</value>
   </data>
+  <data name="Materials" xml:space="preserve">
+    <value>Materials</value>
+  </data>
+  <data name="Tests" xml:space="preserve">
+    <value>Tests</value>
+  </data>
 </root>
