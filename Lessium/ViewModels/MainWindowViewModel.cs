@@ -17,6 +17,9 @@ using System.ComponentModel;
 using Microsoft.Win32;
 using Lessium.Classes.IO;
 using Lessium.Utility;
+using System.Xml.Schema;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Lessium.ViewModels
 {
@@ -584,7 +587,7 @@ namespace Lessium.ViewModels
 
                 // New window
                 var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving,
-                    await LsnWriter.CountData(this, fileName), IOType.Write);
+                    await Task.Run(() => LsnWriter.CountData(this, fileName)), IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                
                 progressView.Show();
@@ -633,14 +636,49 @@ namespace Lessium.ViewModels
 
             if (loadDialog.ShowDialog(window) == true)
             {
+                Dictionary<ContentType, CountData> countData = null;
+
+                try
+                {
+                    countData = await LsnReader.CountData(loadDialog.FileName);
+                }
+
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.ToString());
+                    // CountData failed, whatever by XmlSchema validation or by some other exception, we just returns.
+                    savingOrLoading = false;
+                    return;
+                }
+
                 // New window
                 var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading,
-                    await LsnReader.CountData(loadDialog.FileName), IOType.Read);
+                    countData, IOType.Read);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                 progressView.Show();
 
-                // Pauses method until LoadAsync will be completed.
-                var result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
+                (IOResult, SerializedLessonModel) result = (IOResult.Null, null);
+                try
+                {
+                    // Pauses method until LoadAsync will be completed.
+                    result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
+                }
+
+                catch (Exception)
+                {
+                    // Doesn't matter which Exception occured. We don't use this information at all.
+                    // Only the fact that it's failed matters.
+                }
+
+                finally
+                {
+                    // Will be executed whatever LoadAsync was sucessful or not.
+
+                    progressView.Close();
+                }
+
+                // Code below will be executed only if no exceptions occured during LoadAsync.
+
                 var resultCode = result.Item1;
                 var resultLessonModel = result.Item2;
 
@@ -664,8 +702,6 @@ namespace Lessium.ViewModels
                     MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {resultCode}",
                         "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-
-                progressView.Close();
             }
             savingOrLoading = false;
         }

@@ -354,18 +354,16 @@ namespace Lessium.ContentControls
 
             SetTitle(title);
 
-            while (await reader.ReadAsync())
+            // Read until getting to Page element.
+            while (await reader.ReadToFollowingAsync("Page") && reader.NodeType == XmlNodeType.Element)
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
 
-                // Read until getting to Page element.
-                if (await reader.ReadToFollowingAsync("Page"))
-                {
-                    var page = new ContentPage(this.ContentType);
+                var page = new ContentPage(this.ContentType);
 
-                    await page.ReadXmlAsync(reader, progress, token);
-                    Add(page);         
-                }
+                await page.ReadXmlAsync(reader, progress, token);
+                Add(page);         
+                
             }
 
             // Reports progress.

@@ -387,25 +387,18 @@ namespace Lessium.ContentControls.Models
             // Gets subtree reader to iterate over Page's childs.
 
             var subtreeReader = reader.ReadSubtree();
-            while (await subtreeReader.ReadAsync())
+            while (await subtreeReader.ReadAsync() && subtreeReader.NodeType == XmlNodeType.Element
+                && subtreeReader.Name != "Page")
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
 
-                if (subtreeReader.NodeType == XmlNodeType.Element && subtreeReader.Name != "Page")
-                {
-                    var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
+                var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
+                if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }
 
-                    if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }
+                var control = (IContentControl)Activator.CreateInstance(controlType);
+                await control.ReadXmlAsync(subtreeReader, progress, token);
 
-                    var control = (IContentControl)Activator.CreateInstance(controlType);
-                    await control.ReadXmlAsync(subtreeReader, progress, token);
-
-                    Add(control);
-
-                    // Reports progress of Page's Content.
-
-                    progress.Report(ProgressType.Content);
-                }
+                Add(control);
             }
 
             // Reports progress of Page.

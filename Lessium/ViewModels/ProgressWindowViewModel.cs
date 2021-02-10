@@ -9,7 +9,7 @@ namespace Lessium.ViewModels
 {
     public class ProgressWindowViewModel : BindableBase
     {
-        private Dictionary<ContentType, CountData> storedData;
+        private readonly Dictionary<ContentType, CountData> storedData;
         private ContentType dataType = ContentType.Material;
 
         #region CLR Properties
@@ -77,6 +77,7 @@ namespace Lessium.ViewModels
         {
             storedData = countDataDictionary;
             UpdateTabTitle(dataType);
+            UpdateAllCounts();
         }
 
         public void UpdateContentType(ContentType type)
@@ -104,20 +105,15 @@ namespace Lessium.ViewModels
             }
         }
 
-        // Clears (sets to 0) properties related to tab.
-        private void ClearProperties()
-        {
-            // Bars values
+        #endregion
 
+        #region Private
+
+        private void ClearBars()
+        {
             SectionBarValue = 0;
             PageBarValue = 0;
             ContentBarValue = 0;
-
-            // Count values
-
-            SectionCount = 0;
-            PageCount = 0;
-            ContentCount = 0;
         }
 
         private void UpdateTabTitle(ContentType tabType)
@@ -143,29 +139,45 @@ namespace Lessium.ViewModels
             dataType++; // Since dataType is enum, we could increment it like integer to move to next dataType.
 
             // In case new dataType is already beyond possible ContentType, we just returns.
-            if((int)dataType > Enum.GetValues(typeof(ContentType)).GetUpperBound(0)) return;
+            if ((int)dataType > Enum.GetValues(typeof(ContentType)).GetUpperBound(0)) return;
 
-            ClearProperties();
+            ClearBars();
+            UpdateAllCounts();
             UpdateTabTitle(dataType);
         }
 
         private void UpdateSection()
         {
-            PageBarValue = 0;
+            SectionBarValue++; // Next Section
+            PageBarValue = 0; // Sets Page index to zero.
 
-            UpdatePage();
-
-            PageCount = storedData[dataType].PageCount[SectionBarValue];
-            SectionBarValue++;
+            UpdatePageAndContentCount();
         }
 
         private void UpdatePage()
         {
-            ContentBarValue = 0;
+            PageBarValue++; // Next Page
+            ContentBarValue = 0; // Sets Content index to zero.
 
-            ContentCount = storedData[dataType].ContentCount[PageBarValue];
+            UpdateContentCount(); // Updates ContentCount of new Page.
+        }
 
-            PageBarValue++;
+        private void UpdateAllCounts()
+        {
+            SectionCount = storedData[dataType].GetSectionsCount();
+            UpdatePageAndContentCount();
+        }
+
+        private void UpdateContentCount()
+        {
+            // Uses BarValues as indexers.
+            ContentCount = storedData[dataType].GetContentsCount(SectionBarValue, PageBarValue);
+        }
+
+        private void UpdatePageAndContentCount()
+        {
+            PageCount = storedData[dataType].GetPagesCount(SectionBarValue);
+            UpdateContentCount();
         }
 
         #endregion

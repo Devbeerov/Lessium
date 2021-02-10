@@ -128,42 +128,34 @@ namespace Lessium.Classes.IO
             token.ThrowIfCancellationRequested();
         }
 
-        //TODO: await or sync
-        private static async Task CountPages(Section section, int sectionIndex, CountData data, CancellationToken token)
+        private static void CountPages(Section section, int sectionIndex, CountData data, CancellationToken token)
         {
             int pageIndex = 0;
+
             foreach (var page in section.GetPages())
             {
                 if(token.IsCancellationRequested) { break; }
 
-                data.ContentCount[pageIndex] = page.Items.Count;
+                data.AddPage(sectionIndex, pageIndex, page.Items.Count);
                 pageIndex++;
             }
-
-            /// If we increment pageIndex by one (pageIndex++) at the end of cycle,
-            /// it will show actual count amount before next iteration, so no need for pageIndex + 1.
-
-            data.PageCount[sectionIndex] = pageIndex;
         }
 
-        private static async Task CountSections(MainWindowViewModel viewModel, CountData data, ContentType type, CancellationToken token)
+        private static void CountSections(MainWindowViewModel viewModel, CountData data, ContentType type, CancellationToken token)
         {
             int sectionIndex = 0;
+
             foreach (var section in viewModel.SectionsByType[type])
             {
                 if (token.IsCancellationRequested) { break; }
 
-                await CountPages(section, sectionIndex, data, token);
+                data.AddSection(sectionIndex);
+                CountPages(section, sectionIndex, data, token);
                 sectionIndex++;
             }
-
-            /// If we increment sectionIndex by one (sectionIndex++) at the end of cycle,
-            /// it will show actual count amount before next iteration, so no need for sectionIndex + 1.
-
-            data.SectionCount = sectionIndex;
         }
 
-        public async static Task<Dictionary<ContentType, CountData>> CountData(MainWindowViewModel viewModel, string fileName)
+        public static Dictionary<ContentType, CountData> CountData(MainWindowViewModel viewModel, string fileName)
         {
             cts = new CancellationTokenSource();
             var token = cts.Token;
@@ -177,7 +169,7 @@ namespace Lessium.Classes.IO
                     var materialsData = new CountData();
                     var type = ContentType.Material;
 
-                    await CountSections(viewModel, materialsData, type, token);
+                    CountSections(viewModel, materialsData, type, token); // Executed synchronously.
                     result.Add(type, materialsData);
                 }
 
@@ -187,7 +179,7 @@ namespace Lessium.Classes.IO
                     var testsData = new CountData();
                     var type = ContentType.Test;
 
-                    await CountSections(viewModel, testsData, type, token);
+                    CountSections(viewModel, testsData, type, token); // Executed synchronously.
                     result.Add(type, testsData);
                 }
 

@@ -374,16 +374,13 @@ namespace Lessium.ContentControls.TestControls
 
         private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token)
         {
-            while (await reader.ReadAsync())
+            while (await reader.ReadToFollowingAsync("Answer") && reader.NodeType == XmlNodeType.Element)
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
 
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Answer")
-                {
-                    // Extracts content (text) and creates AnswerModel with extracted value.
-                    var answer = new AnswerModel(await reader.ReadElementContentAsStringAsync());
-                    Answers.Add(answer);
-                }
+                // Extracts content (text) and creates AnswerModel with extracted value.
+                var answer = new AnswerModel(await reader.ReadElementContentAsStringAsync());
+                Answers.Add(answer);
             }
         }
 

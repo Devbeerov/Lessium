@@ -3,10 +3,12 @@ using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace Lessium.Classes.IO
 {
@@ -14,6 +16,7 @@ namespace Lessium.Classes.IO
     {
         private static CancellationTokenSource cts;
         private static bool canceledManually;
+        private static bool disposed = true; // Not initialized yet, so we can count it as disposed, considering design of class.
 
         private static XmlReaderSettings settings = new XmlReaderSettings()
         {
@@ -23,18 +26,30 @@ namespace Lessium.Classes.IO
 
         static LsnReader()
         {
-            settings.Schemas.Add("", Path.Combine("data","lsn.xsd"));
+            try
+            {
+                settings.Schemas.Add("", Path.Combine("data", "lsn.xsd"));
+            }
+
+            catch (XmlSchemaException e)
+            {
+                Debug.WriteLine($"[CRITICAL ERROR] lsn.xsd is corrupted. Line {e.LineNumber} position {e.LinePosition}{Environment.NewLine}{e.Message}");
+            }
         }
 
         public static void Cancel()
         {
-            cts?.Cancel();
+            if(!disposed)
+            {
+                cts.Cancel();
+            }
         }
 
         public async static Task<(IOResult, SerializedLessonModel)> LoadAsync(string fileName, IProgress<ProgressType> progress)
         {
             canceledManually = false;
             cts = new CancellationTokenSource();
+            disposed = false;
             var result = IOResult.Null;
             SerializedLessonModel model = null;
 
@@ -59,6 +74,11 @@ namespace Lessium.Classes.IO
                     }
                 }
 
+                finally
+                {
+                    disposed = true;
+                }
+
                 if (task.IsCompleted)
                 {
                     result = IOResult.Sucessful;
@@ -66,6 +86,7 @@ namespace Lessium.Classes.IO
                 }
             }
 
+            disposed = true;
             cts = null;
 
             return (result, model);
@@ -76,38 +97,48 @@ namespace Lessium.Classes.IO
             token.ThrowIfCancellationRequested();
 
             var model = new SerializedLessonModel();
-
             using (XmlReader reader = XmlReader.Create(fileName, settings))
             {
-                while (await reader.ReadAsync())
+                try
                 {
-                    if (token.IsCancellationRequested) break;
-
-                    #region Lesson
-
-                    if (reader.NodeType == XmlNodeType.Element)
+                    while (await reader.ReadAsync())
                     {
-                        switch (reader.Name)
-                        {
-                            case "Materials":
-                                {
-                                    var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Material);
-                                    model.MaterialSections.AddRange(sections);
-                                    break;
-                                }
-                            case "Tests":
-                                {
-                                    var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Test);
-                                    model.TestSections.AddRange(sections);
-                                    break;
-                                }
-                        }
-                    }
+                        if (token.IsCancellationRequested) break;
 
-                    #endregion
+                        #region Lesson
+
+                        if (reader.NodeType == XmlNodeType.Element)
+                        {
+                            switch (reader.Name)
+                            {
+                                case "Materials":
+                                    {
+                                        var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Material);
+                                        model.MaterialSections.AddRange(sections);
+                                        break;
+                                    }
+                                case "Tests":
+                                    {
+                                        var sections = await ReadTab(reader.ReadSubtree(), token, progress, ContentType.Test);
+                                        model.TestSections.AddRange(sections);
+                                        break;
+                                    }
+                            }
+                        }
+
+                        #endregion
+                    }
                 }
 
-                reader.Close();
+                catch (XmlSchemaValidationException e)
+                {
+                    Debug.WriteLine($"Line {e.LineNumber} position {e.LinePosition} caused validation error.{Environment.NewLine}{e.Message}");
+                }
+
+                finally
+                {
+                    reader.Close();
+                }
             }
 
             token.ThrowIfCancellationRequested();
@@ -119,37 +150,27 @@ namespace Lessium.Classes.IO
         {
             int pageIndex = 0;
 
-            while (await reader.ReadToDescendantAsync("Page"))
+            while (await reader.ReadToFollowingAsync("Page") && reader.NodeType == XmlNodeType.Element)
             {
                 if (token.IsCancellationRequested) break;
 
-                data.ContentCount.Add(pageIndex, await reader.CountChildsAsync());
+                data.AddPage(sectionIndex, pageIndex, await reader.CountChildsAsync());
                 pageIndex++;
             }
-
-            /// If we increment sectionIndex by one (pageIndex++) at the end of cycle,
-            /// it will show actual count amount before next iteration, so no need for pageIndex + 1.
-            
-            data.PageCount.Add(sectionIndex, pageIndex);
-            
         }
 
         private static async Task CountSections(XmlReader reader, CountData data, CancellationToken token)
         {
             int sectionIndex = 0;
 
-            while (await reader.ReadToDescendantAsync("Section"))
+            while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
             {
                 if (token.IsCancellationRequested) break;
 
+                data.AddSection(sectionIndex);
                 await CountPages(reader.ReadSubtree(), data, sectionIndex, token);
                 sectionIndex++;
             }
-
-            /// If we increment sectionIndex by one (sectionIndex++) at the end of cycle,
-            /// it will show actual count amount before next iteration, so no need for sectionIndex + 1.
-            
-            data.SectionCount = sectionIndex;
         }
 
         /// <summary>
@@ -160,10 +181,10 @@ namespace Lessium.Classes.IO
             cts = new CancellationTokenSource();
             var token = cts.Token;
             Dictionary<ContentType, CountData> result = new Dictionary<ContentType, CountData>();
-
-            try
+ 
+            using (XmlReader reader = XmlReader.Create(fileName, settings))
             {
-                using (XmlReader reader = XmlReader.Create(fileName, settings))
+                try
                 {
                     // Reads materials
                     if (!token.IsCancellationRequested)
@@ -186,14 +207,17 @@ namespace Lessium.Classes.IO
                     }
 
                     if (token.IsCancellationRequested) result = null;
+                }
 
+                catch (XmlSchemaValidationException e)
+                {
+                    Debug.WriteLine($"Line {e.LineNumber} position {e.LinePosition} caused validation error.{Environment.NewLine}{e.Message}");
+                }
+
+                finally
+                {
                     reader.Close();
                 }
-            }
-
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.ToString());
             }
 
             cts = null;
@@ -205,20 +229,18 @@ namespace Lessium.Classes.IO
             ContentType type)
         {
             var sections = new Collection<Section>();
-            while (await reader.ReadAsync())
+
+            while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
             {
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "Section")
-                {
-                    // Creates Section instance, but not initializing it yet.
+                // Creates Section instance, but not initializing it yet.
 
-                    var section = new Section(type, false);
-                    await section.ReadXmlAsync(reader, progress, token);
+                var section = new Section(type, false);
+                await section.ReadXmlAsync(reader, progress, token);
 
-                    // Now after loading XML, we can initialize Section properly.
+                // Now after loading XML, we can initialize Section properly.
 
-                    section.Initialize();
-                    sections.Add(section);
-                }
+                section.Initialize();
+                sections.Add(section);
             }
 
             // Reports that current Tab is read.
@@ -243,19 +265,39 @@ namespace Lessium.Classes.IO
     /// </summary>
     public class CountData
     {
-        public int SectionCount { get; set; } = 0;
+        public int GetSectionsCount()
+        {
+            return data.Keys.Count;
+        }
+
+        public int GetPagesCount(int sectionIndex)
+        {
+            return data[sectionIndex].Keys.Count;
+        }
+
+        public int GetContentsCount(int sectionIndex, int pageIndex)
+        {
+            return data[sectionIndex][pageIndex];
+        }
+
+        public void AddSection(int sectionIndex)
+        {
+            data.Add(sectionIndex, new Dictionary<int, int>());
+        }
+
+        public void AddPage(int sectionIndex, int pageIndex, int contentAmount)
+        {
+            data[sectionIndex].Add(pageIndex, contentAmount);
+        }
+
 
         /// <summary>
-        /// 1st - SectionIndex
-        /// 2nd - Amount of pages which specified Section contains.
-        /// </summary>
-        public Dictionary<int, int> PageCount { get; private set; } = new Dictionary<int, int>();
-
-        /// <summary>
+        /// (int) index of Section
+        /// (Dictionary) Section's content by Page.
         /// 1st - PageIndex
         /// 2nd - Amount of ContentControls which specified Page contains.
         /// </summary>
-        public Dictionary<int, int> ContentCount { get; private set; } = new Dictionary<int, int>();
+        private readonly Dictionary<int, Dictionary<int, int>> data = new Dictionary<int, Dictionary<int, int>>();
     }
 
     public enum ProgressType
