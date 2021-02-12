@@ -148,18 +148,18 @@ namespace Lessium.ViewModels
 
         private void UpdateSection()
         {
-            SectionBarValue++; // Next Section
             PageBarValue = 0; // Sets Page index to zero.
-
             UpdatePageAndContentCount();
+
+            SectionBarValue++; // Next Section
         }
 
         private void UpdatePage()
         {
-            PageBarValue++; // Next Page
             ContentBarValue = 0; // Sets Content index to zero.
-
             UpdateContentCount(); // Updates ContentCount of new Page.
+
+            PageBarValue++; // Next Page
         }
 
         private void UpdateAllCounts()
@@ -172,6 +172,8 @@ namespace Lessium.ViewModels
         {
             // Uses BarValues as indexers.
             ContentCount = storedData[dataType].GetContentsCount(SectionBarValue, PageBarValue);
+
+            ContentBarValue++;
         }
 
         private void UpdatePageAndContentCount()

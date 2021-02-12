@@ -34,7 +34,6 @@
                  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
                  MaxLines="38" >
 
-                
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />
                     <utility:TextBoxCutBehavior />
