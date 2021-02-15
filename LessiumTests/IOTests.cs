@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Lessium.Classes.IO;
+﻿using Lessium.Classes.IO;
 using System.IO;
 using Lessium.ContentControls;
 using System;
@@ -9,17 +8,20 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Threading;
 using System.Diagnostics;
+using NUnit.Framework;
+using System.Windows;
+using System.Collections.Generic;
 
 namespace LessiumTests
 {
-    [TestClass]
+    [TestFixture]
     public class IOTests
     {
-        private readonly string filePath = Path.Combine("lessons", "test2.lsn");
+        private readonly string filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "test2.lsn");
 
         #region TestMethods
 
-        [TestMethod]
+        [Test]
         public void TestCountData()
         {
             var task = LsnReader.CountData(filePath);
@@ -37,35 +39,38 @@ namespace LessiumTests
             AssertHelper.AreEqual(expectedTestData, actualTestData);
         }
 
-        [TestMethod]
+        [Test]
+        [Apartment(ApartmentState.STA)]
         public void TestLoad()
         {
-            var taskCount = LsnReader.CountData(filePath);
-            var countData = taskCount.Result; // Will block until get result.
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                throw new ThreadStateException("The current threads apartment state is not STA");
+            }
 
-            // Creating STA thread for ProgressWindow
-            Thread t = new Thread(() =>  {
+            Assert.DoesNotThrow(() =>
+            {
+                var taskCount = LsnReader.CountData(filePath);
+                var countData = taskCount.Result;
+            
                 var progressView = IOTools.CreateProgressView(null, "TestLoad", countData, IOType.Read);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
-                progressView.Show();
 
+                progressView.Show();
                 try
                 {
-                    var task = LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
-                    var result = task.Result; // Will block until get result.
+                    var t = LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
+                    var x = t.Result;
                 }
-
-                catch (Exception e)
+                catch(ThreadStateException e)
                 {
-                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(e.ToString());
                 }
 
-                Dispatcher.Run(); // required to make it work.
+                
             });
 
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-            t.Join();
+
         }
 
         #endregion

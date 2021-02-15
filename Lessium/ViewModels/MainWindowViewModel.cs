@@ -664,12 +664,6 @@ namespace Lessium.ViewModels
                     result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
                 }
 
-                catch (Exception)
-                {
-                    // Doesn't matter which Exception occured. We don't use this information at all.
-                    // Only the fact that it's failed matters.
-                }
-
                 finally
                 {
                     // Will be executed whatever LoadAsync was sucessful or not.

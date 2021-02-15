@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -14,6 +16,8 @@ namespace Lessium.Classes.IO
 {
     public static class LsnReader
     {
+        private static Dispatcher uiDispatcher;
+
         private static CancellationTokenSource cts;
         private static bool canceledManually;
         private static bool disposed = true; // Not initialized yet, so we can count it as disposed, considering design of class.
@@ -28,7 +32,8 @@ namespace Lessium.Classes.IO
         {
             try
             {
-                settings.Schemas.Add("", Path.Combine("data", "lsn.xsd"));
+                settings.Schemas.Add("", Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "data", "lsn.xsd"));
             }
 
             catch (XmlSchemaException e)
@@ -47,6 +52,7 @@ namespace Lessium.Classes.IO
 
         public async static Task<(IOResult, SerializedLessonModel)> LoadAsync(string fileName, IProgress<ProgressType> progress)
         {
+            uiDispatcher = Dispatcher.CurrentDispatcher;
             canceledManually = false;
             cts = new CancellationTokenSource();
             disposed = false;
@@ -70,7 +76,7 @@ namespace Lessium.Classes.IO
                     }
                     else
                     {
-                        Console.WriteLine($"Error while loading file - {e.ToString()}");
+                        Debug.WriteLine($"Error while loading file - {e.ToString()}");
                     }
                 }
 
@@ -93,7 +99,7 @@ namespace Lessium.Classes.IO
         }
 
         private static async Task<SerializedLessonModel> LoadInternalAsync(string fileName, CancellationToken token, IProgress<ProgressType> progress)
-        {            
+        {
             token.ThrowIfCancellationRequested();
 
             var model = new SerializedLessonModel();
@@ -232,15 +238,54 @@ namespace Lessium.Classes.IO
 
             while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
             {
-                // Creates Section instance, but not initializing it yet.
+                Debugger.Break();
+                Func<Task> testFunc = async () =>
+                {
+                    // Creates Section instance, but not initializing it yet.
+                    if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+                    {
+                        throw new ThreadStateException("The current threads apartment state is not STA");
+                    }
+                    Debugger.Break();
+                    var section = new Section(type, false);
+                    await section.ReadXmlAsync(reader, progress, token);
 
-                var section = new Section(type, false);
-                await section.ReadXmlAsync(reader, progress, token);
+                    // Now after loading XML, we can initialize Section properly.
 
-                // Now after loading XML, we can initialize Section properly.
+                    section.Initialize();
+                    sections.Add(section);
+                };
+                await uiDispatcher.BeginInvoke(testFunc);
+                //await uiDispatcher.Invoke<Task>(async () =>
+                //{
+                //    // Creates Section instance, but not initializing it yet.
+                //    if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+                //    {
+                //        throw new ThreadStateException("The current threads apartment state is not STA");
+                //    }
+                //    Debugger.Break();
+                //    var section = new Section(type, false);
+                //    await section.ReadXmlAsync(reader, progress, token);
 
-                section.Initialize();
-                sections.Add(section);
+                //    // Now after loading XML, we can initialize Section properly.
+
+                //    section.Initialize();
+                //    sections.Add(section);
+                //});
+                Debugger.Break();
+                //// Creates Section instance, but not initializing it yet.
+                //if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+                //{
+                //    throw new ThreadStateException("The current threads apartment state is not STA");
+                //}
+                //Debugger.Break();
+                //var section = new Section(type, false);
+                //await section.ReadXmlAsync(reader, progress, token);
+               
+                //// Now after loading XML, we can initialize Section properly.
+
+                //section.Initialize();
+                //sections.Add(section);
             }
 
             // Reports that current Tab is read.
