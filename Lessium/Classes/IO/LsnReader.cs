@@ -16,8 +16,6 @@ namespace Lessium.Classes.IO
 {
     public static class LsnReader
     {
-        private static Dispatcher uiDispatcher;
-
         private static CancellationTokenSource cts;
         private static bool canceledManually;
         private static bool disposed = true; // Not initialized yet, so we can count it as disposed, considering design of class.
@@ -52,7 +50,6 @@ namespace Lessium.Classes.IO
 
         public async static Task<(IOResult, SerializedLessonModel)> LoadAsync(string fileName, IProgress<ProgressType> progress)
         {
-            uiDispatcher = Dispatcher.CurrentDispatcher;
             canceledManually = false;
             cts = new CancellationTokenSource();
             disposed = false;
@@ -238,54 +235,15 @@ namespace Lessium.Classes.IO
 
             while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
             {
-                Debugger.Break();
-                Func<Task> testFunc = async () =>
-                {
-                    // Creates Section instance, but not initializing it yet.
-                    if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-                    {
-                        throw new ThreadStateException("The current threads apartment state is not STA");
-                    }
-                    Debugger.Break();
-                    var section = new Section(type, false);
-                    await section.ReadXmlAsync(reader, progress, token);
+                // Creates Section instance, but not initializing it yet.
 
-                    // Now after loading XML, we can initialize Section properly.
+                var section = new Section(type, false);
+                await section.ReadXmlAsync(reader, progress, token);
 
-                    section.Initialize();
-                    sections.Add(section);
-                };
-                await uiDispatcher.BeginInvoke(testFunc);
-                //await uiDispatcher.Invoke<Task>(async () =>
-                //{
-                //    // Creates Section instance, but not initializing it yet.
-                //    if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-                //    {
-                //        throw new ThreadStateException("The current threads apartment state is not STA");
-                //    }
-                //    Debugger.Break();
-                //    var section = new Section(type, false);
-                //    await section.ReadXmlAsync(reader, progress, token);
+                // Now after loading XML, we can initialize Section properly.
 
-                //    // Now after loading XML, we can initialize Section properly.
-
-                //    section.Initialize();
-                //    sections.Add(section);
-                //});
-                Debugger.Break();
-                //// Creates Section instance, but not initializing it yet.
-                //if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-                //{
-                //    throw new ThreadStateException("The current threads apartment state is not STA");
-                //}
-                //Debugger.Break();
-                //var section = new Section(type, false);
-                //await section.ReadXmlAsync(reader, progress, token);
-               
-                //// Now after loading XML, we can initialize Section properly.
-
-                //section.Initialize();
-                //sections.Add(section);
+                section.Initialize();
+                sections.Add(section);
             }
 
             // Reports that current Tab is read.
@@ -296,6 +254,36 @@ namespace Lessium.Classes.IO
 
             return sections;
         }
+
+        //private static async Task ExecuteOnUIThreadAsync(Delegate code, params object[] args)
+        //{
+        //    Debugger.Break();
+        //    await uiDispatcher.BeginInvoke(code, DispatcherPriority.Send, args);
+        //}
+
+        //private static async Task ExecuteOnUIThreadAsync(Func<Task> code)
+        //{
+        //    Debugger.Break();
+        //    await uiDispatcher.InvokeAsync(code);
+        //}
+
+        //private static async Task ExecuteOnUIThreadAsync(/*Func<XmlReader, CancellationToken, IProgress<ProgressType>, ContentType, Collection<Section>, Task> */code)
+        //{
+        //    await uiDispatcher.InvokeAsync(code, DispatcherPriority.Normal, cts.Token);
+        //}
+
+        //private static async Task ExecuteOnUIThreadAsync(Action code)
+        //{
+        //    Debugger.Break();
+        //    try
+        //    {
+        //        await uiDispatcher.InvokeAsync(code, DispatcherPriority.Normal, cts.Token);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine(e.ToString());
+        //    }
+        //}
     }
 
     public class SerializedLessonModel

@@ -48,29 +48,17 @@ namespace LessiumTests
                 throw new ThreadStateException("The current threads apartment state is not STA");
             }
 
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
-                var taskCount = LsnReader.CountData(filePath);
-                var countData = taskCount.Result;
-            
+                var countData = await LsnReader.CountData(filePath);
+
                 var progressView = IOTools.CreateProgressView(null, "TestLoad", countData, IOType.Read);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
 
                 progressView.Show();
-                try
-                {
-                    var t = LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
-                    var x = t.Result;
-                }
-                catch(ThreadStateException e)
-                {
-                    Debug.WriteLine(e.ToString());
-                }
 
-                
+                await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
             });
-
-
         }
 
         #endregion
