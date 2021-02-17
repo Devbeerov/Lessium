@@ -334,6 +334,10 @@ namespace Lessium.ContentControls.TestControls
 
         public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
             #region SimpleTest
 
             await writer.WriteStartElementAsync(GetType().Name);
@@ -355,21 +359,19 @@ namespace Lessium.ContentControls.TestControls
             await writer.WriteEndElementAsync();
 
             #endregion
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Content);
         }
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
+            // Reads attributes and answers
+
             Question = reader.GetAttribute("Question");
 
             await ReadAnswersAsync(reader.ReadSubtree(), token);
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Content);
         }
 
         private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token)

@@ -14,6 +14,9 @@ using Lessium.Utility;
 using System.Threading;
 using System.IO;
 using Lessium.Classes.IO;
+using Lessium.Properties;
+using System.Globalization;
+using System.Resources;
 
 namespace Lessium.ContentControls
 {
@@ -51,7 +54,7 @@ namespace Lessium.ContentControls
 
         protected Section(SerializationInfo info, StreamingContext context) : base()
         {
-            var type = (ContentType) info.GetValue("ContentType", typeof(ContentType));
+            var type = (ContentType)info.GetValue("ContentType", typeof(ContentType));
             var title = info.GetString("Title");
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
@@ -230,8 +233,8 @@ namespace Lessium.ContentControls
 
         public void Add(ContentPage page)
         {
-            if(page.ContentType != this.ContentType) { throw new InvalidOperationException
-                    ("You can only add pages with same ContentType to Section!"); }
+            if (page.ContentType != this.ContentType) { throw new InvalidOperationException
+                     ("You can only add pages with same ContentType to Section!"); }
 
             pages.Add(page);
 
@@ -317,6 +320,10 @@ namespace Lessium.ContentControls
 
         public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Section.
+
+            progress.Report(ProgressType.Section);
+
             #region Section
 
             await writer.WriteStartElementAsync("Section");
@@ -326,7 +333,7 @@ namespace Lessium.ContentControls
 
             for (int i = 0; i < pages.Count; i++)
             {
-                if(token.HasValue && token.Value.IsCancellationRequested) { break; }
+                if (token.HasValue && token.Value.IsCancellationRequested) { break; }
 
                 var page = pages[i];
                 await page.WriteXmlAsync(writer, progress, token);
@@ -338,9 +345,7 @@ namespace Lessium.ContentControls
 
             #endregion
 
-            // Reports progress.
 
-            progress.Report(ProgressType.Section);
         }
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
@@ -354,6 +359,14 @@ namespace Lessium.ContentControls
 
             SetTitle(title);
 
+            // Reports to process new Section.
+
+            progress.Report(ProgressType.Section);
+
+            // After getting all attributes, we can ReadSubtree to read Pages within this Section.
+
+            reader = reader.ReadSubtree();
+
             // Read until getting to Page element.
             while (await reader.ReadToFollowingAsync("Page") && reader.NodeType == XmlNodeType.Element)
             {
@@ -362,13 +375,9 @@ namespace Lessium.ContentControls
                 var page = new ContentPage(this.ContentType);
 
                 await page.ReadXmlAsync(reader, progress, token);
-                Add(page);         
-                
+                Add(page);
+
             }
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Section);
 
             if (GetPages().Count == 0)
             {
@@ -394,5 +403,42 @@ namespace Lessium.ContentControls
     public enum ContentType
     {
         Material, Test
+    }
+
+    public static class ContentTypeExtensions
+    {
+        private static readonly ResourceManager manager = new ResourceManager(typeof(Resources));
+        private static readonly int maxContentTypeValue = Enum.GetValues(typeof(ContentType)).GetUpperBound(0);
+
+        /// <param name="invariantCulture">
+        /// Should be independant culture used or not.
+        /// Otherwise uses CurrentCulture.
+        /// </param>
+        public static string ToTabString(this ContentType type, bool invariantCulture = false)
+        {
+            CultureInfo culture;
+            if (!invariantCulture)
+            {
+                culture = CultureInfo.CurrentCulture;
+            }
+            else
+            {
+                culture = CultureInfo.InvariantCulture;
+            }
+
+            switch (type)
+            {
+                case ContentType.Material:
+                    return manager.GetString("Materials", culture);
+                case ContentType.Test:
+                    return manager.GetString("Tests", culture);
+                default: throw new NotSupportedException($"{type.ToString()} is not supported.");
+            }
+        }
+
+        public static bool IsBeyondMaxValue(this ContentType type)
+        {
+            return (int)type > maxContentTypeValue;
+        }
     }
 }

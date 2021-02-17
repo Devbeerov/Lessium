@@ -47,7 +47,7 @@
                     IsEnabled="{Binding ShowRemoveButton}" 
                     Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+                <Image x:Name="removeContentIcon" Source="{StaticResource RemoveContentIcon}" />
             </Button>
                 
         </Grid>

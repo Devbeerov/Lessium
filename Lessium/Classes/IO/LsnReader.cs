@@ -8,7 +8,6 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -233,57 +232,47 @@ namespace Lessium.Classes.IO
         {
             var sections = new Collection<Section>();
 
-            while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
-            {
-                // Creates Section instance, but not initializing it yet.
-
-                var section = new Section(type, false);
-                await section.ReadXmlAsync(reader, progress, token);
-
-                // Now after loading XML, we can initialize Section properly.
-
-                section.Initialize();
-                sections.Add(section);
-            }
-
-            // Reports that current Tab is read.
+            // Reports to process new Tab.
 
             progress.Report(ProgressType.Tab);
 
-            // Returns collection of Sections relative to this ContentType (tab).
+            // Reads to Tab
 
-            return sections;
+            var tabString = type.ToTabString(true);
+
+            if (await reader.ReadToFollowingAsync(tabString))
+            {
+                // Found Tab, so it won't throw Exception. Now check if it's Element (not end of it).
+
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    // Gets current Tab's Sections as subtree.
+
+                    reader = reader.ReadSubtree();
+
+                    // Reads to Section
+
+                    while (await reader.ReadToFollowingAsync("Section") && reader.NodeType == XmlNodeType.Element)
+                    {
+                        // Creates Section instance, but not initializing it yet.
+
+                        var section = new Section(type, false);
+                        await section.ReadXmlAsync(reader, progress, token);
+
+                        // Now after loading XML, we can initialize Section properly.
+
+                        section.Initialize();
+                        sections.Add(section);
+                    }
+
+                    // Returns collection of Sections relative to this ContentType (tab).
+
+                    return sections;
+                }
+            }
+
+            throw new InvalidDataException($"{tabString} not found in file.");
         }
-
-        //private static async Task ExecuteOnUIThreadAsync(Delegate code, params object[] args)
-        //{
-        //    Debugger.Break();
-        //    await uiDispatcher.BeginInvoke(code, DispatcherPriority.Send, args);
-        //}
-
-        //private static async Task ExecuteOnUIThreadAsync(Func<Task> code)
-        //{
-        //    Debugger.Break();
-        //    await uiDispatcher.InvokeAsync(code);
-        //}
-
-        //private static async Task ExecuteOnUIThreadAsync(/*Func<XmlReader, CancellationToken, IProgress<ProgressType>, ContentType, Collection<Section>, Task> */code)
-        //{
-        //    await uiDispatcher.InvokeAsync(code, DispatcherPriority.Normal, cts.Token);
-        //}
-
-        //private static async Task ExecuteOnUIThreadAsync(Action code)
-        //{
-        //    Debugger.Break();
-        //    try
-        //    {
-        //        await uiDispatcher.InvokeAsync(code, DispatcherPriority.Normal, cts.Token);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Debug.WriteLine(e.ToString());
-        //    }
-        //}
     }
 
     public class SerializedLessonModel

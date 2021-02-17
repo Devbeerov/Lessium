@@ -350,6 +350,10 @@ namespace Lessium.ContentControls.Models
 
         public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Page.
+
+            progress.Report(ProgressType.Page);
+
             #region Page
 
             await writer.WriteStartElementAsync("Page");
@@ -364,10 +368,6 @@ namespace Lessium.ContentControls.Models
             await writer.WriteEndElementAsync();
 
             #endregion
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Page);
         }
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
@@ -382,7 +382,12 @@ namespace Lessium.ContentControls.Models
                 case ContentType.Test:
                     controlTypeNamespace = "TestControls";
                     break;
+                default: throw new NotSupportedException($"{ContentType.ToString()} is not supported.");
             }
+
+            // Reports to process new Page.
+
+            progress.Report(ProgressType.Page);
 
             // Gets subtree reader to iterate over Page's childs.
 
@@ -400,10 +405,6 @@ namespace Lessium.ContentControls.Models
 
                 Add(control);
             }
-
-            // Reports progress of Page.
-
-            progress.Report(ProgressType.Page);
         }
 
         #endregion

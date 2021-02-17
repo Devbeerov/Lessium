@@ -1,5 +1,4 @@
 ﻿using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
 using Lessium.Utility;
 using Lessium.ViewModels;
 using System;
@@ -74,47 +73,8 @@ namespace Lessium.Classes.IO
 
                 await writer.WriteStartElementAsync("Lesson");
 
-                #region Materials
-
-                if (!token.IsCancellationRequested)
-                {
-                    await writer.WriteStartElementAsync("Materials");
-
-                    // Iterating over sections in Materials tab.
-                    var materialTabs = viewModel.SectionsByType[ContentType.Material];
-                    for (int i = 0; i < materialTabs.Count; i++)
-                    {
-                        if (token.IsCancellationRequested) { break; }
-
-                        var section = materialTabs[i];
-                        await section.WriteXmlAsync(writer, progress, token);
-                    }
-
-                    await writer.WriteEndElementAsync();
-                }
-
-                #endregion
-
-                #region Tests
-
-                if (!token.IsCancellationRequested)
-                {
-                    await writer.WriteStartElementAsync("Tests");
-
-                    // Iterating over sections in Tests tab.
-                    var testsTab = viewModel.SectionsByType[ContentType.Test];
-                    for (int i = 0; i < testsTab.Count; i++)
-                    {
-                        if (token.IsCancellationRequested) { break; }
-
-                        var section = testsTab[i];
-                        await section.WriteXmlAsync(writer, progress, token);
-                    }
-
-                    await writer.WriteEndElementAsync();
-                }
-
-                #endregion
+                await WriteTabAsync(writer, viewModel, token, progress, ContentType.Material);
+                await WriteTabAsync(writer, viewModel, token, progress, ContentType.Test);
 
                 await writer.WriteEndElementAsync();
 
@@ -126,6 +86,35 @@ namespace Lessium.Classes.IO
             }
 
             token.ThrowIfCancellationRequested();
+        }
+
+        private static async Task WriteTabAsync(XmlWriter writer, MainWindowViewModel viewModel, CancellationToken token,
+            IProgress<ProgressType> progress, ContentType tabType)
+        {
+            if (!token.IsCancellationRequested)
+            {
+                // Reports to process new Tab.
+
+                progress.Report(ProgressType.Tab);
+
+                #region TabString
+
+                await writer.WriteStartElementAsync(tabType.ToTabString(true));
+
+                // Iterating over sections in tab.
+                var sections = viewModel.SectionsByType[tabType];
+                for (int i = 0; i < sections.Count; i++)
+                {
+                    if (token.IsCancellationRequested) { break; }
+
+                    var section = sections[i];
+                    await section.WriteXmlAsync(writer, progress, token);
+                }
+
+                await writer.WriteEndElementAsync();
+
+                #endregion
+            }
         }
 
         private static void CountPages(Section section, int sectionIndex, CountData data, CancellationToken token)

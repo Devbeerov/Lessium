@@ -235,6 +235,10 @@ namespace Lessium.ContentControls.MaterialControls
 
         public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
             #region TextControl
 
             await writer.WriteStartElementAsync(GetType().Name);
@@ -244,21 +248,17 @@ namespace Lessium.ContentControls.MaterialControls
             await writer.WriteEndElementAsync();
 
             #endregion
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Content);
         }
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
             // Content of TextControl is string. So we just extracts it entirely.
 
             SetText(await reader.ReadElementContentAsStringAsync());
-
-            // Reports progress.
-
-            progress.Report(ProgressType.Content);
         }
 
         #endregion

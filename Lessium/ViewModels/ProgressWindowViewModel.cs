@@ -4,6 +4,7 @@ using Lessium.Properties;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lessium.ViewModels
 {
@@ -67,6 +68,45 @@ namespace Lessium.ViewModels
             set { SetProperty(ref contentCount, value); }
         }
 
+        private int sectionIndex;
+        private int SectionIndex
+        {
+            get { return sectionIndex; }
+            set
+            {
+                if (SetProperty(ref sectionIndex, value))
+                {
+                    PageBarValue = sectionIndex;
+                }
+            }
+        }
+
+        private int pageIndex;
+        private int PageIndex
+        {
+            get { return pageIndex; }
+            set
+            {
+                if (SetProperty(ref pageIndex, value))
+                {
+                    PageBarValue = pageIndex;
+                }
+            }
+        }
+
+        private int contentIndex;
+        private int ContentIndex
+        {
+            get { return contentIndex; }
+            set
+            {
+                if (SetProperty(ref contentIndex, value))
+                {
+                    PageBarValue = contentIndex;
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -116,50 +156,56 @@ namespace Lessium.ViewModels
             ContentBarValue = 0;
         }
 
+        private void ClearIndexers()
+        {
+            SectionIndex = 0;
+            PageIndex = 0;
+            ContentIndex = 0;
+        }
+
         private void UpdateTabTitle(ContentType tabType)
         {
-            string newTitle;
-
-            switch (tabType)
-            {
-                case ContentType.Material:
-                    newTitle = Resources.Materials;
-                    break;
-                case ContentType.Test:
-                    newTitle = Resources.Tests;
-                    break;
-                default: throw new NotSupportedException($"{tabType.ToString()} is not supported.");
-            }
-
-            TabType = newTitle;
+            TabType = tabType.ToTabString();
         }
 
         private void UpdateTab()
         {
-            dataType++; // Since dataType is enum, we could increment it like integer to move to next dataType.
-
             // In case new dataType is already beyond possible ContentType, we just returns.
-            if ((int)dataType > Enum.GetValues(typeof(ContentType)).GetUpperBound(0)) return;
 
-            ClearBars();
+            if (dataType.IsBeyondMaxValue()) return;
+
+            ClearIndexers();
             UpdateAllCounts();
             UpdateTabTitle(dataType);
+
+            // If next dataType won't be beyond MaxValue
+
+            if (!(dataType + 1).IsBeyondMaxValue())
+            {
+                dataType++; // Since dataType is enum, we could increment it like integer to move to next dataType.
+            }
         }
 
         private void UpdateSection()
         {
-            PageBarValue = 0; // Sets Page index to zero.
+            PageIndex = 0;
             UpdatePageAndContentCount();
 
-            SectionBarValue++; // Next Section
+            if ((SectionIndex + 1) < SectionCount)
+            {
+                SectionIndex++;
+            }
         }
 
         private void UpdatePage()
         {
-            ContentBarValue = 0; // Sets Content index to zero.
+            ContentIndex = 0;
             UpdateContentCount(); // Updates ContentCount of new Page.
 
-            PageBarValue++; // Next Page
+            if ((PageIndex + 1) < PageCount)
+            {
+                PageIndex++;
+            }
         }
 
         private void UpdateAllCounts()
@@ -171,14 +217,19 @@ namespace Lessium.ViewModels
         private void UpdateContentCount()
         {
             // Uses BarValues as indexers.
-            ContentCount = storedData[dataType].GetContentsCount(SectionBarValue, PageBarValue);
+            ContentCount = storedData[dataType].GetContentsCount(SectionIndex, PageIndex);
 
-            ContentBarValue++;
+            // We update ContentIndex only if next Content's index will be less than ContentCount
+
+            if ((ContentIndex + 1) < ContentCount)
+            {
+                ContentIndex++;
+            }
         }
 
         private void UpdatePageAndContentCount()
         {
-            PageCount = storedData[dataType].GetPagesCount(SectionBarValue);
+            PageCount = storedData[dataType].GetPagesCount(SectionIndex);
             UpdateContentCount();
         }
 
