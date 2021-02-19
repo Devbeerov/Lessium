@@ -7,7 +7,7 @@ namespace Lessium.Interfaces
     /// <summary>
     /// Basic interface for ContentControl.
     /// </summary>
-    public interface IContentControl : ISerializable, ILsnSerializable
+    public interface IContentControl : ILsnSerializable
     {
         // Similar to IsReadOnly
         void SetEditable(bool editable);

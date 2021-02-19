@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace LessiumTests.Extensions
 {
@@ -42,16 +43,21 @@ namespace LessiumTests.Extensions
             }
         }
 
-        public static void AreEqual(SerializedLessonModel expected, SerializedLessonModel actual)
+        /// <summary>
+        /// Asserts each Section in each Tab, therefore all it's items using the Polymorphism.
+        /// </summary>
+        public static void AreEqual(LessonModel expected, LessonModel actual)
         {
             CheckParametersForAreEqual(expected, actual);
-
+            
             AreEqual(expected.MaterialSections, actual.MaterialSections);
             AreEqual(expected.TestSections, actual.TestSections);
         }
 
-        private static void AreEqual(Collection<Section> expected, Collection<Section> actual)
+        public static void AreEqual(IList<Section> expected, IList<Section> actual)
         {
+            CheckParametersForAreEqual(expected, actual);
+
             // Checks size first
 
             Assert.AreEqual(expected.Count, actual.Count);
@@ -63,59 +69,101 @@ namespace LessiumTests.Extensions
                 var expectedSection = expected[s];
                 var actualSection = actual[s];
 
-                /// Explanation: Asserting implemented through SerializationInfo and GetObjectData.
-                /// Why? - Simple and efficient way to check values which should be equal.
-                /// Because Section is Control, and Control won't be the same,
-                /// WPF uses them for rendering and so on, that's why.
-                /// So with this approach, we can just check values which are used for Serialization.
-                /// This way, nothing except them will be checked so Assert will be done on them properly.
-                /// More info on my blog: https://simpleandefficient.wordpress.com - Asserting WPF Controls
-
-                // Creates SerializationInfo for expectedSection and fills it with Section's data.
-
-                var expectedInfo = new SerializationInfo(typeof(Section), converter);
-                expectedSection.GetObjectData(expectedInfo, context);
-
-                // Same but for actualSection
-
-                var actualInfo = new SerializationInfo(typeof(Section), converter);
-                actualSection.GetObjectData(actualInfo, context);
-
-                // Enumerates pages with same approach.
-
-                EnumeratePages(expectedInfo, actualInfo);
+                AreEqual(expectedSection, actualSection);
             }
         }
 
-        private static void EnumeratePages(SerializationInfo expectedInfo, SerializationInfo actualInfo)
+        public static void AreEqual(Section expected, Section actual)
         {
+            CheckParametersForAreEqual(expected, actual);
+
+            /// Explanation: Asserting implemented through SerializationInfo and GetObjectData.
+            /// Why? - Simple and efficient way to check values which should be equal.
+            /// Because Section is Control, and Control won't be the same,
+            /// WPF uses them for rendering and so on, that's why.
+            /// So with this approach, we can just check values which are used for Serialization.
+            /// This way, nothing except them will be checked so Assert will be done on them properly.
+            /// More info on my blog: https://simpleandefficient.wordpress.com - Asserting WPF Controls
+
+            // Creates SerializationInfo for expectedSection and fills it with Section's data.
+
+            var expectedInfo = new SerializationInfo(expected.GetType(), converter);
+            expected.GetObjectData(expectedInfo, context);
+
+            // Same but for actualSection
+
+            var actualInfo = new SerializationInfo(actual.GetType(), converter);
+            actual.GetObjectData(actualInfo, context);
+
+            // Enumerates stored object's data.
+
             var enumerator = expectedInfo.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                if (enumerator.Name == "Pages" && enumerator.ObjectType == typeof(List<ContentPage>))
+                // If it's Pages entry, we check collection with custom AreEqual.
+
+                if (enumerator.Name == "Pages" && enumerator.Value is IList)
                 {
-                    var expectedPages = (List<ContentPage>)enumerator.Value;
-                    var actualPages = (List<ContentPage>)actualInfo.GetValue(enumerator.Name, enumerator.ObjectType);
+                    var expectedPages = (IList<ContentPage>)enumerator.Value;
+                    var actualPages = (IList<ContentPage>)actualInfo.GetValue(enumerator.Name, enumerator.ObjectType);
 
-                    // Asserts size
+                    AreEqual(expectedPages, actualPages);
+                }
 
-                    Assert.AreEqual(expectedPages.Count, actualPages.Count);
+                // Otherwise, uses Assert's AreEqual for them.
 
-                    // Iterates over Pages
+                else
+                {
+                    var expectedValue = expectedInfo.GetValue(enumerator.Name, enumerator.ObjectType);
+                    var actualValue = actualInfo.GetValue(enumerator.Name, enumerator.ObjectType);
 
-                    for (int p = 0; p < expectedPages.Count; p++)
-                    {
-                        var expectedPage = expectedPages[p];
-                        var actualPage = actualPages[p];
+                    Assert.AreEqual(expectedValue, actualValue);
+                }
+            }
+        }
 
-                        var expectedPageInfo = new SerializationInfo(typeof(ContentPage), converter);
-                        expectedPage.GetObjectData(expectedPageInfo, context);
+        public static void AreEqual(IList<ContentPage> expected, IList<ContentPage> actual)
+        {
+            CheckParametersForAreEqual(expected, actual);
 
-                        var actualPageInfo = new SerializationInfo(typeof(ContentPage), converter);
-                        actualPage.GetObjectData(actualPageInfo, context);
+            // Asserts size
 
-                        EnumerateContent(expectedPageInfo, actualPageInfo);
-                    }
+            Assert.AreEqual(expected.Count, actual.Count);
+
+            // Iterates over Pages
+
+            for (int p = 0; p < expected.Count; p++)
+            {
+                var expectedPage = expected[p];
+                var actualPage = actual[p];
+
+                AreEqual(expectedPage, actualPage);
+            }
+        }
+
+        public static void AreEqual(ContentPage expected, ContentPage actual)
+        {
+            CheckParametersForAreEqual(expected, actual);
+
+            // Asserts size
+
+            Assert.AreEqual(expected.Items.Count, actual.Items.Count);
+
+            var expectedInfo = new SerializationInfo(expected.GetType(), converter);
+            expected.GetObjectData(expectedInfo, context);
+
+            var actualInfo = new SerializationInfo(actual.GetType(), converter);
+            actual.GetObjectData(actualInfo, context);
+
+            var enumerator = expectedInfo.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Name == "Items" && enumerator.Value is IList<IContentControl>)
+                {
+                    var expectedItems = enumerator.Value as IEnumerable<ILsnSerializable>;
+                    var actualItems = actualInfo.GetValue(enumerator.Name, enumerator.ObjectType) as IEnumerable<ILsnSerializable>;
+
+                    AreEqual(expectedItems.ToList(), actualItems.ToList());
                 }
 
                 else
@@ -128,20 +176,48 @@ namespace LessiumTests.Extensions
             }
         }
 
-        private static void EnumerateContent(SerializationInfo expectedInfo, SerializationInfo actualInfo)
+        public static void AreEqual(IList<ILsnSerializable> expected, IList<ILsnSerializable> actual)
         {
+            CheckParametersForAreEqual(expected, actual);
+
+            // Asserts size
+
+            Assert.AreEqual(expected.Count, actual.Count);
+
+            // Iterates over Controls
+
+            for (int c = 0; c < expected.Count; c++)
+            {
+                var expectedControl = expected[c];
+                var actualControl = actual[c];
+
+                AreEqual(expectedControl, actualControl);
+            }
+        }
+
+        // If unique AreEqual is not exist for particular ContentControl, we use this method.
+        public static void AreEqual(ILsnSerializable expected, ILsnSerializable actual)
+        {
+            CheckParametersForAreEqual(expected, actual);
+
+            var expectedInfo = new SerializationInfo(expected.GetType(), converter);
+            expected.GetObjectData(expectedInfo, context);
+
+            var actualInfo = new SerializationInfo(actual.GetType(), converter);
+            actual.GetObjectData(actualInfo, context);
+
             var enumerator = expectedInfo.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                // Checks if entry is type which can be enumerated (for example: List)
-                if (enumerator.ObjectType.IsAssignableFrom(typeof(IEnumerable)))
+                var expectedItems = enumerator.Value as IEnumerable<ILsnSerializable>;
+
+                // Checks if entry can be casted to IEnumerable<ILsnSerializable>
+
+                if (expectedItems != null)
                 {
-                    var enumerable = (IEnumerable)enumerator.Value;
-                    var contentItemsEnumerator = enumerable.GetEnumerator();
-                    while(contentItemsEnumerator.MoveNext())
-                    {
-                        // TODO:
-                    }
+                    var actualItems = actualInfo.GetValue(enumerator.Name, enumerator.ObjectType) as IEnumerable<ILsnSerializable>;
+
+                    AreEqual(expectedItems.ToList(), actualItems.ToList());
                 }
 
                 else
@@ -156,9 +232,9 @@ namespace LessiumTests.Extensions
 
         private static void CheckParametersForAreEqual(object expected, object actual)
         {
-            if (ReferenceEquals(expected, actual)) throw new InvalidOperationException("Both expected and actual are the same reference!");
             if (expected == null) throw new ArgumentNullException("expected");
             if (actual == null) throw new ArgumentNullException("actual");
+            if (ReferenceEquals(expected, actual)) throw new InvalidOperationException("Both expected and actual are the same reference!");
         }
     }
 }

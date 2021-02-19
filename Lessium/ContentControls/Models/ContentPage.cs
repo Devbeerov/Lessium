@@ -17,7 +17,7 @@ namespace Lessium.ContentControls.Models
 {
     // Model
     [Serializable]
-    public class ContentPage : ISerializable, ILsnSerializable
+    public class ContentPage : ILsnSerializable
     {
         // Public
 
@@ -392,10 +392,10 @@ namespace Lessium.ContentControls.Models
             // Gets subtree reader to iterate over Page's childs.
 
             var subtreeReader = reader.ReadSubtree();
-            while (await subtreeReader.ReadAsync() && subtreeReader.NodeType == XmlNodeType.Element
-                && subtreeReader.Name != "Page")
+            while (await subtreeReader.ReadAsync())
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
+                if (subtreeReader.NodeType != XmlNodeType.Element || subtreeReader.Name == "Page") continue;
 
                 var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
                 if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }

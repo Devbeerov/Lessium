@@ -11,6 +11,7 @@ using Lessium.ContentControls.MaterialControls;
 using Lessium.ContentControls.TestControls;
 using Lessium;
 using System.Windows;
+using System.Threading.Tasks;
 
 namespace LessiumTests
 {
@@ -18,13 +19,14 @@ namespace LessiumTests
     public class IOTests
     {
         private readonly string filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "test2.lsn");
+        private readonly string tempPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "temp.lsn");
 
         #region TestMethods
 
         [Test]
         public void TestCountData()
         {
-            var task = LsnReader.CountData(filePath);
+            var task = LsnReader.CountDataAsync(filePath);
             var result = task.Result; // Will block until get result.
 
             // Checks data.
@@ -62,38 +64,91 @@ namespace LessiumTests
 
             // Checks if code doesn't throws any exceptions during load, and also Asserts results.
 
+            (IOResult, LessonModel)? loadResult = null;
+
             Assert.DoesNotThrowAsync(async () =>
             {
-                var countData = await LsnReader.CountData(filePath);
+                loadResult = await LoadLesson(filePath);
+            });
 
-                // Creates ProgressView
+            Assert.AreEqual(true, loadResult.HasValue);
 
-                var progressView = IOTools.CreateProgressView(null, "TestLoad", countData, IOType.Read);
+            // Asserts results
+
+            Assert.AreEqual(IOResult.Sucessful, loadResult.Value.Item1);
+            AssertHelper.AreEqual(expectedLessonModel, loadResult.Value.Item2);
+        }
+
+        /// <summary>
+        /// Loads data from filePath, saves it as filePath_temp and loads saved file and compares data.
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public async Task TestSave()
+        {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                throw new ThreadStateException("The current threads apartment state is not STA");
+            }
+
+            var loadResult = await LoadLesson(filePath);
+            var serializedModel = loadResult.Item2;
+
+            IOResult saveResult = IOResult.Null;
+            Assert.DoesNotThrowAsync(async () =>
+            {
+                // New window
+                var progressView = IOTools.CreateProgressView(null, "TestSave",
+                    await LsnWriter.CountDataAsync(serializedModel, filePath), IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
 
                 progressView.Show();
 
-                // Tests Lesson's loading, in case it will throw any Exceptions during load,
-                // Assert.DoesNotThrowAsync will fail test.
-
-                var loadResult = await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
-
-                // Asserts results
-
-                Assert.AreEqual(IOResult.Sucessful, loadResult.Item1);
-                AssertHelper.AreEqual(expectedLessonModel, loadResult.Item2);
+                // Pauses method until SaveAsync method is completed.
+                saveResult = await LsnWriter.SaveAsync(serializedModel, tempPath, progress);
             });
-        }
 
-        [Test]
-        public void TestSave()
-        {
-            var savedModel = CreateExpectedLessonModel();
+            Assert.AreEqual(IOResult.Sucessful, saveResult);
+
+            var tempLoadResult = await LoadLesson(tempPath);
+            var tempSerializedModel = tempLoadResult.Item2;
+
+            // Asserts temp file is loaded sucessfully and serializedModel is the same.
+
+            Assert.AreEqual(IOResult.Sucessful, tempLoadResult.Item1);
+            AssertHelper.AreEqual(serializedModel, tempSerializedModel);
         }
 
         #endregion
 
         #region Private Methods
+
+        private async Task<(IOResult, LessonModel)> LoadLesson(string filePath)
+        {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                throw new ThreadStateException("The current threads apartment state is not STA");
+            }
+
+            var countData = await LsnReader.CountDataAsync(filePath);
+
+            // Creates ProgressView
+
+            var progressView = IOTools.CreateProgressView(null, $"Loading ...", countData, IOType.Read);
+            var progress = IOTools.CreateProgressForProgressView(progressView);
+
+            progressView.Show();
+
+            // Tests Lesson's loading, in case it will throw any Exceptions during load,
+            // Assert.DoesNotThrowAsync will fail test.
+
+            var loadResult = await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
+
+            progressView.Close();
+
+            return loadResult;
+        }
 
         /// <summary>
         /// Using current filePath field.
@@ -160,7 +215,7 @@ namespace LessiumTests
         /// <summary>
         /// Using current filePath field.
         /// </summary>
-        private SerializedLessonModel CreateExpectedLessonModel()
+        private LessonModel CreateExpectedLessonModel()
         {
             if (filePath.EndsWith("test2.lsn"))
             {
@@ -170,9 +225,9 @@ namespace LessiumTests
             throw new NotSupportedException($"{filePath} not supported.");
         }
 
-        private SerializedLessonModel CreateExpectedLessonModelFor_test2()
+        private LessonModel CreateExpectedLessonModelFor_test2()
         {
-            var model = new SerializedLessonModel();
+            var model = new LessonModel();
 
             #region Materials
             {

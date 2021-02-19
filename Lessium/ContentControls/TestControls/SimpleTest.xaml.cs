@@ -345,15 +345,7 @@ namespace Lessium.ContentControls.TestControls
 
             foreach (var answer in Answers)
             {
-                #region Answer
-
-                await writer.WriteStartElementAsync("Answer");
-
-                await writer.WriteStringAsync(answer.Text);
-
-                await writer.WriteEndElementAsync();
-
-                #endregion
+                await answer.WriteXmlAsync(writer, progress, token);
             }
 
             await writer.WriteEndElementAsync();
@@ -367,21 +359,20 @@ namespace Lessium.ContentControls.TestControls
 
             progress.Report(ProgressType.Content);
 
-            // Reads attributes and answers
+            // Reads attributes
 
             Question = reader.GetAttribute("Question");
 
-            await ReadAnswersAsync(reader.ReadSubtree(), token);
-        }
+            // Reads Answers
 
-        private async Task ReadAnswersAsync(XmlReader reader, CancellationToken? token)
-        {
-            while (await reader.ReadToFollowingAsync("Answer") && reader.NodeType == XmlNodeType.Element)
+            while (await reader.ReadToFollowingAsync("Answer"))
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
+                if (reader.NodeType != XmlNodeType.Element) continue;
 
-                // Extracts content (text) and creates AnswerModel with extracted value.
-                var answer = new AnswerModel(await reader.ReadElementContentAsStringAsync());
+                var answer = new AnswerModel();
+                await answer.ReadXmlAsync(reader, progress, token);
+
                 Answers.Add(answer);
             }
         }
@@ -390,7 +381,7 @@ namespace Lessium.ContentControls.TestControls
     }
 
     [Serializable]
-    public class AnswerModel : ISerializable
+    public class AnswerModel : ILsnSerializable
     {
         public string Text { get; set; } = string.Copy(Properties.Resources.DefaultAnswerHeader);
 
@@ -413,6 +404,24 @@ namespace Lessium.ContentControls.TestControls
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Text", Text);
+        }
+
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            #region Answer
+
+            await writer.WriteStartElementAsync("Answer");
+
+            await writer.WriteStringAsync(Text);
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            Text = await reader.ReadElementContentAsStringAsync();
         }
     }
 }

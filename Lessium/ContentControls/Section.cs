@@ -21,7 +21,7 @@ using System.Resources;
 namespace Lessium.ContentControls
 {
     [Serializable]
-    public class Section : StackPanel, ISerializable, ILsnSerializable
+    public class Section : StackPanel, ILsnSerializable
     {
         public const double PageWidth = 795;
         public const double PageHeight = 637;
@@ -367,10 +367,11 @@ namespace Lessium.ContentControls
 
             reader = reader.ReadSubtree();
 
-            // Read until getting to Page element.
-            while (await reader.ReadToFollowingAsync("Page") && reader.NodeType == XmlNodeType.Element)
+            // Reads while "Page" elements could be found.
+            while (await reader.ReadToFollowingAsync("Page"))
             {
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
+                if (reader.NodeType != XmlNodeType.Element) continue;
 
                 var page = new ContentPage(this.ContentType);
 

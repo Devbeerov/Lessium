@@ -297,6 +297,16 @@ namespace Lessium.ViewModels
             HasChanges = true;
         }
 
+        private LessonModel GenerateLessonModel()
+        {
+            var lessonModel = new LessonModel();
+
+            lessonModel.MaterialSections.AddRange(SectionsByType[ContentType.Material]);
+            lessonModel.TestSections.AddRange(SectionsByType[ContentType.Material]);
+
+            return lessonModel;
+        }
+
         #region Section
 
         /// <summary>
@@ -584,16 +594,17 @@ namespace Lessium.ViewModels
             if (saveDialog.ShowDialog(window) == true)
             {
                 var fileName = saveDialog.FileName;
+                var lessonModel = GenerateLessonModel();
 
                 // New window
                 var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving,
-                    await Task.Run(() => LsnWriter.CountData(this, fileName)), IOType.Write);
+                    await LsnWriter.CountDataAsync(lessonModel, fileName), IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                
                 progressView.Show();
 
                 // Pauses method until SaveAsync method is completed.
-                var result = await LsnWriter.SaveAsync(this, fileName, progress);
+                var result = await LsnWriter.SaveAsync(lessonModel, fileName, progress);
                 if (result == IOResult.Sucessful)
                 {
                     HasChanges = false;
@@ -640,13 +651,13 @@ namespace Lessium.ViewModels
 
                 try
                 {
-                    countData = await LsnReader.CountData(loadDialog.FileName);
+                    countData = await LsnReader.CountDataAsync(loadDialog.FileName);
                 }
 
                 catch (Exception e)
                 {
                     Debug.WriteLine(e.ToString());
-                    // CountData failed, whatever by XmlSchema validation or by some other exception, we just returns.
+                    // CountDataAsync failed, whatever by XmlSchema validation or by some other exception, we just returns.
                     savingOrLoading = false;
                     return;
                 }
@@ -657,7 +668,7 @@ namespace Lessium.ViewModels
                 var progress = IOTools.CreateProgressForProgressView(progressView);
                 progressView.Show();
 
-                (IOResult, SerializedLessonModel) result = (IOResult.Null, null);
+                (IOResult, LessonModel) result = (IOResult.Null, null);
                 try
                 {
                     // Pauses method until LoadAsync will be completed.

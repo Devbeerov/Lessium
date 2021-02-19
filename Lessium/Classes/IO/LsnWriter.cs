@@ -3,6 +3,7 @@ using Lessium.Utility;
 using Lessium.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -25,7 +26,7 @@ namespace Lessium.Classes.IO
             cts?.Cancel();
         }
 
-        public async static Task<IOResult> SaveAsync(MainWindowViewModel viewModel, string fileName, IProgress<ProgressType> progress)
+        public async static Task<IOResult> SaveAsync(LessonModel lessonModel, string fileName, IProgress<ProgressType> progress)
         {
             canceledManually = false;
             cts = new CancellationTokenSource();
@@ -33,7 +34,7 @@ namespace Lessium.Classes.IO
 
             using (cts)
             {
-                var task = SaveInternalAsync(viewModel, fileName, cts.Token, progress);
+                var task = SaveInternalAsync(lessonModel, fileName, cts.Token, progress);
 
                 try
                 {
@@ -60,7 +61,7 @@ namespace Lessium.Classes.IO
             return result;
         }
 
-        private static async Task SaveInternalAsync(MainWindowViewModel viewModel, string fileName, CancellationToken token,
+        private static async Task SaveInternalAsync(LessonModel lessonModel, string fileName, CancellationToken token,
             IProgress<ProgressType> progress)
         {
             token.ThrowIfCancellationRequested();
@@ -73,8 +74,8 @@ namespace Lessium.Classes.IO
 
                 await writer.WriteStartElementAsync("Lesson");
 
-                await WriteTabAsync(writer, viewModel, token, progress, ContentType.Material);
-                await WriteTabAsync(writer, viewModel, token, progress, ContentType.Test);
+                await WriteTabAsync(writer, lessonModel, token, progress, ContentType.Material);
+                await WriteTabAsync(writer, lessonModel, token, progress, ContentType.Test);
 
                 await writer.WriteEndElementAsync();
 
@@ -88,7 +89,7 @@ namespace Lessium.Classes.IO
             token.ThrowIfCancellationRequested();
         }
 
-        private static async Task WriteTabAsync(XmlWriter writer, MainWindowViewModel viewModel, CancellationToken token,
+        private static async Task WriteTabAsync(XmlWriter writer, LessonModel lessonModel, CancellationToken token,
             IProgress<ProgressType> progress, ContentType tabType)
         {
             if (!token.IsCancellationRequested)
@@ -101,8 +102,9 @@ namespace Lessium.Classes.IO
 
                 await writer.WriteStartElementAsync(tabType.ToTabString(true));
 
+                var sections = lessonModel.GetSectionsOfType(tabType);
+
                 // Iterating over sections in tab.
-                var sections = viewModel.SectionsByType[tabType];
                 for (int i = 0; i < sections.Count; i++)
                 {
                     if (token.IsCancellationRequested) { break; }
@@ -117,7 +119,7 @@ namespace Lessium.Classes.IO
             }
         }
 
-        private static void CountPages(Section section, int sectionIndex, CountData data, CancellationToken token)
+        private static Task CountPagesAsync(Section section, int sectionIndex, CountData data, CancellationToken token)
         {
             int pageIndex = 0;
 
@@ -128,23 +130,25 @@ namespace Lessium.Classes.IO
                 data.AddPage(sectionIndex, pageIndex, page.Items.Count);
                 pageIndex++;
             }
+
+            return Task.CompletedTask;
         }
 
-        private static void CountSections(MainWindowViewModel viewModel, CountData data, ContentType type, CancellationToken token)
+        private static async Task CountSectionsAsync(LessonModel lessonModel, CountData data, ContentType type, CancellationToken token)
         {
             int sectionIndex = 0;
 
-            foreach (var section in viewModel.SectionsByType[type])
+            foreach (var section in lessonModel.GetSectionsOfType(type))
             {
                 if (token.IsCancellationRequested) { break; }
 
                 data.AddSection(sectionIndex);
-                CountPages(section, sectionIndex, data, token);
+                await CountPagesAsync(section, sectionIndex, data, token);
                 sectionIndex++;
             }
         }
 
-        public static Dictionary<ContentType, CountData> CountData(MainWindowViewModel viewModel, string fileName)
+        public static async Task<Dictionary<ContentType, CountData>> CountDataAsync(LessonModel lessonModel, string fileName)
         {
             cts = new CancellationTokenSource();
             var token = cts.Token;
@@ -158,7 +162,7 @@ namespace Lessium.Classes.IO
                     var materialsData = new CountData();
                     var type = ContentType.Material;
 
-                    CountSections(viewModel, materialsData, type, token); // Executed synchronously.
+                    await CountSectionsAsync(lessonModel, materialsData, type, token); // Executed synchronously.
                     result.Add(type, materialsData);
                 }
 
@@ -168,7 +172,7 @@ namespace Lessium.Classes.IO
                     var testsData = new CountData();
                     var type = ContentType.Test;
 
-                    CountSections(viewModel, testsData, type, token); // Executed synchronously.
+                    await CountSectionsAsync(lessonModel, testsData, type, token); // Executed synchronously.
                     result.Add(type, testsData);
                 }
 
