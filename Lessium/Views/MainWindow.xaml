@@ -94,7 +94,8 @@
 
         <Button Content="{StaticResource ResourceKey=SettingsIcon}"
                 Grid.Column="1" Width="32" Height="25"
-                HorizontalAlignment="Right" VerticalAlignment="Top">
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Command="{Binding ShowSettings}">
             <!-- Same size as Menu Header -->
 
         </Button>

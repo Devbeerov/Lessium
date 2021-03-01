@@ -4,6 +4,8 @@ using Lessium.ViewModels;
 using Lessium.Views;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -38,6 +40,32 @@ namespace Lessium.Utility
         public static Progress<ProgressType> CreateProgressForProgressView(ProgressWindow view)
         {
             return new Progress<ProgressType>((view.DataContext as ProgressWindowViewModel).UpdateProgress);
+        }
+
+        public static async Task<(IOResult, LessonModel)> LoadLesson(string filePath, Window owner = null)
+        {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                throw new ThreadStateException("The current threads apartment state is not STA");
+            }
+
+            var countData = await LsnReader.CountDataAsync(filePath);
+
+            // Creates ProgressView
+
+            var progressView = CreateProgressView(owner, $"Loading ...", countData, IOType.Read);
+            var progress = CreateProgressForProgressView(progressView);
+
+            progressView.Show();
+
+            // Tests Lesson's loading, in case it will throw any Exceptions during load,
+            // Assert.DoesNotThrowAsync will fail test.
+
+            var loadResult = await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
+
+            progressView.Close();
+
+            return loadResult;
         }
     }
 }

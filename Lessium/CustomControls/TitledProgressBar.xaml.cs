@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Lessium.CustomControls
@@ -7,6 +8,7 @@ namespace Lessium.CustomControls
     {
         public TitledProgressBar()
         {
+            DataContext = this;
             InitializeComponent();
         }
 
@@ -36,6 +38,9 @@ namespace Lessium.CustomControls
             int current = (int)value;
             if (current < titledProgressBar.ProgressMinimum) current = titledProgressBar.ProgressMinimum;
             if (current > titledProgressBar.ProgressMaximum) current = titledProgressBar.ProgressMaximum;
+
+            titledProgressBar.UpdateProgressText();
+
             return current;
         }
 

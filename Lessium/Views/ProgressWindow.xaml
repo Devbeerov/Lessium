@@ -8,7 +8,8 @@
         xmlns:cc="clr-namespace:Lessium.CustomControls"
         mc:Ignorable="d"
         Height="175" Width="300" 
-        WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" >
+        WindowStartupLocation="CenterOwner" ResizeMode="CanMinimize" 
+        x:Name="ProgressView">
 
     <Window.Resources>
         <Style x:Key="MinimumIsOneStyle" TargetType="{x:Type cc:TitledProgressBar}">
@@ -24,17 +25,17 @@
         <Border Margin="5,5,5,5" BorderBrush="Gray" BorderThickness="1">
             <TextBlock Text="{Binding TabType}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
-        <cc:TitledProgressBar x:Name="sectionProgressBar" Title="{Binding SectionsHeader}" 
-                              ProgressMaximum="{Binding SectionCount}" 
-                              ProgressValue="{Binding SectionBarValue}"
+        <cc:TitledProgressBar x:Name="sectionProgressBar" Title="{Binding DataContext.SectionsHeader, ElementName=ProgressView}" 
+                              ProgressMaximum="{Binding DataContext.SectionCount, ElementName=ProgressView}" 
+                              ProgressValue="{Binding DataContext.SectionIndex, ElementName=ProgressView}"
                               Style="{StaticResource MinimumIsOneStyle}" />
-        <cc:TitledProgressBar x:Name="pageProgressBar" Title="{Binding PagesHeader}" 
-                              ProgressMaximum="{Binding PageCount}" 
-                              ProgressValue="{Binding PageBarValue}"
+        <cc:TitledProgressBar x:Name="pageProgressBar" Title="{Binding DataContext.PagesHeader, ElementName=ProgressView}" 
+                              ProgressMaximum="{Binding DataContext.PageCount, ElementName=ProgressView}" 
+                              ProgressValue="{Binding DataContext.PageIndex, ElementName=ProgressView}"
                               Style="{StaticResource MinimumIsOneStyle}" />
-        <cc:TitledProgressBar x:Name="contentProgressBar" Title="{Binding ContentsHeader}" 
-                              ProgressMaximum="{Binding ContentCount}"
-                              ProgressValue="{Binding ContentBarValue}"
+        <cc:TitledProgressBar x:Name="contentProgressBar" Title="{Binding DataContext.ContentsHeader, ElementName=ProgressView}" 
+                              ProgressMaximum="{Binding DataContext.ContentCount, ElementName=ProgressView}" 
+                              ProgressValue="{Binding DataContext.ContentIndex, ElementName=ProgressView}"
                               Style="{StaticResource MinimumIsOneStyle}" />
     </StackPanel>
 

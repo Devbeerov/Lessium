@@ -4,6 +4,7 @@ using Lessium.Properties;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Lessium.ViewModels
@@ -12,6 +13,7 @@ namespace Lessium.ViewModels
     {
         private readonly Dictionary<ContentType, CountData> storedData;
         private ContentType dataType = ContentType.Material;
+        private bool firstTabUpdate = true;
 
         #region CLR Properties
 
@@ -25,27 +27,6 @@ namespace Lessium.ViewModels
         public string SectionsHeader { get; } = Resources.Sections;
         public string PagesHeader { get; } = Resources.Pages;
         public string ContentsHeader { get; } = Resources.Contents;
-
-        private int sectionBarValue;
-        public int SectionBarValue
-        {
-            get { return sectionBarValue; }
-            set { SetProperty(ref sectionBarValue, value); }
-        }
-
-        private int pageBarValue;
-        public int PageBarValue
-        {
-            get { return pageBarValue; }
-            set { SetProperty(ref pageBarValue, value); }
-        }
-
-        private int contentBarValue;
-        public int ContentBarValue
-        {
-            get { return contentBarValue; }
-            set { SetProperty(ref contentBarValue, value); }
-        }
 
         private int sectionCount;
         public int SectionCount
@@ -69,41 +50,32 @@ namespace Lessium.ViewModels
         }
 
         private int sectionIndex;
-        private int SectionIndex
+        public int SectionIndex
         {
             get { return sectionIndex; }
             set
             {
-                if (SetProperty(ref sectionIndex, value))
-                {
-                    PageBarValue = sectionIndex;
-                }
+                SetProperty(ref sectionIndex, value);
             }
         }
 
         private int pageIndex;
-        private int PageIndex
+        public int PageIndex
         {
             get { return pageIndex; }
             set
             {
-                if (SetProperty(ref pageIndex, value))
-                {
-                    PageBarValue = pageIndex;
-                }
+                SetProperty(ref pageIndex, value);
             }
         }
 
         private int contentIndex;
-        private int ContentIndex
+        public int ContentIndex
         {
             get { return contentIndex; }
             set
             {
-                if (SetProperty(ref contentIndex, value))
-                {
-                    PageBarValue = contentIndex;
-                }
+                SetProperty(ref contentIndex, value);
             }
         }
 
@@ -116,13 +88,6 @@ namespace Lessium.ViewModels
         public ProgressWindowViewModel(Dictionary<ContentType, CountData> countDataDictionary)
         {
             storedData = countDataDictionary;
-            UpdateTabTitle(dataType);
-            UpdateAllCounts();
-        }
-
-        public void UpdateContentType(ContentType type)
-        {
-            dataType = type;
         }
 
         public void UpdateProgress(ProgressType type)
@@ -139,7 +104,7 @@ namespace Lessium.ViewModels
                     UpdatePage();
                     break;
                 case ProgressType.Content:
-                    ContentBarValue++;
+                    ContentIndex++;
                     break;
                 default: throw new NotSupportedException($"{type.ToString()} not supported (case insensitive).");
             }
@@ -148,13 +113,6 @@ namespace Lessium.ViewModels
         #endregion
 
         #region Private
-
-        private void ClearBars()
-        {
-            SectionBarValue = 0;
-            PageBarValue = 0;
-            ContentBarValue = 0;
-        }
 
         private void ClearIndexers()
         {
@@ -170,6 +128,10 @@ namespace Lessium.ViewModels
 
         private void UpdateTab()
         {
+            // If it's first tab update, we don't increment dataType.
+            if (firstTabUpdate) firstTabUpdate = false;
+            else dataType++;
+
             // In case new dataType is already beyond possible ContentType, we just returns.
 
             if (dataType.IsBeyondMaxValue()) return;
@@ -177,13 +139,6 @@ namespace Lessium.ViewModels
             ClearIndexers();
             UpdateAllCounts();
             UpdateTabTitle(dataType);
-
-            // If next dataType won't be beyond MaxValue
-
-            if (!(dataType + 1).IsBeyondMaxValue())
-            {
-                dataType++; // Since dataType is enum, we could increment it like integer to move to next dataType.
-            }
         }
 
         private void UpdateSection()

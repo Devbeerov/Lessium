@@ -20,6 +20,14 @@ namespace LessiumTests
     {
         private readonly string filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "test2.lsn");
         private readonly string tempPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "temp.lsn");
+        private readonly string bigLessonPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "lessons", "biglesson.lsn");
+
+        public IOTests()
+        {
+            // Manually creates Lessium App for proper set resources.
+            var app = new Lessium.App();
+            app.InitializeComponent();
+        }
 
         #region TestMethods
 
@@ -68,7 +76,7 @@ namespace LessiumTests
 
             Assert.DoesNotThrowAsync(async () =>
             {
-                loadResult = await LoadLesson(filePath);
+                loadResult = await IOTools.LoadLesson(filePath);
             });
 
             Assert.AreEqual(true, loadResult.HasValue);
@@ -92,7 +100,7 @@ namespace LessiumTests
                 throw new ThreadStateException("The current threads apartment state is not STA");
             }
 
-            var loadResult = await LoadLesson(filePath);
+            var loadResult = await IOTools.LoadLesson(filePath);
             var serializedModel = loadResult.Item2;
 
             IOResult saveResult = IOResult.Null;
@@ -111,7 +119,7 @@ namespace LessiumTests
 
             Assert.AreEqual(IOResult.Sucessful, saveResult);
 
-            var tempLoadResult = await LoadLesson(tempPath);
+            var tempLoadResult = await IOTools.LoadLesson(tempPath);
             var tempSerializedModel = tempLoadResult.Item2;
 
             // Asserts temp file is loaded sucessfully and serializedModel is the same.
@@ -120,34 +128,37 @@ namespace LessiumTests
             AssertHelper.AreEqual(serializedModel, tempSerializedModel);
         }
 
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void TestBigLoad()
+        {
+            Assert.DoesNotThrowAsync(async () =>
+            {
+                await IOTools.LoadLesson(bigLessonPath);
+            });
+        }
+
         #endregion
 
         #region Private Methods
-
-        private async Task<(IOResult, LessonModel)> LoadLesson(string filePath)
+        public static Task StartSTATask(Action func)
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            var tcs = new TaskCompletionSource<object>();
+            var thread = new Thread(() =>
             {
-                throw new ThreadStateException("The current threads apartment state is not STA");
-            }
-
-            var countData = await LsnReader.CountDataAsync(filePath);
-
-            // Creates ProgressView
-
-            var progressView = IOTools.CreateProgressView(null, $"Loading ...", countData, IOType.Read);
-            var progress = IOTools.CreateProgressForProgressView(progressView);
-
-            progressView.Show();
-
-            // Tests Lesson's loading, in case it will throw any Exceptions during load,
-            // Assert.DoesNotThrowAsync will fail test.
-
-            var loadResult = await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
-
-            progressView.Close();
-
-            return loadResult;
+                try
+                {
+                    func();
+                    tcs.SetResult(null);
+                }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            return tcs.Task;
         }
 
         /// <summary>
@@ -234,7 +245,7 @@ namespace LessiumTests
                 #region Section 0
                 {
                     var firstSection = new Section(ContentType.Material, false);
-                    firstSection.SetTitle("Раздел 1");
+                    firstSection.Title = "Раздел 1";
 
                     #region Page 0
                     {
@@ -260,7 +271,7 @@ namespace LessiumTests
                 #region Section 1
                 {
                     var firstSection = new Section(ContentType.Material);
-                    firstSection.SetTitle("Раздел 2");
+                    firstSection.Title = "Раздел 2";
 
                     model.MaterialSections.Add(firstSection);
                 }
@@ -273,7 +284,7 @@ namespace LessiumTests
                 #region Section 0
                 {
                     var firstSection = new Section(ContentType.Test);
-                    firstSection.SetTitle("Раздел 1");
+                    firstSection.Title = "Раздел 1";
 
                     model.TestSections.Add(firstSection);
                 }
@@ -282,7 +293,7 @@ namespace LessiumTests
                 #region Section 1
                 {
                     var firstSection = new Section(ContentType.Test);
-                    firstSection.SetTitle("Раздел 2");
+                    firstSection.Title = "Раздел 2";
 
                     model.TestSections.Add(firstSection);
                 }
@@ -291,7 +302,7 @@ namespace LessiumTests
                 #region Section 2
                 {
                     var firstSection = new Section(ContentType.Test, false);
-                    firstSection.SetTitle("Раздел 3");
+                    firstSection.Title = "Раздел 3";
 
                     #region Page 0
                     {

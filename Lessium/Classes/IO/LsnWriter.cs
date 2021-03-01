@@ -123,7 +123,7 @@ namespace Lessium.Classes.IO
         {
             int pageIndex = 0;
 
-            foreach (var page in section.GetPages())
+            foreach (var page in section.Pages)
             {
                 if(token.IsCancellationRequested) { break; }
 

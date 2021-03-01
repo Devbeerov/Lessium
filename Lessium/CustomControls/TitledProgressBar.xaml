@@ -9,13 +9,13 @@
              x:Name="control">
     <StackPanel Orientation="Vertical">
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Text="{Binding Title, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
+                   Text="{Binding Title}" />
         <Grid>
-            <ProgressBar Minimum="{Binding ProgressMinimum, ElementName=control, UpdateSourceTrigger=PropertyChanged}" 
-                         Maximum="{Binding ProgressMaximum, ElementName=control, UpdateSourceTrigger=PropertyChanged}"
-                         Value="{Binding ProgressValue, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
+            <ProgressBar Minimum="{Binding ProgressMinimum}" 
+                         Maximum="{Binding ProgressMaximum}"
+                         Value="{Binding ProgressValue}" />
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                       Text="{Binding ProgressText, ElementName=control, UpdateSourceTrigger=PropertyChanged}" />
+                       Text="{Binding ProgressText}" />
         </Grid>
     </StackPanel>
 </UserControl>

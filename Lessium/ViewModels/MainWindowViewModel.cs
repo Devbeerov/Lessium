@@ -17,9 +17,7 @@ using System.ComponentModel;
 using Microsoft.Win32;
 using Lessium.Classes.IO;
 using Lessium.Utility;
-using System.Xml.Schema;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Lessium.ViewModels
 {
@@ -141,10 +139,10 @@ namespace Lessium.ViewModels
 
         public ObservableCollection<ContentPage> Pages
         {
-            get { return CurrentSection?.GetPages(); }
+            get { return CurrentSection?.Pages; }
             set
             {
-                CurrentSection.SetPages(value);
+                CurrentSection.Pages = value;
             }
         }
 
@@ -154,7 +152,7 @@ namespace Lessium.ViewModels
             {
                 if(CurrentSection == null) { return -1; }
 
-                return CurrentSection.GetSelectedPageIndex();
+                return CurrentSection.SelectedPageIndex;
             }
             set
             {
@@ -163,7 +161,7 @@ namespace Lessium.ViewModels
                     if (value < 0) { value = 0; }
                     else if (value >= Pages.Count) { value = Pages.Count - 1; }
 
-                    CurrentSection.SetSelectedPageIndex(value);
+                    CurrentSection.SelectedPageIndex = value;
                     CurrentPage = Pages[value];
 
                     RaisePropertyChanged();
@@ -194,12 +192,12 @@ namespace Lessium.ViewModels
 
         public ContentPage CurrentPage
         {
-            get { return CurrentSection?.GetSelectedPage(); }
+            get { return CurrentSection?.SelectedPage; }
             set
             {
                 if (CurrentPage != value)
                 {
-                    CurrentSection.SetSelectedPage(value);
+                    CurrentSection.SelectedPage = value;
 
                     if (CurrentPage == null)
                     {
@@ -208,7 +206,7 @@ namespace Lessium.ViewModels
 
                     else
                     {
-                        CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
+                        CurrentPageIndex = CurrentSection.Pages.IndexOf(value);
                     }
 
                     UpdateCurrentPageNotFirst();
@@ -378,7 +376,7 @@ namespace Lessium.ViewModels
 
                 if (previousSection != null)
                 {
-                    model.LastSelectedPage[previousSection] = previousSection.GetSelectedPage();
+                    model.LastSelectedPage[previousSection] = previousSection.SelectedPage;
                     previousSection.PagesChanged -= OnPagesChanged;
                 }
 
@@ -396,14 +394,14 @@ namespace Lessium.ViewModels
 
                     else
                     {
-                        model.LastSelectedPage.Add(section, section.GetSelectedPage());
+                        model.LastSelectedPage.Add(section, section.SelectedPage);
                     }
 
                     if (storedPage != null)
                     {
                         // For proper update of CurrentPage property
 
-                        CurrentSection.SetSelectedPage(null);
+                        CurrentSection.SelectedPage = null;
 
                         // Updates CurrentPage property
 
@@ -413,11 +411,11 @@ namespace Lessium.ViewModels
                     {
                         // Storing selected page
 
-                        var selectedPage = CurrentSection.GetSelectedPage();
+                        var selectedPage = CurrentSection.SelectedPage;
 
                         // For proper setting of property, we need to set Section SelectedPage to null.
 
-                        section.SetSelectedPage(null);
+                        section.SelectedPage = null;
 
                         CurrentPage = selectedPage;
                     }
@@ -751,7 +749,7 @@ namespace Lessium.ViewModels
             int repeatingIndex = 1;
             string sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
 
-            while (Sections.Any(section => section.GetTitle() == sectionTitle))
+            while (Sections.Any(section => section.Title == sectionTitle))
             {
                 // While Sections contains section with Title equal to sectionTitle
 
@@ -761,7 +759,7 @@ namespace Lessium.ViewModels
 
 
             var newSection = new Section(SelectedContentType);
-            newSection.SetTitle(sectionTitle);
+            newSection.Title = sectionTitle;
 
             // Updates IsEditable state of Section
 
@@ -779,7 +777,7 @@ namespace Lessium.ViewModels
                 SelectSection(newSection);
 
                 // Page was added from Section constructor, so we raise handler with this page.
-                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.GetPages(), CollectionChangeAction.Add));
+                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.Pages, CollectionChangeAction.Add));
             }
 
             HasChanges = true;
@@ -957,6 +955,24 @@ namespace Lessium.ViewModels
         }
 
         #endregion
+
+        #endregion
+
+        #region ShowSettings
+
+        private DelegateCommand ShowSettingsCommand;
+        public DelegateCommand ShowSettings =>
+            ShowSettingsCommand ?? (ShowSettingsCommand = new DelegateCommand(ExecuteShowSettings, CanExecuteShowSettings));
+
+        void ExecuteShowSettings()
+        {
+            
+        }
+
+        bool CanExecuteShowSettings()
+        {
+            return true;
+        }
 
         #endregion
 

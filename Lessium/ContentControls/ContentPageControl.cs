@@ -21,31 +21,13 @@ namespace Lessium.ContentControls
             Initialize();
         }
 
-        #region Dependency Properties Methods
+        #region Public CLR Properties
 
-        #region Items
-
-        public static ObservableCollection<IContentControl> GetItems(DependencyObject obj)
+        public ObservableCollection<IContentControl> Items
         {
-            return (ObservableCollection<IContentControl>)obj.GetValue(ItemsProperty);
+            get { return (ObservableCollection<IContentControl>) GetValue(ItemsProperty); }
+            set { SetValue(ItemsProperty, value); }
         }
-
-        protected static void SetItems(DependencyObject obj, ObservableCollection<IContentControl> items)
-        {
-            obj.SetValue(ItemsProperty, items);
-        }
-
-        public ObservableCollection<IContentControl> GetItems()
-        {
-            return GetItems(this);
-        }
-
-        protected void SetItems(ObservableCollection<IContentControl> items)
-        {
-            SetItems(this, items);
-        }
-
-        #endregion
 
         #endregion
 
@@ -113,7 +95,7 @@ namespace Lessium.ContentControls
 
             // Items
 
-            SetItems(model.Items);
+            Items = model.Items;
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -129,12 +111,6 @@ namespace Lessium.ContentControls
         #endregion
 
         #region Dependency Properties
-
-        public ObservableCollection<IContentControl> Items
-        {
-            get { return GetItems(); }
-            set { SetItems(value); }
-        }
 
         public static readonly DependencyProperty ItemsProperty =
             DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),

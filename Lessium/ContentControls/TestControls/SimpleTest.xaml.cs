@@ -180,13 +180,13 @@ namespace Lessium.ContentControls.TestControls
                 if (lastContainer != null)
                 {
                     DataTemplate dataTemplate = lastContainer.ContentTemplate;
-                    var text = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
+                    var textContainer = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
 
                     var pageControl = this.FindParent<ContentPageControl>();
 
-                    if (text != null && !pageControl.IsElementFits(text))
+                    if (textContainer != null && !pageControl.IsElementFits(textContainer))
                     {
-                        var textBox = text.textBox;
+                        var textBox = textContainer.textBox;
                         lineHeight = textBox.CalculateLineHeight();
                         var pos = textBox.TranslatePoint(default(Point), pageControl);
                         var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
@@ -206,11 +206,11 @@ namespace Lessium.ContentControls.TestControls
 
                             // Removes everything past MaxLine
 
-                            var actualText = text.GetText();
+                            var actualText = textContainer.Text;
                             var newText = actualText.Remove(lastPositionInMaxLine - 1);
-                            text.SetText(newText);
-                            text.InvalidateMeasure();
-                            text.UpdateLayout();
+                            textContainer.Text = newText;
+                            textContainer.InvalidateMeasure();
+                            textContainer.UpdateLayout();
                             border.InvalidateMeasure();
                             border.UpdateLayout();
 
@@ -282,7 +282,7 @@ namespace Lessium.ContentControls.TestControls
 
             foreach (var answer in Answers)
             {
-                var text = textControl.GetText();
+                var text = textControl.Text;
 
                 if (ReferenceEquals(answer.Text, text)) // Checks for string reference, not value!
                 {

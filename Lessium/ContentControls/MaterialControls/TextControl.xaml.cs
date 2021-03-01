@@ -36,7 +36,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Serializes properties
 
-            SetText(info.GetString("Text"));
+            Text = info.GetString("Text");
         }
 
         #endregion
@@ -91,7 +91,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Button
 
-            if (GetShowRemoveButton(this))
+            if (ShowRemoveButton)
             {
                 removeButton.IsEnabled = editable;
             }
@@ -165,30 +165,10 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region Text
 
-        public static string GetText(DependencyObject obj)
-        {
-            return (string)obj.GetValue(TextProperty);
-        }
-
-        public static void SetText(DependencyObject obj, string text)
-        {
-            obj.SetValue(TextProperty, text);
-        }
-
-        public string GetText()
-        {
-            return GetText(this);
-        }
-
-        public void SetText(string text)
-        {
-            SetText(this, text);
-        }
-
         public string Text
         {
-            get { return GetText(); }
-            set { SetText(value); }
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
 
         public static readonly DependencyProperty TextProperty =
@@ -199,20 +179,10 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region ShowRemoveButton
 
-        public static void SetShowRemoveButton(DependencyObject obj, bool show)
+        public bool ShowRemoveButton
         {
-            obj.SetValue(ShowRemoveButtonProperty, show);
-        }
-
-        public static bool GetShowRemoveButton(DependencyObject obj)
-        {
-            return (bool)obj.GetValue(ShowRemoveButtonProperty);
-        }
-
-
-        public void SetShowRemoveButton(bool show)
-        {
-            SetShowRemoveButton(this, show);
+            get { return (bool)GetValue(ShowRemoveButtonProperty); }
+            set { SetValue(ShowRemoveButtonProperty, value); }
         }
 
         public static readonly DependencyProperty ShowRemoveButtonProperty =
@@ -258,7 +228,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Content of TextControl is string. So we just extracts it entirely.
 
-            SetText(await reader.ReadElementContentAsStringAsync());
+            Text = await reader.ReadElementContentAsStringAsync();
         }
 
         #endregion

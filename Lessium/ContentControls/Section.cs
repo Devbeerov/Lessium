@@ -38,14 +38,14 @@ namespace Lessium.ContentControls
         public Section() : base()
         {
             ContentType = ContentType.Material;
-            SetPages(pages);
+            Pages = pages;
             Initialize();
         }
 
         public Section(ContentType type, bool initialize = true) : base()
         {
             ContentType = type;
-            SetPages(pages);
+            Pages = pages;
             if (initialize)
             {
                 Initialize();
@@ -59,7 +59,7 @@ namespace Lessium.ContentControls
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
             ContentType = type;
-            SetTitle(title);
+            Title = title;
 
             // Further initialization at OnSerialized method.
         }
@@ -67,106 +67,29 @@ namespace Lessium.ContentControls
         #region Public CLR Properties
 
         public ContentType ContentType { get; set; }
-
-        #endregion
-
-        #region Dependency Properties Methods
-
-        #region Title
-
-        public static string GetTitle(DependencyObject obj)
+        public string Title
         {
-            return (string)obj.GetValue(Title);
+            get { return (string)GetValue(TitleProperty); }
+            set { SetValue(TitleProperty, value); }
         }
 
-        public static void SetTitle(DependencyObject obj, string value)
+        public ObservableCollection<ContentPage> Pages
         {
-            obj.SetValue(Title, value);
+            get { return (ObservableCollection<ContentPage>)GetValue(PagesProperty); }
+            set { SetValue(PagesProperty, value); }
         }
 
-        public string GetTitle()
+        public ContentPage SelectedPage
         {
-            return GetTitle(this);
+            get { return (ContentPage)GetValue(SelectedPageProperty); }
+            set { SetValue(SelectedPageProperty, value); }
         }
 
-        public void SetTitle(string title)
+        public int SelectedPageIndex
         {
-            SetTitle(this, title);
+            get { return (int)GetValue(SelectedPageIndexProperty); }
+            set { SetValue(SelectedPageIndexProperty, value); }
         }
-
-        #endregion
-
-        #region Pages
-
-        public static ObservableCollection<ContentPage> GetPages(DependencyObject obj)
-        {
-            return (ObservableCollection<ContentPage>)obj.GetValue(Pages);
-        }
-
-        public static void SetPages(DependencyObject obj, ObservableCollection<ContentPage> pages)
-        {
-            obj.SetValue(Pages, pages);
-        }
-
-        public ObservableCollection<ContentPage> GetPages()
-        {
-            return GetPages(this);
-        }
-
-        public void SetPages(ObservableCollection<ContentPage> pages)
-        {
-            SetPages(this, pages);
-        }
-
-        #endregion
-
-        #region SelectedPage
-
-        public static ContentPage GetSelectedPage(DependencyObject obj)
-        {
-            return (ContentPage)obj.GetValue(SelectedPage);
-        }
-
-        public static void SetSelectedPage(DependencyObject obj, ContentPage page)
-        {
-            obj.SetValue(SelectedPage, page);
-        }
-
-        public ContentPage GetSelectedPage()
-        {
-            return GetSelectedPage(this);
-        }
-
-        public void SetSelectedPage(ContentPage page)
-        {
-            SetSelectedPage(this, page);
-        }
-
-        #endregion
-
-        #region SelectedPageIndex
-
-        public static int GetSelectedPageIndex(DependencyObject obj)
-        {
-            return (int)obj.GetValue(SelectedPageIndex);
-        }
-
-        public static void SetSelectedPageIndex(DependencyObject obj, int index)
-        {
-            obj.SetValue(SelectedPageIndex, index);
-        }
-
-        public int GetSelectedPageIndex()
-        {
-            return GetSelectedPageIndex(this);
-        }
-
-        public void SetSelectedPageIndex(int index)
-        {
-            SetSelectedPageIndex(this, index);
-        }
-
-        #endregion
 
         #endregion
 
@@ -228,7 +151,7 @@ namespace Lessium.ContentControls
                 pages.Add(page);
             }
 
-            SetSelectedPage(pages[0]);
+            SelectedPage = pages[0];
         }
 
         public void Add(ContentPage page)
@@ -286,20 +209,19 @@ namespace Lessium.ContentControls
 
         #region Dependency Properties
 
-
-        public static readonly DependencyProperty Title =
+        public static readonly DependencyProperty TitleProperty =
             DependencyProperty.RegisterAttached("Title", typeof(string), typeof(Section), new PropertyMetadata(string.Empty));
 
-        public static readonly DependencyProperty Pages =
+        public static readonly DependencyProperty PagesProperty =
             DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPage>),
                 typeof(Section), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty SelectedPage =
+        public static readonly DependencyProperty SelectedPageProperty =
             DependencyProperty.Register("SelectedPage", typeof(ContentPage),
                 typeof(Section), new PropertyMetadata(null));
 
         // Won't do anything with Section here. Used in ViewModel to change SelectedPage.
-        public static readonly DependencyProperty SelectedPageIndex =
+        public static readonly DependencyProperty SelectedPageIndexProperty =
             DependencyProperty.Register("SelectedPageIndex", typeof(int),
                 typeof(Section), new PropertyMetadata(0));
 
@@ -309,8 +231,8 @@ namespace Lessium.ContentControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Title", GetTitle());
-            info.AddValue("Pages", GetPages().ToList());
+            info.AddValue("Title", Title);
+            info.AddValue("Pages", Pages.ToList());
             info.AddValue("ContentType", ContentType);
         }
 
@@ -327,7 +249,7 @@ namespace Lessium.ContentControls
             #region Section
 
             await writer.WriteStartElementAsync("Section");
-            await writer.WriteAttributeStringAsync("Title", GetTitle());
+            await writer.WriteAttributeStringAsync("Title", Title);
 
             #region Page(s)
 
@@ -357,7 +279,7 @@ namespace Lessium.ContentControls
                 throw new ArgumentNullException(title);
             }
 
-            SetTitle(title);
+            Title = title;
 
             // Reports to process new Section.
 
@@ -380,7 +302,7 @@ namespace Lessium.ContentControls
 
             }
 
-            if (GetPages().Count == 0)
+            if (Pages.Count == 0)
             {
                 throw new InvalidDataException("Section must have at least 1 Page. Something is wrong with Section.");
             }
