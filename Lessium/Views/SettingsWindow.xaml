@@ -5,11 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lessium.Views"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
-        prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="SettingsWindow" Height="450" Width="800"
+        Title="{Binding SettingsHeader}" Height="200" Width="400"
         WindowStartupLocation="CenterOwner">
-    <Grid>
-        <TextBlock Text="123"/>
+    <Grid Background="LightGray">
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*" />
+            <ColumnDefinition Width="0.6*" />
+        </Grid.ColumnDefinitions>
+        
+        <!--#region Column 0 -->
+
+        <Border BorderThickness="2" BorderBrush="Black" Margin="5,5,5,5">
+            <ListBox x:Name="sections" Background="Transparent">
+                
+            </ListBox>
+        </Border>
+        
+        <!--#endregion-->
+        
+        <!--#region Column 1-->
+
+        <StackPanel Orientation="Vertical" Grid.Column="1">
+            <TextBlock Text="{Binding FontSliderHeader}" />
+            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" Interval="1" >
+
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <i:InvokeCommandAction Command="{Binding OnFontSliderChanged}" CommandParameter="{Binding ElementName=fontSlider, Path=Value}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+            </Slider>
+            <Canvas>
+                <TextBlock Text="{Binding ElementName=fontSlider, Path=Value}">
+                    <Canvas.Left>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
+                            <Binding ElementName="fontSlider" Path="Value" />
+                            <Binding ElementName="fontSlider" Path="Minimum" />
+                        </MultiBinding>
+                    </Canvas.Left>
+                </TextBlock>
+            </Canvas>
+            
+        </StackPanel>
+
+        <!--#endregion-->
     </Grid>
 </Window>

@@ -308,8 +308,6 @@
         
         <!--#endregion-->
         
-        <!--#endregion-->
-        
         <!--#region Row 2 - ContentPage Counter-->
 
         <Border BorderBrush="Black" BorderThickness="1"

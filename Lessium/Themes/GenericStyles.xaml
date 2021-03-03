@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Lessium.Themes"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:Double x:Key="GenericFontSize">12</sys:Double>
+
+    <Style TargetType="{x:Type Control}" x:Key="baseStyle">
+        <Setter Property="FontSize" Value="{DynamicResource GenericFontSize}" />
+    </Style>
+
+</ResourceDictionary>

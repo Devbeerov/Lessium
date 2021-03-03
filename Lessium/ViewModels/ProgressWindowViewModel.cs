@@ -81,14 +81,18 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region Methods
-
-        #region Public
+        #region Constructors
 
         public ProgressWindowViewModel(Dictionary<ContentType, CountData> countDataDictionary)
         {
             storedData = countDataDictionary;
         }
+
+        #endregion
+
+        #region Methods
+
+        #region Public
 
         public void UpdateProgress(ProgressType type)
         {

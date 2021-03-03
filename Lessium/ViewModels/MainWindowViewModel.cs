@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using Lessium.Classes.IO;
 using Lessium.Utility;
 using System.Diagnostics;
+using Lessium.Views;
 
 namespace Lessium.ViewModels
 {
@@ -28,6 +29,8 @@ namespace Lessium.ViewModels
         private readonly MainWindowModel model;
         private bool currentPageIsNotFirst = false;
         private bool savingOrLoading = false;
+        private Window mainWindow = null;
+        private Window settingsWindow = null;
 
         #endregion
 
@@ -235,9 +238,7 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region Methods
-
-        // Constructs ViewModel with Model as parameter.
+        #region Constructors
         public MainWindowViewModel(MainWindowModel model = null)
         {
             // In case we don't provide model (for example when Prism wires ViewModel automatically), creates new Model.
@@ -248,7 +249,12 @@ namespace Lessium.ViewModels
             }
 
             this.model = model;
+            this.mainWindow = Application.Current.Windows.OfType<MainWindow>().SingleOrDefault();
         }
+        
+        #endregion
+
+        #region Methods
 
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
@@ -966,12 +972,18 @@ namespace Lessium.ViewModels
 
         void ExecuteShowSettings()
         {
-            
+            // New window
+            settingsWindow = new SettingsWindow()
+            {
+                Owner = mainWindow
+            };
+            settingsWindow.Closed += OnSettingsClosed;
+            settingsWindow.Show();
         }
 
         bool CanExecuteShowSettings()
         {
-            return true;
+            return settingsWindow == null;
         }
 
         #endregion
@@ -1010,6 +1022,15 @@ namespace Lessium.ViewModels
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
             RaisePropertyChanged(nameof(CurrentSectionID));
+        }
+
+        #endregion
+
+        #region OnSettingsClosed
+
+        private void OnSettingsClosed(object sender, EventArgs e)
+        {
+            settingsWindow = null;
         }
 
         #endregion

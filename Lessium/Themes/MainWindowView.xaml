@@ -21,7 +21,6 @@
     <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     <converters:NotNullConverter x:Key="NotNullConverter" />
     <converters:ThicknessConverter x:Key="ThicknessConverter" />
-    <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
     <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
     <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
 

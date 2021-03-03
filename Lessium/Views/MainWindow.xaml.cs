@@ -7,9 +7,6 @@ using System.Windows.Input;
 
 namespace Lessium.Views
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.

@@ -1,14 +1,15 @@
-﻿using System.Windows;
+﻿using Lessium.ViewModels;
+using System.Windows;
 
 namespace Lessium.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для SettingsView.xaml
-    /// </summary>
     public partial class SettingsWindow : Window
     {
-        public SettingsWindow()
+        public SettingsWindow(SettingsViewModel viewModel = null)
         {
+            if (viewModel == null) viewModel = new SettingsViewModel();
+
+            this.DataContext = viewModel;
             InitializeComponent();
         }
     }

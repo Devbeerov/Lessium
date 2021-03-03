@@ -273,4 +273,10 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="Tests" xml:space="preserve">
     <value>Tests</value>
   </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="FontSliderHeader" xml:space="preserve">
+    <value>Font Size</value>
+  </data>
 </root>

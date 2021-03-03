@@ -273,4 +273,10 @@
   <data name="Tests" xml:space="preserve">
     <value>Тесты</value>
   </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="FontSliderHeader" xml:space="preserve">
+    <value>Размер текста</value>
+  </data>
 </root>

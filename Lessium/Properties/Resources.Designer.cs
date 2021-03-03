@@ -19,7 +19,7 @@ namespace Lessium.Properties {
     // с помощью такого средства, как ResGen или Visual Studio.
     // Чтобы добавить или удалить член, измените файл .ResX и снова запустите ResGen
     // с параметром /str или перестройте свой проект VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -183,6 +183,15 @@ namespace Lessium.Properties {
         public static string ExitHeader {
             get {
                 return ResourceManager.GetString("ExitHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Font Size.
+        /// </summary>
+        public static string FontSliderHeader {
+            get {
+                return ResourceManager.GetString("FontSliderHeader", resourceCulture);
             }
         }
         
@@ -391,6 +400,15 @@ namespace Lessium.Properties {
         public static string SelectCorrectHeader {
             get {
                 return ResourceManager.GetString("SelectCorrectHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Settings.
+        /// </summary>
+        public static string SettingsHeader {
+            get {
+                return ResourceManager.GetString("SettingsHeader", resourceCulture);
             }
         }
         

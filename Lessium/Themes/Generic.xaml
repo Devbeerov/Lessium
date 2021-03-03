@@ -1,9 +1,16 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" >
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:converters="clr-namespace:Lessium.Converters" >
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Generic.Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    
+    <!--#region Converters -->
+
+    <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+
+    <!--#endregion-->
 
     <!--#region ItemsControls -->
 
