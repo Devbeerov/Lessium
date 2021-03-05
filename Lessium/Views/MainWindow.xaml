@@ -25,7 +25,7 @@
                 
                 <!-- Icon, Themes used in View -->
 
-                <ResourceDictionary Source="../Themes/MainWindowView.xaml" />
+                <ResourceDictionary Source="../Themes/MainViewDictionary.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

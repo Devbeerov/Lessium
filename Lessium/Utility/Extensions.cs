@@ -43,6 +43,35 @@ namespace Lessium.Utility
             return formattedText.Height;
         }
 
+        public static Size MeasureText(this TextBlock textBlock)
+        {
+            var typeface = new Typeface(textBlock.FontFamily, textBlock.FontStyle, textBlock.FontWeight, textBlock.FontStretch);
+
+            return MeasureText(textBlock.Text, typeface, textBlock.FontSize);
+        }
+
+        public static Size MeasureText(this TextBox textBox)
+        {
+            var typeface = new Typeface(textBox.FontFamily, textBox.FontStyle, textBox.FontWeight, textBox.FontStretch);
+
+            return MeasureText(textBox.Text, typeface, textBox.FontSize);
+        }
+
+        public static Size MeasureText(string text, Typeface typeface, double fontSize)
+        {
+            var formattedText = new FormattedText(
+                text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                typeface,
+                fontSize,
+                Brushes.Black,
+                new NumberSubstitution(),
+                1);
+
+            return new Size(formattedText.Width, formattedText.Height);
+        }
+
         #endregion
     }
 }

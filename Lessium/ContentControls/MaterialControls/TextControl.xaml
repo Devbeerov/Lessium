@@ -9,6 +9,7 @@
              xmlns:utility="clr-namespace:Lessium.Utility"
              xmlns:converters="clr-namespace:Lessium.Converters"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             xmlns:prop="clr-namespace:Lessium.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="200" 
              x:Name="control">
@@ -32,7 +33,8 @@
                  Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  ScrollViewer.CanContentScroll="False"
                  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                 MaxLines="38" >
+                 MaxLines="38" 
+                 FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}">
 
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />

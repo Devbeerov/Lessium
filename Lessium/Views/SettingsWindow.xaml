@@ -5,10 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lessium.Views"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:prop="clr-namespace:Lessium.Properties"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="{Binding SettingsHeader}" Height="200" Width="400"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        SizeChanged="Window_SizeChanged">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <!-- Icon, Themes used in View -->
+
+                <ResourceDictionary Source="../Themes/SettingsViewDictionary.xaml" />
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </Window.Resources>
+    
     <Grid Background="LightGray">
         
         <Grid.ColumnDefinitions>
@@ -19,18 +36,19 @@
         <!--#region Column 0 -->
 
         <Border BorderThickness="2" BorderBrush="Black" Margin="5,5,5,5">
-            <ListBox x:Name="sections" Background="Transparent">
-                
-            </ListBox>
+            <ListBox x:Name="sections" Background="Transparent" ItemTemplate="{StaticResource SettingsSection}" 
+                     ItemsSource="{Binding SectionHeaders}" />
         </Border>
         
         <!--#endregion-->
         
         <!--#region Column 1-->
 
-        <StackPanel Orientation="Vertical" Grid.Column="1">
+        <StackPanel x:Name="panel" Orientation="Vertical" Grid.Column="1" Margin="10">
             <TextBlock Text="{Binding FontSliderHeader}" />
-            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" Interval="1" >
+            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
+                    ValueChanged="fontSlider_ValueChanged"
+                    Value="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize, Mode=OneTime}" >
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ValueChanged">
@@ -39,17 +57,9 @@
                 </i:Interaction.Triggers>
 
             </Slider>
-            <Canvas>
-                <TextBlock Text="{Binding ElementName=fontSlider, Path=Value}">
-                    <Canvas.Left>
-                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
-                            <Binding ElementName="fontSlider" Path="Value" />
-                            <Binding ElementName="fontSlider" Path="Minimum" />
-                        </MultiBinding>
-                    </Canvas.Left>
-                </TextBlock>
-            </Canvas>
-            
+
+            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding ElementName=fontSlider, Path=Value}" 
+                       Loaded="fontSizeTextBlock_Loaded" Margin="230,0"/>
         </StackPanel>
 
         <!--#endregion-->

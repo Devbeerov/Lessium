@@ -10,7 +10,7 @@
     <!-- Temp: diag:PresentationTraceSources.TraceLevel=High -->
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="MainWindowView.Icons.xaml" />
+        <ResourceDictionary Source="MainViewDictionary.Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <!--#region Converters -->
@@ -20,7 +20,6 @@
     <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     <converters:NotNullConverter x:Key="NotNullConverter" />
-    <converters:ThicknessConverter x:Key="ThicknessConverter" />
     <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
     <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
 

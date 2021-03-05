@@ -66,6 +66,7 @@
       <DependentUpon>TitledProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\ILsnSerializable.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="Properties\Resources.ru-RU1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -92,11 +93,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\GenericStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\MainWindowView.Icons.xaml">
+    <Page Include="Themes\MainViewDictionary.Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -108,7 +105,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\MainWindowView.xaml">
+    <Page Include="Themes\MainViewDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\SettingsViewDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -142,7 +143,7 @@
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="ContentControls\Models\ContentPage.cs" />
-    <Compile Include="Models\MainWindowModel.cs" />
+    <Compile Include="Models\MainModel.cs" />
     <Compile Include="Properties\Resources.ru-RU.Designer.cs">
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -189,7 +190,7 @@
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>

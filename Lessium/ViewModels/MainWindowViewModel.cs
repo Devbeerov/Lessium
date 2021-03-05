@@ -26,7 +26,7 @@ namespace Lessium.ViewModels
     {
         #region Private fields
 
-        private readonly MainWindowModel model;
+        private readonly MainModel model;
         private bool currentPageIsNotFirst = false;
         private bool savingOrLoading = false;
         private Window mainWindow = null;
@@ -145,6 +145,8 @@ namespace Lessium.ViewModels
             get { return CurrentSection?.Pages; }
             set
             {
+                // Not SetProperty! We don't check Collection for equality, and we don't need.
+                // It's dependency property anyway. So we can do it just in single line like that.
                 CurrentSection.Pages = value;
             }
         }
@@ -239,13 +241,13 @@ namespace Lessium.ViewModels
         #endregion
 
         #region Constructors
-        public MainWindowViewModel(MainWindowModel model = null)
+        public MainWindowViewModel(MainModel model = null)
         {
             // In case we don't provide model (for example when Prism wires ViewModel automatically), creates new Model.
 
             if (model == null)
             {
-                model = new MainWindowModel();
+                model = new MainModel();
             }
 
             this.model = model;

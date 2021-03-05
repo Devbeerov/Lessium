@@ -279,4 +279,10 @@
   <data name="FontSliderHeader" xml:space="preserve">
     <value>Размер текста</value>
   </data>
+  <data name="Editing" xml:space="preserve">
+    <value>Редактирование</value>
+  </data>
+  <data name="Generic" xml:space="preserve">
+    <value>Общее</value>
+  </data>
 </root>

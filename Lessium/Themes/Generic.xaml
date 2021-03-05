@@ -9,6 +9,7 @@
     <!--#region Converters -->
 
     <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
+    <converters:ThicknessConverter x:Key="ThicknessConverter" />
 
     <!--#endregion-->
 

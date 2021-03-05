@@ -14,10 +14,6 @@
 
                 <ResourceDictionary Source="Themes/Generic.xaml" />
 
-                <!-- Generic styles -->
-
-                <ResourceDictionary Source="Themes/GenericStyles.xaml" />
-
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         

@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Lessium.Models
 {
-    public class MainWindowModel
+    public class MainModel
     {
         // NOTE: Avoid const fields!
 

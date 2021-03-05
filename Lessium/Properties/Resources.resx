@@ -279,4 +279,10 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="FontSliderHeader" xml:space="preserve">
     <value>Font Size</value>
   </data>
+  <data name="Editing" xml:space="preserve">
+    <value>Editing</value>
+  </data>
+  <data name="Generic" xml:space="preserve">
+    <value>Generic</value>
+  </data>
 </root>
