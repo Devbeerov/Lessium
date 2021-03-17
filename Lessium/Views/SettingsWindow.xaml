@@ -8,13 +8,14 @@
         xmlns:prop="clr-namespace:Lessium.Properties"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:utility="clr-namespace:Lessium.Utility"
         mc:Ignorable="d"
         Title="{Binding SettingsHeader}" Height="200" Width="400"
         WindowStartupLocation="CenterOwner"
-        SizeChanged="Window_SizeChanged">
+        x:Name="window" >
 
     <Window.Resources>
-        <ResourceDictionary>
+        <ResourceDictionary x:Name="settingsViewDictionary">
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- Icon, Themes used in View -->
@@ -37,30 +38,24 @@
 
         <Border BorderThickness="2" BorderBrush="Black" Margin="5,5,5,5">
             <ListBox x:Name="sections" Background="Transparent" ItemTemplate="{StaticResource SettingsSection}" 
-                     ItemsSource="{Binding SectionHeaders}" />
+                     ItemsSource="{Binding SectionsStrings}" HorizontalContentAlignment="Stretch" >
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <prism:InvokeCommandAction Command="{Binding OnSectionChanged}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+            </ListBox>
         </Border>
         
         <!--#endregion-->
         
         <!--#region Column 1-->
 
-        <StackPanel x:Name="panel" Orientation="Vertical" Grid.Column="1" Margin="10">
-            <TextBlock Text="{Binding FontSliderHeader}" />
-            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
-                    ValueChanged="fontSlider_ValueChanged"
-                    Value="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize, Mode=OneTime}" >
-
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="ValueChanged">
-                        <i:InvokeCommandAction Command="{Binding OnFontSliderChanged}" CommandParameter="{Binding ElementName=fontSlider, Path=Value}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-
-            </Slider>
-
-            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding ElementName=fontSlider, Path=Value}" 
-                       Loaded="fontSizeTextBlock_Loaded" Margin="230,0"/>
-        </StackPanel>
+        <ContentControl x:Name="sectionContent" Grid.Column="1" Margin="10" 
+                        utility:Extensions.DynamicContentKey="{Binding SelectedSectionKey}"
+                        utility:Extensions.DynamicContentResourceDictionary="{Binding ElementName=settingsViewDictionary}"/>
 
         <!--#endregion-->
     </Grid>

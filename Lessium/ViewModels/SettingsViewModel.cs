@@ -8,6 +8,9 @@ using Lessium.Utility;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using Lessium.Models;
+using System.Resources;
+using System.Globalization;
+using Microsoft.Extensions.Localization;
 
 namespace Lessium.ViewModels
 {
@@ -27,10 +30,17 @@ namespace Lessium.ViewModels
             get { return model.FontSliderHeader; }
         }
 
-        public ObservableCollection<string> SectionHeaders
+        public ObservableCollection<LocalizedString> SectionsStrings
         {
-            get { return model.SectionHeaders; }
+            get { return model.SectionsStrings; }
         }
+
+        public string SelectedSectionKey
+        {
+            get { return model.selectedSectionKey; }
+            set { SetProperty(ref model.selectedSectionKey, value); }
+        }
+
 
         #endregion
 
@@ -51,15 +61,26 @@ namespace Lessium.ViewModels
 
         #region Event-Commands
 
-        private DelegateCommand<double?> OnFontSliderChangedCommand;
-        public DelegateCommand<double?> OnFontSliderChanged =>
-            OnFontSliderChangedCommand ?? (OnFontSliderChangedCommand = new DelegateCommand<double?>(ExecuteOnFontSliderChanged));
+        private DelegateCommand<RoutedPropertyChangedEventArgs<double>> OnFontSliderChangedCommand;
+        public DelegateCommand<RoutedPropertyChangedEventArgs<double>> OnFontSliderChanged =>
+            OnFontSliderChangedCommand ?? (OnFontSliderChangedCommand = new DelegateCommand<RoutedPropertyChangedEventArgs<double>>(ExecuteOnFontSliderChanged));
 
-        public void ExecuteOnFontSliderChanged(double? value)
+        public void ExecuteOnFontSliderChanged(RoutedPropertyChangedEventArgs<double> args)
         {
-            if (!value.HasValue) throw new ArgumentNullException("value");
+            var value = args.NewValue;
 
-            Settings.Default.FontSize = value.Value;
+            Settings.Default.FontSize = value;
+        }
+
+        private DelegateCommand<SelectionChangedEventArgs> OnSectionChangedCommand;
+        public DelegateCommand<SelectionChangedEventArgs> OnSectionChanged =>
+            OnSectionChangedCommand ?? (OnSectionChangedCommand = new DelegateCommand<SelectionChangedEventArgs>(ExecuteOnSectionChanged));
+
+        public void ExecuteOnSectionChanged(SelectionChangedEventArgs e)
+        {
+            var localizedString = e.AddedItems[0] as LocalizedString;
+            
+            SelectedSectionKey = Resources.ResourceManager.GetString(localizedString.Name, CultureInfo.InvariantCulture) ?? null;
         }
 
         #endregion

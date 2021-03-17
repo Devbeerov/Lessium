@@ -1,7 +1,7 @@
 ﻿using Lessium.Properties;
+using Microsoft.Extensions.Localization;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
-#pragma warning disable S1104 // Fields should not have public accessibility
 
 namespace Lessium.Models
 {
@@ -9,11 +9,18 @@ namespace Lessium.Models
     {
         // NOTE: Avoid const fields!
 
+        #region Data Properties
+
+        public string selectedSectionKey;
+
+        #endregion
+
         #region Collections
 
-        public ObservableCollection<string> SectionHeaders = new ObservableCollection<string>()
+        public ObservableCollection<LocalizedString> SectionsStrings = new ObservableCollection<LocalizedString>()
         {
-            Resources.Generic, Resources.Editing
+            new LocalizedString(nameof(Resources.Generic), Resources.Generic),
+            new LocalizedString(nameof(Resources.Editing), Resources.Editing)
         };
 
         #endregion
@@ -23,13 +30,11 @@ namespace Lessium.Models
         #region Headers
 
         public string SettingsHeader { get; set; } = Resources.SettingsHeader;
+
         public string FontSliderHeader { get; set; } = Resources.FontSliderHeader;
 
         #endregion
 
         #endregion
-
     }
 }
-
-#pragma warning restore S1104 // Fields should not have public accessibility

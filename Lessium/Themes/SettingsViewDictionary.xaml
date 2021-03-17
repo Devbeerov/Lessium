@@ -1,14 +1,45 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary x:Class="Lessium.Themes.SettingsViewDictionary"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:prism="http://prismlibrary.com/"
+                    xmlns:prop="clr-namespace:Lessium.Properties"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" >
 
     <!--#region Item Templates -->
 
     <DataTemplate x:Key="SettingsSection">
-        <Border BorderThickness="2" BorderBrush="DarkGray" Background="Transparent" 
+        <Border BorderThickness="2" BorderBrush="Black" Background="Transparent" 
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <TextBlock Text="{Binding}" />
+            <TextBlock Text="{Binding Value}" />
         </Border>
     </DataTemplate>
+
+    <!-- ContentControls keys should match with keys in SettingsModel! -->
+    
+    <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged">
+        
+        <StackPanel x:Name="panel" Orientation="Vertical">
+            <TextBlock Text="{Binding FontSliderHeader}" />
+            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
+                    ValueChanged="fontSlider_ValueChanged"
+                    Value="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize, Mode=OneTime}" >
+
+                <!-- There are two ValueChanged handlers:
+                first - dictionary code-behind to update fontSizeTextBlock margin,
+                second - ViewModel handler, which will update actual FontSize property. -->
+
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <prism:InvokeCommandAction Command="{Binding OnFontSliderChanged}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+            </Slider>
+
+            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding ElementName=fontSlider, Path=Value}" 
+                       Loaded="fontSizeTextBlock_Loaded" Margin="230,0"/>
+        </StackPanel>
+    </ContentControl>
 
     <!--#endregion-->
 </ResourceDictionary>

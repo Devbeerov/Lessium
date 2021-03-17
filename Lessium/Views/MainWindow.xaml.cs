@@ -1,4 +1,5 @@
-﻿using Lessium.ViewModels;
+﻿using Lessium.Properties;
+using Lessium.ViewModels;
 using System;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -16,6 +17,15 @@ namespace Lessium.Views
         {
             InitializeComponent();
             viewModel = DataContext as MainWindowViewModel;
+            this.Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // If MainWindow is closing, then Application is closing too.
+            // Saves user settings for next application run.
+
+            Settings.Default.Save();
         }
 
         #region UI related code-behind
