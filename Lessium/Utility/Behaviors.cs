@@ -212,4 +212,71 @@ namespace Lessium.Utility
     }
 
     #endregion
+
+    #region UshortDigitTextBoxBehavior
+
+    public class UshortDigitTextBoxBehavior : Behavior<TextBox>
+    {
+        private bool raiseChanged = true;
+
+        protected override void OnAttached()
+        {
+            if (this.AssociatedObject != null)
+            {
+                base.OnAttached();
+                this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+                this.AssociatedObject.PreviewTextInput += AssociatedObject_PreviewTextInput;
+            }
+        }
+
+        protected override void OnDetaching()
+        {
+            if (this.AssociatedObject != null)
+            {
+                this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+                this.AssociatedObject.PreviewTextInput -= AssociatedObject_PreviewTextInput;
+                base.OnDetaching();
+            }
+        }
+
+        private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!raiseChanged) return;
+
+            var textBox = sender as TextBox;
+            var text = textBox.Text;
+
+            var digitsString = Validator.RemoveNonDigits(text);
+
+            ushort? convertedValue = null;
+
+            if (int.TryParse(digitsString, out int parsedInt))
+            {
+                if (parsedInt < ushort.MinValue) convertedValue = ushort.MinValue;
+                else if (parsedInt > ushort.MaxValue) convertedValue = ushort.MaxValue;
+                else convertedValue = (ushort)parsedInt;
+            }
+
+            if (convertedValue.HasValue)
+            {
+                UpdateWithoutFiring(textBox, convertedValue.ToString());
+            }
+        }
+
+        private void UpdateWithoutFiring(TextBox textBox, string text)
+        {
+            raiseChanged = false;
+
+            textBox.Text = text;
+
+            raiseChanged = true;
+        }
+
+        private void AssociatedObject_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Validator.IsOnlyDigits(e.Text); // If not only digits, handled will be true, so Text won't be updated.
+        }
+    }
+
+    #endregion
 }

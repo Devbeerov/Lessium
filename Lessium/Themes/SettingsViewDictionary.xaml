@@ -3,8 +3,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:prism="http://prismlibrary.com/"
                     xmlns:prop="clr-namespace:Lessium.Properties"
-                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" >
-
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+                    xmlns:utility="clr-namespace:Lessium.Utility" >
+ 
     <!--#region Item Templates -->
 
     <DataTemplate x:Key="SettingsSection">
@@ -14,11 +15,16 @@
         </Border>
     </DataTemplate>
 
-    <!-- ContentControls keys should match with keys in SettingsModel! -->
+    <!--#endregion-->
+
+    <!--#region Sections Controls -->
+    <!-- IMPORTANT NOTE: ElementName binding won't work by Tree issues. To fix it, 
+    use Binding Source={x:Reference elementName}, also
+    ContentControls resourceKeys should match in SettingsModel! -->
     
-    <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged">
+    <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged" >
         
-        <StackPanel x:Name="panel" Orientation="Vertical">
+        <StackPanel Orientation="Vertical">
             <TextBlock Text="{Binding FontSliderHeader}" />
             <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
                     ValueChanged="fontSlider_ValueChanged"
@@ -36,8 +42,61 @@
 
             </Slider>
 
-            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding ElementName=fontSlider, Path=Value}" 
+            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding Source={x:Reference fontSlider}, Path=Value}"
                        Loaded="fontSizeTextBlock_Loaded" Margin="230,0"/>
+        </StackPanel>
+    </ContentControl>
+
+    <ContentControl x:Key="Editing">
+
+        <StackPanel Orientation="Vertical">
+            
+            <!-- Undo -->
+            
+            <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
+                <TextBlock x:Name="undoCountBlock" DockPanel.Dock="Left" Text="{Binding UndoCountHeader}" />
+                <TextBox x:Name="undoCountBox" Margin="5,0,0,0" 
+                         Height="{Binding Source={x:Reference undoCountBlock}, Path=ActualHeight}"
+                         Text="{Binding UndoCount}">
+
+                    <i:Interaction.Behaviors>
+                        <utility:UshortDigitTextBoxBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding OnUndoCountChanged}" 
+                                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox}, Path=Text}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                </TextBox>
+            </DockPanel>
+
+            <Separator Height="5" />
+
+            <!-- Redo -->
+
+            <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
+                <TextBlock x:Name="redoCountBlock" DockPanel.Dock="Left" Text="{Binding RedoCountHeader}" />
+                <TextBox x:Name="redoCountBox" Margin="5,0,0,0" 
+                         Height="{Binding Source={x:Reference redoCountBlock}, Path=ActualHeight}"
+                         Text="{Binding RedoCount}">
+
+                    <i:Interaction.Behaviors>
+                        <utility:UshortDigitTextBoxBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding OnRedoCountChanged}"
+                                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox}, Path=Text}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                </TextBox>
+            </DockPanel>
+            
         </StackPanel>
     </ContentControl>
 

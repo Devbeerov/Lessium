@@ -1,4 +1,5 @@
 ﻿using Lessium.Properties;
+using Lessium.Utility;
 using Lessium.ViewModels;
 using System;
 using System.Text.RegularExpressions;
@@ -67,12 +68,10 @@ namespace Lessium.Views
 
         #region CurrentPage
 
-        private static readonly Regex onlyDigitsRegex = new Regex("\\d");
-
         // Filters input
         private void CurrentPageBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = !onlyDigitsRegex.IsMatch(e.Text); // if not digit, sets event to Handled, so it won't update text.
+            e.Handled = !Validator.IsOnlyDigits(e.Text); // if not digit, sets event to Handled, so it won't update text.
         }
 
         private void CurrentPageBox_LostFocus(object sender, RoutedEventArgs e)

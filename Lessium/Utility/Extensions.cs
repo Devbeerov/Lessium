@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -73,6 +74,8 @@ namespace Lessium.Utility
             return new Size(formattedText.Width, formattedText.Height);
         }
 
+        #endregion
+
         #region Attached Properties
 
         public static readonly DependencyProperty DynamicContentKeyProperty = DependencyProperty.RegisterAttached("DynamicContentKey",
@@ -136,8 +139,6 @@ namespace Lessium.Utility
         {
             return obj.GetValue(DynamicContentResourceDictionaryProperty) as ResourceDictionary;
         }
-
-        #endregion
 
         #endregion
     }

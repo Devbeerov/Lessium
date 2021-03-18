@@ -76,6 +76,7 @@
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utility\IOTools.cs" />
+    <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\ProgressWindow.xaml.cs">

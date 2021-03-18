@@ -34,5 +34,29 @@ namespace Lessium.Properties {
                 this["FontSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public ushort UndoCount {
+            get {
+                return ((ushort)(this["UndoCount"]));
+            }
+            set {
+                this["UndoCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public ushort RedoCount {
+            get {
+                return ((ushort)(this["RedoCount"]));
+            }
+            set {
+                this["RedoCount"] = value;
+            }
+        }
     }
 }

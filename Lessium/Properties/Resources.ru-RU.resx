@@ -285,4 +285,10 @@
   <data name="Generic" xml:space="preserve">
     <value>Общее</value>
   </data>
+  <data name="RedoCountHeader" xml:space="preserve">
+    <value>Максимум повторений</value>
+  </data>
+  <data name="UndoCountHeader" xml:space="preserve">
+    <value>Максимум отмен</value>
+  </data>
 </root>

@@ -37,6 +37,11 @@ namespace Lessium.Themes
 
             var thickness = new Thickness();
 
+            /// Math
+            /// For example: value = 45, minimum = 10, maximum = 90, ActualWidth = 230
+            /// (45-10) * 230 / 80
+            /// result = 100.625
+
             var range = fontSlider.Maximum - fontSlider.Minimum;
             var valueInRange = fontSlider.Value - fontSlider.Minimum;
             var offset = fontSizeTextBlock.MeasureText().Width;
@@ -44,18 +49,18 @@ namespace Lessium.Themes
             thickness.Left = (valueInRange * fontSlider.ActualWidth / range) - offset * 0.5;
 
             var maxLeftThickness = fontSlider.ActualWidth - offset * 1.5;
+
             if (thickness.Left >= maxLeftThickness)
             {
                 thickness.Left = maxLeftThickness;
             }
 
-            /// For example: value = 45, minimum = 10, maximum = 90, ActualWidth = 230
-            /// (45-10) * 230 / 80
-            /// result = 100.625
+            // Updates Margin with new Thickness.
 
             fontSizeTextBlock.Margin = thickness;
         }
 
         #endregion
+
     }
 }

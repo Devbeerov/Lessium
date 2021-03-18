@@ -9,7 +9,7 @@ namespace Lessium.Models
     {
         // NOTE: Avoid const fields!
 
-        #region Data Properties
+        #region Fields (could be used for referencing)
 
         public string selectedSectionKey;
 
@@ -32,6 +32,10 @@ namespace Lessium.Models
         public string SettingsHeader { get; set; } = Resources.SettingsHeader;
 
         public string FontSliderHeader { get; set; } = Resources.FontSliderHeader;
+
+        public string UndoCountHeader { get; set; } = Resources.UndoCountHeader;
+
+        public string RedoCountHeader { get; set; } = Resources.RedoCountHeader;
 
         #endregion
 

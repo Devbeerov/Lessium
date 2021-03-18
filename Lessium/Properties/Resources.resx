@@ -128,21 +128,18 @@
   </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Add</value>
-    <comment>Buttons</comment>
   </data>
   <data name="ButtonRemoveHeader" xml:space="preserve">
     <value>Remove</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
     <value>Close Lesson</value>
-    <comment>Menu</comment>
   </data>
   <data name="CompareHeader" xml:space="preserve">
     <value>Compare</value>
   </data>
   <data name="DifferencesHeader" xml:space="preserve">
     <value>Differences</value>
-    <comment>TestControls</comment>
   </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Edit</value>
@@ -203,7 +200,6 @@
   </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Text</value>
-    <comment>MaterialControls</comment>
   </data>
   <data name="TrickyQuestionHeader" xml:space="preserve">
     <value>Tricky Question</value>
@@ -223,7 +219,6 @@
   <data name="ReadOnlyToolTip" xml:space="preserve">
     <value>Disabled in Read-Only.
 To edit lesson, select "Lesson" at top-left and press "Edit".</value>
-    <comment>ToolTips</comment>
   </data>
   <data name="TextControl_DefaultText" xml:space="preserve">
     <value>Enter text here.</value>
@@ -284,5 +279,11 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="Generic" xml:space="preserve">
     <value>Generic</value>
+  </data>
+  <data name="RedoCountHeader" xml:space="preserve">
+    <value>Maximum Redos</value>
+  </data>
+  <data name="UndoCountHeader" xml:space="preserve">
+    <value>Maximum Undos</value>
   </data>
 </root>

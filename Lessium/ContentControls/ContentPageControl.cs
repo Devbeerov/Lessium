@@ -44,18 +44,23 @@ namespace Lessium.ContentControls
 
             Orientation = Orientation.Vertical;
 
-            // Binding
+            // Events
+
+            DataContextChanged += OnDataContextChanged;
+            SizeChanged += OnSizeChanged;
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // If MaxHeight property will be modified before loading - it could make binding problems.
+            // It's can be fixed easily, just adding binding after loading!
 
             var binding = new Binding(nameof(MaxHeight));
             binding.Source = this;
             binding.FallbackValue = ContentPage.PageHeight;
 
             SetBinding(HeightProperty, binding);
-
-            // Events
-
-            DataContextChanged += OnDataContextChanged;
-            SizeChanged += OnSizeChanged;
         }
 
         public bool IsElementFits(FrameworkElement element)
