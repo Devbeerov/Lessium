@@ -386,15 +386,6 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Maximum Redos.
-        /// </summary>
-        public static string RedoCountHeader {
-            get {
-                return ResourceManager.GetString("RedoCountHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Save.
         /// </summary>
         public static string SaveLessonHeader {
@@ -548,11 +539,11 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Maximum Undos.
+        ///   Ищет локализованную строку, похожую на Undo Limit.
         /// </summary>
-        public static string UndoCountHeader {
+        public static string UndoLimitHeader {
             get {
-                return ResourceManager.GetString("UndoCountHeader", resourceCulture);
+                return ResourceManager.GetString("UndoLimitHeader", resourceCulture);
             }
         }
         

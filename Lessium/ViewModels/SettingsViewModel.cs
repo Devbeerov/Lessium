@@ -3,12 +3,10 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Windows;
-using System.Linq;
 using Lessium.Utility;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using Lessium.Models;
-using System.Resources;
 using System.Globalization;
 using Microsoft.Extensions.Localization;
 
@@ -17,6 +15,8 @@ namespace Lessium.ViewModels
     public class SettingsViewModel : BindableBase
     {
         private SettingsModel model = null;
+
+        private ushort prevUndoLimit = Settings.Default.UndoLimit;
 
         #region CLR Properties
 
@@ -30,14 +30,9 @@ namespace Lessium.ViewModels
             get { return model.FontSliderHeader; }
         }
 
-        public string UndoCountHeader
+        public string UndoLimitHeader
         {
-            get { return model.UndoCountHeader; }
-        }
-
-        public string RedoCountHeader
-        {
-            get { return model.RedoCountHeader; }
+            get { return model.UndoLimitHeader; }
         }
 
         public ObservableCollection<LocalizedString> SectionsStrings
@@ -51,32 +46,21 @@ namespace Lessium.ViewModels
             set { SetProperty(ref model.selectedSectionKey, value); }
         }
 
-        public ushort UndoCount
+        public ushort UndoLimit
         {
-            get { return Settings.Default.UndoCount; }
+            get { return Settings.Default.UndoLimit; }
             set
             {
-                if (value != UndoCount)
+                if (value != UndoLimit)
                 {
-                    Settings.Default.UndoCount = value;
-                    RaisePropertyChanged();
+                    Settings.Default.UndoLimit = value;
                 }
+
+                // Raises because it's intended to be source for binding target TextBox.Text,
+                // Doesn't matter if it same value, it should update TextBox.Text to avoid invalid input.
+                RaisePropertyChanged();
             }
         }
-
-        public ushort RedoCount
-        {
-            get { return Settings.Default.RedoCount; }
-            set 
-            {
-                if (value != RedoCount)
-                {
-                    Settings.Default.RedoCount = value;
-                    RaisePropertyChanged(nameof(RedoCount));
-                }
-            }
-        }
-
 
         #endregion
 
@@ -87,6 +71,33 @@ namespace Lessium.ViewModels
             // Dependency injection
 
             this.model = model;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private ushort ValidateUndoLimitInput(string text)
+        {
+            int parsedInt;
+
+            // If text isn't valid numeric or not convertable to int, returns previous
+            if (!Validator.IsValidNumeric(text) || !int.TryParse(text, out parsedInt))
+            {
+                return prevUndoLimit;
+            }
+
+            // Otherwise checking bounds and update if needed
+            else
+            {
+                if (parsedInt < ushort.MinValue) return ushort.MinValue;
+                if (parsedInt > ushort.MaxValue) return ushort.MaxValue;
+
+                var converted = Convert.ToUInt16(parsedInt);
+                prevUndoLimit = converted;
+
+                return converted;
+            }
         }
 
         #endregion
@@ -123,33 +134,22 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region OnUndoCountChanged
+        #region OnUndoLimitChanged
 
-        private DelegateCommand<string> OnUndoCountChangedCommand;
-        public DelegateCommand<string> OnUndoCountChanged =>
-            OnUndoCountChangedCommand ?? (OnUndoCountChangedCommand = new DelegateCommand<string>(ExecuteOnUndoCountChanged));
+        private DelegateCommand<string> OnUndoLimitChangedCommand;
+        public DelegateCommand<string> OnUndoLimitChanged =>
+            OnUndoLimitChangedCommand ?? (OnUndoLimitChangedCommand = new DelegateCommand<string>(ExecuteOnUndoLimitChanged));
 
-        public void ExecuteOnUndoCountChanged(string text)
+        public void ExecuteOnUndoLimitChanged(string text)
         {
             if (!string.IsNullOrEmpty(text))
             {
-                UndoCount = ushort.Parse(text);
+                UndoLimit = ValidateUndoLimitInput(text);
             }
-        }
 
-        #endregion
-
-        #region OnRedoCountChanged
-
-        private DelegateCommand<string> OnRedoCountChangedCommand;
-        public DelegateCommand<string> OnRedoCountChanged =>
-            OnRedoCountChangedCommand ?? (OnRedoCountChangedCommand = new DelegateCommand<string>(ExecuteOnRedoCountChanged));
-
-        public void ExecuteOnRedoCountChanged(string text)
-        {
-            if (!string.IsNullOrEmpty(text))
+            else
             {
-                RedoCount = ushort.Parse(text);
+                UndoLimit = 1;
             }
         }
 

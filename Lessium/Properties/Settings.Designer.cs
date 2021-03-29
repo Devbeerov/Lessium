@@ -38,24 +38,12 @@ namespace Lessium.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public ushort UndoCount {
+        public ushort UndoLimit {
             get {
-                return ((ushort)(this["UndoCount"]));
+                return ((ushort)(this["UndoLimit"]));
             }
             set {
-                this["UndoCount"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public ushort RedoCount {
-            get {
-                return ((ushort)(this["RedoCount"]));
-            }
-            set {
-                this["RedoCount"] = value;
+                this["UndoLimit"] = value;
             }
         }
     }

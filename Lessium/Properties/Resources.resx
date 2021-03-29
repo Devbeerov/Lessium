@@ -280,10 +280,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="Generic" xml:space="preserve">
     <value>Generic</value>
   </data>
-  <data name="RedoCountHeader" xml:space="preserve">
-    <value>Maximum Redos</value>
-  </data>
-  <data name="UndoCountHeader" xml:space="preserve">
-    <value>Maximum Undos</value>
+  <data name="UndoLimitHeader" xml:space="preserve">
+    <value>Undo Limit</value>
   </data>
 </root>

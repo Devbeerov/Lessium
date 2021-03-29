@@ -17,43 +17,41 @@ namespace Lessium.Utility
     {
         protected override void OnAttached()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
                 base.OnAttached();
-                this.AssociatedObject.KeyDown += AssociatedObject_KeyDown;
+                AssociatedObject.KeyDown += AssociatedObject_KeyDown;
             }
         }
 
         protected override void OnDetaching()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
-                this.AssociatedObject.KeyDown -= AssociatedObject_KeyDown;
+                AssociatedObject.KeyDown -= AssociatedObject_KeyDown;
                 base.OnDetaching();
             }
         }
 
         private void AssociatedObject_KeyDown(object sender, KeyEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-
-            if(textBox == null) { return; }
+            if (AssociatedObject == null) { return; }
 
             if (e.Key == Key.Enter)
             {
                 if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                 {
-                    var selectIndex = textBox.SelectionStart;
+                    var selectIndex = AssociatedObject.SelectionStart;
 
-                    textBox.Text = textBox.Text.Insert(selectIndex, System.Environment.NewLine);
-                    textBox.SelectionStart = selectIndex + System.Environment.NewLine.Length - 1;
+                    AssociatedObject.Text = AssociatedObject.Text.Insert(selectIndex, System.Environment.NewLine);
+                    AssociatedObject.SelectionStart = selectIndex + System.Environment.NewLine.Length - 1;
                 }
 
                 else
                 {
                     // Removes focus
 
-                    FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null); // Logical focus
+                    FocusManager.SetFocusedElement(FocusManager.GetFocusScope(AssociatedObject), null); // Logical focus
                     Keyboard.ClearFocus(); // Keyboard focus
                 }
             }
@@ -144,19 +142,19 @@ namespace Lessium.Utility
 
         protected override void OnAttached()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
                 base.OnAttached();
-                this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+                AssociatedObject.TextChanged += AssociatedObject_TextChanged;
             }
         }
 
 
         protected override void OnDetaching()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
-                this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+                AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
                 base.OnDetaching();
             }
         }
@@ -165,27 +163,25 @@ namespace Lessium.Utility
         {
             if (!raiseEvent) { return; }
 
-            TextBox textBox = sender as TextBox;
+            if (AssociatedObject == null) { return; }
 
-            if (textBox == null) { return; }
-
-            if (textBox.LineCount > textBox.MaxLines)
+            if (AssociatedObject.LineCount > AssociatedObject.MaxLines)
             {
                 e.Handled = true;
 
-                int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
+                int prevCaret = AssociatedObject.CaretIndex; // Caret before removing everything past MaxLine
 
                 // Calculates values of MaxLine
 
-                int MaxLineIndex = textBox.MaxLines - 1;
-                int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
-                int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
+                int MaxLineIndex = AssociatedObject.MaxLines - 1;
+                int firstPositionInMaxLine = AssociatedObject.GetCharacterIndexFromLineIndex(MaxLineIndex);
+                int lengthOfMaxLine = AssociatedObject.GetLineLength(MaxLineIndex);
                 int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
 
                 // Removes everything past MaxLine
 
-                var newText = textBox.Text.Remove(lastPositionInMaxLine);
-                UpdateTextWithoutFiring(textBox, newText);
+                var newText = AssociatedObject.Text.Remove(lastPositionInMaxLine);
+                UpdateTextWithoutFiring(newText);
 
                 // Restores caret
 
@@ -194,18 +190,18 @@ namespace Lessium.Utility
                     prevCaret = newText.Length;
                 }
 
-                textBox.CaretIndex = prevCaret;
+                AssociatedObject.CaretIndex = prevCaret;
 
             }
 
         }
 
-        private void UpdateTextWithoutFiring(TextBox textBox, string newText)
+        private void UpdateTextWithoutFiring(string newText)
         {
             raiseEvent = false;
 
-            textBox.Text = newText;
-            textBox.UpdateLayout();
+            AssociatedObject.Text = newText;
+            AssociatedObject.UpdateLayout();
 
             raiseEvent = true;
         }
@@ -213,68 +209,31 @@ namespace Lessium.Utility
 
     #endregion
 
-    #region UshortDigitTextBoxBehavior
+    #region TextBoxCaretIndexLastBehavior
 
-    public class UshortDigitTextBoxBehavior : Behavior<TextBox>
+    public class TextBoxCaretIndexLastBehavior : Behavior<TextBox>
     {
-        private bool raiseChanged = true;
-
         protected override void OnAttached()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
                 base.OnAttached();
-                this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
-                this.AssociatedObject.PreviewTextInput += AssociatedObject_PreviewTextInput;
+                AssociatedObject.TextChanged += AssociatedObject_TextChanged;
             }
         }
 
         protected override void OnDetaching()
         {
-            if (this.AssociatedObject != null)
+            if (AssociatedObject != null)
             {
-                this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
-                this.AssociatedObject.PreviewTextInput -= AssociatedObject_PreviewTextInput;
+                AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
                 base.OnDetaching();
             }
         }
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!raiseChanged) return;
-
-            var textBox = sender as TextBox;
-            var text = textBox.Text;
-
-            var digitsString = Validator.RemoveNonDigits(text);
-
-            ushort? convertedValue = null;
-
-            if (int.TryParse(digitsString, out int parsedInt))
-            {
-                if (parsedInt < ushort.MinValue) convertedValue = ushort.MinValue;
-                else if (parsedInt > ushort.MaxValue) convertedValue = ushort.MaxValue;
-                else convertedValue = (ushort)parsedInt;
-            }
-
-            if (convertedValue.HasValue)
-            {
-                UpdateWithoutFiring(textBox, convertedValue.ToString());
-            }
-        }
-
-        private void UpdateWithoutFiring(TextBox textBox, string text)
-        {
-            raiseChanged = false;
-
-            textBox.Text = text;
-
-            raiseChanged = true;
-        }
-
-        private void AssociatedObject_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = !Validator.IsOnlyDigits(e.Text); // If not only digits, handled will be true, so Text won't be updated.
+            AssociatedObject.CaretIndex = AssociatedObject.Text.Length;
         }
     }
 

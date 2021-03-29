@@ -10,7 +10,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:utility="clr-namespace:Lessium.Utility"
         mc:Ignorable="d"
-        Title="{Binding SettingsHeader}" Height="200" Width="400"
+        Title="{Binding SettingsHeader}" Height="250" Width="500"
         WindowStartupLocation="CenterOwner"
         x:Name="window" >
 

@@ -33,9 +33,7 @@ namespace Lessium.Models
 
         public string FontSliderHeader { get; set; } = Resources.FontSliderHeader;
 
-        public string UndoCountHeader { get; set; } = Resources.UndoCountHeader;
-
-        public string RedoCountHeader { get; set; } = Resources.RedoCountHeader;
+        public string UndoLimitHeader { get; set; } = Resources.UndoLimitHeader;
 
         #endregion
 

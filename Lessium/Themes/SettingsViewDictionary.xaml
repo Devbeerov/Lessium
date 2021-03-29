@@ -4,7 +4,8 @@
                     xmlns:prism="http://prismlibrary.com/"
                     xmlns:prop="clr-namespace:Lessium.Properties"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
-                    xmlns:utility="clr-namespace:Lessium.Utility" >
+                    xmlns:utility="clr-namespace:Lessium.Utility"
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
  
     <!--#region Item Templates -->
 
@@ -19,7 +20,7 @@
 
     <!--#region Sections Controls -->
     <!-- IMPORTANT NOTE: ElementName binding won't work by Tree issues. To fix it, 
-    use Binding Source={x:Reference elementName}, also
+    use Binding Source={x:Reference elementName}, 
     ContentControls resourceKeys should match in SettingsModel! -->
     
     <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged" >
@@ -52,44 +53,20 @@
         <StackPanel Orientation="Vertical">
             
             <!-- Undo -->
-            
+
             <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
-                <TextBlock x:Name="undoCountBlock" DockPanel.Dock="Left" Text="{Binding UndoCountHeader}" />
+                <TextBlock x:Name="undoCountBlock" DockPanel.Dock="Left" Text="{Binding UndoLimitHeader}" />
                 <TextBox x:Name="undoCountBox" Margin="5,0,0,0" 
                          Height="{Binding Source={x:Reference undoCountBlock}, Path=ActualHeight}"
-                         Text="{Binding UndoCount}">
+                         Text="{Binding UndoLimit, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" >
 
                     <i:Interaction.Behaviors>
-                        <utility:UshortDigitTextBoxBehavior />
+                        <utility:TextBoxCaretIndexLastBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="TextChanged">
-                            <i:InvokeCommandAction Command="{Binding OnUndoCountChanged}" 
-                                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox}, Path=Text}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    
-                </TextBox>
-            </DockPanel>
-
-            <Separator Height="5" />
-
-            <!-- Redo -->
-
-            <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
-                <TextBlock x:Name="redoCountBlock" DockPanel.Dock="Left" Text="{Binding RedoCountHeader}" />
-                <TextBox x:Name="redoCountBox" Margin="5,0,0,0" 
-                         Height="{Binding Source={x:Reference redoCountBlock}, Path=ActualHeight}"
-                         Text="{Binding RedoCount}">
-
-                    <i:Interaction.Behaviors>
-                        <utility:UshortDigitTextBoxBehavior />
-                    </i:Interaction.Behaviors>
-
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="TextChanged">
-                            <i:InvokeCommandAction Command="{Binding OnRedoCountChanged}"
+                            <i:InvokeCommandAction Command="{Binding OnUndoLimitChanged}" 
                                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox}, Path=Text}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>

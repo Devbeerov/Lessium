@@ -34,7 +34,8 @@
                  ScrollViewer.CanContentScroll="False"
                  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
                  MaxLines="38" 
-                 FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}">
+                 FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
+                 UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}">
 
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />
