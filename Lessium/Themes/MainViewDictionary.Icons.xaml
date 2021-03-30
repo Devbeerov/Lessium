@@ -4,6 +4,7 @@
     <!-- Images (used as Content) -->
 
     <Image x:Key="SettingsIcon" Source="../Resources/gear.png" />
+    <Image x:Key="QuestionIcon" Source="../Resources/question.png" />
 
     <!-- BitmapImages (used for Images by referencing Source) -->
 

@@ -19,6 +19,8 @@ using Lessium.Classes.IO;
 using Lessium.Utility;
 using System.Diagnostics;
 using Lessium.Views;
+using System.Text;
+using Lessium.Properties;
 
 namespace Lessium.ViewModels
 {
@@ -27,10 +29,13 @@ namespace Lessium.ViewModels
         #region Private fields
 
         private readonly MainModel model;
+
         private bool currentPageIsNotFirst = false;
         private bool savingOrLoading = false;
+
         private Window mainWindow = null;
         private Window settingsWindow = null;
+        private Window aboutWindow = null;
 
         #endregion
 
@@ -975,10 +980,12 @@ namespace Lessium.ViewModels
         void ExecuteShowSettings()
         {
             // New window
+
             settingsWindow = new SettingsWindow()
             {
                 Owner = mainWindow
             };
+
             settingsWindow.Closed += OnSettingsClosed;
             settingsWindow.Show();
         }
@@ -986,6 +993,32 @@ namespace Lessium.ViewModels
         bool CanExecuteShowSettings()
         {
             return settingsWindow == null;
+        }
+
+        #endregion
+
+        #region ShowAbout
+
+        private DelegateCommand ShowAboutCommand;
+        public DelegateCommand ShowAbout =>
+            ShowAboutCommand ?? (ShowAboutCommand = new DelegateCommand(ExecuteShowAbout, CanExecuteShowAbout));
+
+        void ExecuteShowAbout()
+        {
+            // New window
+
+            aboutWindow = new AboutView()
+            {
+                Owner = mainWindow
+            };
+
+            aboutWindow.Closed += OnAboutClosed;
+            aboutWindow.Show();
+        }
+
+        bool CanExecuteShowAbout()
+        {
+            return aboutWindow == null;
         }
 
         #endregion
@@ -1037,6 +1070,15 @@ namespace Lessium.ViewModels
 
         #endregion
 
+        #region OnAboutClosed
+
+        private void OnAboutClosed(object sender, EventArgs e)
+        {
+            aboutWindow = null;
+        }
+
+        #endregion
+
         #endregion
 
         #endregion
@@ -1062,7 +1104,54 @@ namespace Lessium.ViewModels
 
         public string UndoChangesHeader
         {
-            get { return model.UndoChangesHeader; }
+            get 
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append(model.UndoChangesHeader);
+                sb.Append(" ");
+
+                var modifier = Settings.Default.UndoHotkeyModifier;
+                var key = Settings.Default.UndoHotkey;
+
+                if (modifier != Key.None)
+                {
+                    sb.AppendFormat("({0} + {1})", modifier, key);
+                }
+
+                else
+                {
+                    sb.AppendFormat("({1})", key);
+                }
+
+                return sb.ToString();
+            }
+        }
+
+        public string RedoChangesHeader
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append(model.RedoChangesHeader);
+                sb.Append(" ");
+
+                var modifier = Settings.Default.RedoHotkeyModifier;
+                var key = Settings.Default.RedoHotkey;
+
+                if (modifier != Key.None)
+                {
+                    sb.AppendFormat("({0} + {1})", modifier, key);
+                }
+
+                else
+                {
+                    sb.AppendFormat("({1})", key);
+                }
+
+                return sb.ToString();
+            }
         }
 
         public string RecentHeader
@@ -1104,14 +1193,14 @@ namespace Lessium.ViewModels
 
         #region Tabs
 
-        public string MaterialHeader
+        public string Materials
         {
-            get { return model.MaterialHeader; }
+            get { return model.Materials; }
         }
 
-        public string TestsHeader
+        public string Tests
         {
-            get { return model.TestsHeader; }
+            get { return model.Tests; }
         }
 
         #endregion
@@ -1167,16 +1256,6 @@ namespace Lessium.ViewModels
 
         #region TestControls
 
-        public string ActionsInCaseHeader
-        {
-            get { return model.ActionsInCaseHeader; }
-        }
-
-        public string CompareHeader
-        {
-            get { return model.CompareHeader; }
-        }
-
         public string DifferencesHeader
         {
             get { return model.DifferencesHeader; }
@@ -1186,24 +1265,9 @@ namespace Lessium.ViewModels
             get { return model.LinkTogetherHeader; }
         }
 
-        public string MiniGameHeader
-        {
-            get { return model.MiniGameHeader; }
-        }
-
         public string PrioritiesHeader
         {
             get { return model.PrioritiesHeader; }
-        }
-
-        public string SelectCorrectHeader
-        {
-            get { return model.SelectCorrectHeader; }
-        }
-
-        public string SIGameHeader
-        {
-            get { return model.SIGameHeader; }
         }
 
         public string SimpleTestHeader

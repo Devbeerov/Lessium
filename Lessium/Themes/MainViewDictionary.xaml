@@ -7,8 +7,6 @@
                     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
                     xmlns:prism="http://www.codeplex.com/prism" >
 
-    <!-- Temp: diag:PresentationTraceSources.TraceLevel=High -->
-
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="MainViewDictionary.Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>

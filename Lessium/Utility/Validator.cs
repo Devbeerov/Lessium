@@ -18,11 +18,6 @@ namespace Lessium.Utility
             return onlyDigitsRegex.IsMatch(text);
         }
 
-        public static string RemoveNonDigits(string input)
-        {
-            return new string(input.Where(c => char.IsDigit(c)).ToArray());
-        }
-
         public static bool IsValidNumeric(string text)
         {
             return validNumericRegex.IsMatch(text);

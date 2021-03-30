@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActionsInCaseHeader" xml:space="preserve">
-    <value>Actions in case</value>
-  </data>
   <data name="AddSectionText" xml:space="preserve">
     <value>Add Section</value>
   </data>
@@ -133,10 +130,7 @@
     <value>Remove</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
-    <value>Close Lesson</value>
-  </data>
-  <data name="CompareHeader" xml:space="preserve">
-    <value>Compare</value>
+    <value>Close</value>
   </data>
   <data name="DifferencesHeader" xml:space="preserve">
     <value>Differences</value>
@@ -162,14 +156,8 @@
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Load</value>
   </data>
-  <data name="MaterialHeader" xml:space="preserve">
-    <value>Material</value>
-  </data>
-  <data name="MiniGameHeader" xml:space="preserve">
-    <value>Mini-game</value>
-  </data>
   <data name="NewLessonHeader" xml:space="preserve">
-    <value>New Lesson</value>
+    <value>New</value>
   </data>
   <data name="NewSection" xml:space="preserve">
     <value>Section</value>
@@ -186,17 +174,8 @@
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="SelectCorrectHeader" xml:space="preserve">
-    <value>Select Correct</value>
-  </data>
-  <data name="SIGameHeader" xml:space="preserve">
-    <value>SI Game "Svoya Igra"</value>
-  </data>
   <data name="SimpleTestHeader" xml:space="preserve">
     <value>Test</value>
-  </data>
-  <data name="TestsHeader" xml:space="preserve">
-    <value>Tests</value>
   </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Text</value>
@@ -282,5 +261,17 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="UndoLimitHeader" xml:space="preserve">
     <value>Undo Limit</value>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>All rights reserved</value>
+  </data>
+  <data name="RedoChangesHeader" xml:space="preserve">
+    <value>Redo</value>
   </data>
 </root>

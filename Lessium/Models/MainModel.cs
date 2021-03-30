@@ -85,6 +85,7 @@ namespace Lessium.Models
         public string EditHeader = Resources.EditHeader;
         public string StopEditingHeader = Resources.StopEditingHeader;
         public string UndoChangesHeader = Resources.UndoChangesHeader;
+        public string RedoChangesHeader = Resources.RedoChangesHeader;
         public string RecentHeader = Resources.RecentHeader;
         public string NewLessonHeader = Resources.NewLessonHeader;
         public string SaveLessonHeader = Resources.SaveLessonHeader;
@@ -106,8 +107,8 @@ namespace Lessium.Models
 
         #region Tabs
 
-        public string MaterialHeader = Resources.MaterialHeader;
-        public string TestsHeader = Resources.TestsHeader;
+        public string Materials = Resources.Materials;
+        public string Tests = Resources.Tests;
 
         #endregion
 
@@ -125,17 +126,12 @@ namespace Lessium.Models
 
         #region TestControls
 
-        public string ActionsInCaseHeader = Resources.ActionsInCaseHeader;
-        public string CompareHeader = Resources.CompareHeader;
-        public string DifferencesHeader = Resources.DifferencesHeader;
-        public string LinkTogetherHeader = Resources.LinkTogetherHeader;
-        public string MiniGameHeader = Resources.MiniGameHeader;
-        public string PrioritiesHeader = Resources.PrioritiesHeader;
-        public string SelectCorrectHeader = Resources.SelectCorrectHeader;
-        public string SIGameHeader = Resources.SIGameHeader;
+        public string LinkTogetherHeader = Resources.LinkTogetherHeader; // 1 = A, 2 = B, 3 = C, 4 = D
+        public string PrioritiesHeader = Resources.PrioritiesHeader; // A > B, B > C, C > D
         public string SimpleTestHeader = Resources.SimpleTestHeader;
         public string TrickyQuestionHeader = Resources.TrickyQuestionHeader;
         public string TrueFalseHeader = Resources.TrueFalseHeader;
+        public string DifferencesHeader = Resources.DifferencesHeader;
 
         #endregion
 

@@ -71,6 +71,7 @@
                           Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" />
                 
                 <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
+                <MenuItem Header="{Binding RedoChangesHeader}" Command="{Binding Lesson_RedoChanges}" />
                 <Separator />
                 <MenuItem Header="{Binding RecentHeader}" />
                 <Separator />
@@ -90,16 +91,21 @@
         
         <!--#region UI -->
 
-        <!-- Settings, child window OnClick. TODO: Add credits to Settings -->
+        <!-- Settings, About, same height as Menu Header -->
 
-        <Button Content="{StaticResource ResourceKey=SettingsIcon}"
-                Grid.Column="1" Width="32" Height="25"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Command="{Binding ShowSettings}">
-            <!-- Same size as Menu Header -->
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Height="25"
+                    HorizontalAlignment="Right" VerticalAlignment="Top">
 
-        </Button>
-        
+            <Button Width="32" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource ResourceKey=SettingsIcon}"
+                    Command="{Binding ShowSettings}" />
+
+            <Button Width="32" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource ResourceKey=QuestionIcon}"
+                    Command="{Binding ShowAbout}" />
+
+        </StackPanel>
+
         <!--#endregion-->
         
         <!--#endregion-->
@@ -113,7 +119,7 @@
                     Margin="10,0,10,10" >
 
             <!-- Material -->
-            <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
+            <TabItem Name="MaterialHeader" Header="{Binding Materials}" >
 
                 <!-- Interaction -->
 
@@ -126,7 +132,7 @@
             </TabItem>
 
             <!-- Tests -->
-            <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
+            <TabItem Name="TestsHeader" Header="{Binding Tests}">
 
                 <!-- Interaction -->
 

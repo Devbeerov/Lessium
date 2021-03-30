@@ -11,7 +11,7 @@
         xmlns:utility="clr-namespace:Lessium.Utility"
         mc:Ignorable="d"
         Title="{Binding SettingsHeader}" Height="250" Width="500"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterOwner" Icon="../Resources/gear.png"
         x:Name="window" >
 
     <Window.Resources>

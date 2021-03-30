@@ -17,8 +17,8 @@ namespace Lessium
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            // Registers "MainWindow" as key for navigation.
-            // But, we don't using navigation yet, so it's not really useful.
+            // Registers MainWindow as key for navigation.
+
             containerRegistry.RegisterForNavigation<MainWindow>();
         }
     }

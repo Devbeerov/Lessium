@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActionsInCaseHeader" xml:space="preserve">
-    <value>Действия в ситуации:</value>
-  </data>
   <data name="AddSectionText" xml:space="preserve">
     <value>Добавить раздел</value>
   </data>
@@ -128,21 +125,15 @@
   </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Добавить</value>
-    <comment>Кнопки</comment>
   </data>
   <data name="ButtonRemoveHeader" xml:space="preserve">
     <value>Удалить</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
-    <value>Закрыть Урок</value>
-    <comment>Меню</comment>
-  </data>
-  <data name="CompareHeader" xml:space="preserve">
-    <value>Сравнение</value>
+    <value>Закрыть</value>
   </data>
   <data name="DifferencesHeader" xml:space="preserve">
-    <value>Отличия</value>
-    <comment>Тесты</comment>
+    <value>Различия</value>
   </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Редактировать</value>
@@ -165,14 +156,8 @@
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Загрузить</value>
   </data>
-  <data name="MaterialHeader" xml:space="preserve">
-    <value>Материал</value>
-  </data>
-  <data name="MiniGameHeader" xml:space="preserve">
-    <value>Мини-игра</value>
-  </data>
   <data name="NewLessonHeader" xml:space="preserve">
-    <value>Новый Урок</value>
+    <value>Новый</value>
   </data>
   <data name="NewSection" xml:space="preserve">
     <value>Раздел</value>
@@ -189,21 +174,11 @@
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Сохранить</value>
   </data>
-  <data name="SelectCorrectHeader" xml:space="preserve">
-    <value>Выбор правильного</value>
-  </data>
-  <data name="SIGameHeader" xml:space="preserve">
-    <value>Своя Игра</value>
-  </data>
   <data name="SimpleTestHeader" xml:space="preserve">
     <value>Тест</value>
   </data>
-  <data name="TestsHeader" xml:space="preserve">
-    <value>Тесты</value>
-  </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Текст</value>
-    <comment>Материалы</comment>
   </data>
   <data name="TrickyQuestionHeader" xml:space="preserve">
     <value>Вопрос с подвохом</value>
@@ -223,7 +198,6 @@
   <data name="ReadOnlyToolTip" xml:space="preserve">
     <value>Не поддерживается в режиме "Для чтения".
 Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по "Редактировать".</value>
-    <comment>Подсказки</comment>
   </data>
   <data name="TextControl_DefaultText" xml:space="preserve">
     <value>Введите текст здесь.</value>
@@ -287,5 +261,17 @@
   </data>
   <data name="UndoLimitHeader" xml:space="preserve">
     <value>Лимит отмен изменений (Undo)</value>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>О программе</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>Все права защищены</value>
+  </data>
+  <data name="RedoChangesHeader" xml:space="preserve">
+    <value>Вернуть</value>
   </data>
 </root>
