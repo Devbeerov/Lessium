@@ -257,8 +257,12 @@ namespace Lessium.ViewModels
 
             this.model = model;
             this.mainWindow = Application.Current.Windows.OfType<MainWindow>().SingleOrDefault();
+
+            // Hotkeys change handler
+
+            Hotkeys.Current.PropertyChanged += OnHotkeyChanged;
         }
-        
+
         #endregion
 
         #region Methods
@@ -517,6 +521,14 @@ namespace Lessium.ViewModels
             }
             
             UpdateCurrentPageNotFirst();
+        }
+
+        private void OnHotkeyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                
+            }
         }
 
         #endregion
@@ -1106,23 +1118,11 @@ namespace Lessium.ViewModels
         {
             get 
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
+                var hotkey = Hotkeys.Current.UndoHotkey;
 
                 sb.Append(model.UndoChangesHeader);
-                sb.Append(" ");
-
-                var modifier = Settings.Default.UndoHotkeyModifier;
-                var key = Settings.Default.UndoHotkey;
-
-                if (modifier != Key.None)
-                {
-                    sb.AppendFormat("({0} + {1})", modifier, key);
-                }
-
-                else
-                {
-                    sb.AppendFormat("({1})", key);
-                }
+                sb.Append($" ({hotkey})");
 
                 return sb.ToString();
             }
@@ -1132,23 +1132,11 @@ namespace Lessium.ViewModels
         {
             get
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
+                var hotkey = Hotkeys.Current.RedoHotkey;
 
                 sb.Append(model.RedoChangesHeader);
-                sb.Append(" ");
-
-                var modifier = Settings.Default.RedoHotkeyModifier;
-                var key = Settings.Default.RedoHotkey;
-
-                if (modifier != Key.None)
-                {
-                    sb.AppendFormat("({0} + {1})", modifier, key);
-                }
-
-                else
-                {
-                    sb.AppendFormat("({1})", key);
-                }
+                sb.Append($" ({hotkey})");
 
                 return sb.ToString();
             }

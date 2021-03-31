@@ -1,4 +1,5 @@
 ﻿using Lessium.Classes;
+using Lessium.Properties;
 using Lessium.Views;
 using Prism.Ioc;
 using System.Windows;
@@ -10,6 +11,17 @@ namespace Lessium
     /// </summary>
     public partial class App
     {
+        public App()
+        {
+            this.Exit += App_Exit;
+        }
+
+        private void App_Exit(object sender, ExitEventArgs e)
+        {
+            Settings.Default.Save();
+            Hotkeys.Current.Save();
+        }
+
         protected override Window CreateShell()
         {
             return Container.Resolve<MainWindow>();

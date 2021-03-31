@@ -5,7 +5,8 @@
                     xmlns:prop="clr-namespace:Lessium.Properties"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
                     xmlns:utility="clr-namespace:Lessium.Utility"
-                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" >
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
+                    xmlns:controls="clr-namespace:Lessium.CustomControls" >
  
     <!--#region Item Templates -->
 
@@ -74,6 +75,18 @@
                 </TextBox>
             </DockPanel>
             
+        </StackPanel>
+    </ContentControl>
+
+    <ContentControl x:Key="Shortcuts">
+
+        <StackPanel Orientation="Vertical">
+
+            <!-- Undo -->
+
+            <controls:ShortcutControl ShortcutKeyName="UndoHotkey" 
+                                      ShortcutHeader="{Binding Source={x:Static prop:Settings.Default}, Path=UndoChangesHeader}"/>
+
         </StackPanel>
     </ContentControl>
 

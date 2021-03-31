@@ -274,4 +274,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="RedoChangesHeader" xml:space="preserve">
     <value>Redo</value>
   </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
 </root>

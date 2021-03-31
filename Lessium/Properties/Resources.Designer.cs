@@ -413,6 +413,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Shortcuts.
+        /// </summary>
+        public static string Shortcuts {
+            get {
+                return ResourceManager.GetString("Shortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Enter question here..
         /// </summary>
         public static string SimpleTestControl_DefaultText {

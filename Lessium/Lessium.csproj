@@ -63,17 +63,20 @@
     </ApplicationDefinition>
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
+    <Compile Include="CustomControls\ShortcutControl.xaml.cs">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\TitledProgressBar.xaml.cs">
       <DependentUpon>TitledProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\ILsnSerializable.cs" />
     <Compile Include="Models\SettingsModel.cs" />
+    <Compile Include="Properties\Hotkeys.cs" />
     <Compile Include="Properties\Resources.ru-RU1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\SettingsExtended.cs" />
     <Compile Include="Themes\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
@@ -92,6 +95,10 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="ContentControls\MaterialControls\TextControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\ShortcutControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

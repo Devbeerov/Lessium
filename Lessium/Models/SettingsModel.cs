@@ -20,7 +20,8 @@ namespace Lessium.Models
         public ObservableCollection<LocalizedString> SectionsStrings = new ObservableCollection<LocalizedString>()
         {
             new LocalizedString(nameof(Resources.Generic), Resources.Generic),
-            new LocalizedString(nameof(Resources.Editing), Resources.Editing)
+            new LocalizedString(nameof(Resources.Editing), Resources.Editing),
+            new LocalizedString(nameof(Resources.Shortcuts), Resources.Shortcuts)
         };
 
         #endregion
