@@ -80,6 +80,7 @@
     <Compile Include="Themes\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />

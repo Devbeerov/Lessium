@@ -85,7 +85,7 @@
             <!-- Undo -->
 
             <controls:ShortcutControl ShortcutKeyName="UndoHotkey" 
-                                      ShortcutHeader="{Binding Source={x:Static prop:Settings.Default}, Path=UndoChangesHeader}"/>
+                                      ShortcutHeader="{x:Static prop:Resources.UndoChangesHeader}"/>
 
         </StackPanel>
     </ContentControl>

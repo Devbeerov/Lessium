@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.Windows.Input;
+using Lessium.Utility;
 
 namespace Lessium.Properties
 {
@@ -13,7 +14,7 @@ namespace Lessium.Properties
         public static Hotkeys Current { get; } = instance;
 
         [UserScopedSetting()]
-        [DefaultSettingValueAttribute("LeftShift + Z")]
+        [DefaultSettingValueAttribute("Control + Z")]
         public Hotkey UndoHotkey
         {
             get
@@ -29,7 +30,7 @@ namespace Lessium.Properties
 
 
         [UserScopedSetting()]
-        [DefaultSettingValueAttribute("LeftShift + Y")]
+        [DefaultSettingValueAttribute("Control + Y")]
         public Hotkey RedoHotkey
         {
             get
@@ -43,28 +44,63 @@ namespace Lessium.Properties
             }
         }
     }
-    
+
     [TypeConverterAttribute(typeof(HotkeyConverter))]
     public struct Hotkey
     {
-        public Key Modifier { get; set; }
+
+        #region Properties
+
+        public ModifierKeys Modifier { get; set; }
         public Key Key { get; set; }
 
-        public Hotkey (Key modifier, Key key)
+        #endregion
+
+        #region Constructors
+
+        public Hotkey(ModifierKeys modifier, Key key)
         {
             Modifier = modifier;
             Key = key;
         }
 
+        public Hotkey(Key modifierKey, Key key)
+        {
+            Modifier = modifierKey.ToModifier();
+            Key = key;
+        }
+
+        #endregion
+
+        #region Methods
+
         public override string ToString()
         {
-            if (Modifier == Key.None)
+            if (Modifier == ModifierKeys.None)
             {
                 return Key.ToString();
             }
 
             return $"{Modifier} + {Key}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Hotkey other)
+            {
+                return Modifier == other.Modifier && Key == other.Key;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Modifier, Key).GetHashCode();
+        }
+
+        #endregion
+
     }
 
     public class HotkeyConverter : TypeConverter
@@ -95,18 +131,13 @@ namespace Lessium.Properties
                 else
                 {
                     string[] tokens = text.Split(separator);
-                    Key[] values = new Key[tokens.Length];
 
-                    TypeConverter keyConverter = TypeDescriptor.GetConverter(typeof(Key));
-                    for (int i = 0; i < values.Length; i++)
-                    {
-                        // Note: ConvertFromString will raise exception if value cannot be converted.
-                        values[i] = (Key)keyConverter.ConvertFromString(context, culture, tokens[i]);
-                    }
+                    bool modifierGood = Enum.TryParse(tokens[0], true, out ModifierKeys modifier);
+                    bool keyGood = Enum.TryParse(tokens[1], true, out Key key);
 
-                    if (values.Length == 2)
+                    if (modifierGood && keyGood)
                     {
-                        return new Hotkey(values[0], values[1]);
+                        return new Hotkey(modifier, key);
                     }
 
                     else

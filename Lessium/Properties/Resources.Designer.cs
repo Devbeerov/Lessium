@@ -133,6 +133,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на To change hotkey, select this field and press new combination (for example: Ctrl + Z).
+        /// </summary>
+        public static string CombinationToolTip {
+            get {
+                return ResourceManager.GetString("CombinationToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Contents.
         /// </summary>
         public static string Contents {

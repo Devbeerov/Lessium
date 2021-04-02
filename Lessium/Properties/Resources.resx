@@ -277,4 +277,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="Shortcuts" xml:space="preserve">
     <value>Shortcuts</value>
   </data>
+  <data name="CombinationToolTip" xml:space="preserve">
+    <value>To change hotkey, select this field and press new combination (for example: Ctrl + Z)</value>
+  </data>
 </root>

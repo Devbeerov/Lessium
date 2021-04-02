@@ -4,12 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Lessium.Utility;
 
 namespace Lessium.CustomControls
 {
-    /// <summary>
-    /// Логика взаимодействия для ShortcutControl.xaml
-    /// </summary>
     public partial class ShortcutControl : UserControl, INotifyPropertyChanged
     {
         #region Fields
@@ -25,8 +23,26 @@ namespace Lessium.CustomControls
         {
             get 
             {
+                if (ShortcutKeyName == null) return default(Hotkey);
+
                 return (Hotkey)Hotkeys.Current[ShortcutKeyName];
             }
+
+            set
+            {
+                if (!value.Equals(Hotkeys.Current[ShortcutKeyName]))
+                {
+                    Hotkeys.Current[ShortcutKeyName] = value;
+                    prevHotkeyString = value.ToString();
+
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public string CombinationToolTip
+        {
+            get { return Properties.Resources.CombinationToolTip; }
         }
 
         #endregion
@@ -36,16 +52,6 @@ namespace Lessium.CustomControls
         public ShortcutControl()
         {
             InitializeComponent();
-            Hotkeys.Current.PropertyChanged += OnHotkeyChanged;
-        }
-
-        private void OnHotkeyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == ShortcutKeyName)
-            {
-                prevHotkeyString = Hotkeys.Current[ShortcutKeyName].ToString();
-                RaisePropertyChanged(nameof(Hotkey));
-            }
         }
 
         #endregion
@@ -54,12 +60,15 @@ namespace Lessium.CustomControls
 
         private void ShortcutBox_KeyDown(object sender, KeyEventArgs e)
         {
-            shortcutBox.Clear();
+            if (e.IsRepeat) return;
 
-            if (prevKey != Key.None)
+            var modifier = prevKey.ToModifier();
+
+            if (modifier != ModifierKeys.None // Modifier is valid
+                && !e.Key.IsModifier() // Current key is not modifier
+                && Keyboard.IsKeyDown(prevKey)) // Modifier is still held
             {
-                var hotkey = new Hotkey(prevKey, e.Key);
-                Hotkeys.Current[ShortcutKeyName] = hotkey;
+                Hotkey = new Hotkey(modifier, e.Key);
 
                 prevKey = Key.None;
             }
@@ -77,6 +86,19 @@ namespace Lessium.CustomControls
         private void ShortcutBox_LostFocus(object sender, RoutedEventArgs e)
         {
             shortcutBox.Text = prevHotkeyString;
+        }
+
+        private void ShortcutBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // If input length is just one character, then it's not hotkey, so we set Handled to true, which will prevent text change.
+
+            e.Handled = e.Text.Length == 1;
+        }
+
+        private void ShortcutBox_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.Handled = true;
+            e.ContinueRouting = true;
         }
 
         #endregion

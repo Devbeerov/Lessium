@@ -277,4 +277,7 @@
   <data name="Shortcuts" xml:space="preserve">
     <value>Сочетания клавиш</value>
   </data>
+  <data name="CombinationToolTip" xml:space="preserve">
+    <value>Для смены сочетания клавиш, выберите это поле и нажмите новую комбинацию (например: Ctrl + Z)</value>
+  </data>
 </root>
