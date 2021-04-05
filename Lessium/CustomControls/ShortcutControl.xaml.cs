@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Lessium.Utility;
+using System.Windows.Data;
+using System.Globalization;
 
 namespace Lessium.CustomControls
 {
@@ -12,7 +14,7 @@ namespace Lessium.CustomControls
     {
         #region Fields
 
-        private Key prevKey = Key.None;
+        private Key prevModifierKey = Key.None;
         private string prevHotkeyString = string.Empty;
 
         #endregion
@@ -58,22 +60,27 @@ namespace Lessium.CustomControls
 
         #region Events
 
+        #region ShortcutBox
+
         private void ShortcutBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.IsRepeat) return;
+            // NOTE: Look at ShortcutControl_PreviewKeyDown, it contains some checks.
 
-            var modifier = prevKey.ToModifier();
+            if (prevModifierKey == Key.None) return;
 
-            if (modifier != ModifierKeys.None // Modifier is valid
-                && !e.Key.IsModifier() // Current key is not modifier
-                && Keyboard.IsKeyDown(prevKey)) // Modifier is still held
+            if (Keyboard.IsKeyDown(prevModifierKey))
             {
-                Hotkey = new Hotkey(modifier, e.Key);
+                Key key;
 
-                prevKey = Key.None;
+                if (e.IsSpecialKey()) key = e.SystemKey;
+                else key = e.Key;
+
+                Hotkey = new Hotkey(prevModifierKey.ToModifier(), key);
             }
 
-            else prevKey = e.Key;
+            prevModifierKey = Key.None;
+
+            e.Handled = true;
         }
 
         private void ShortcutBox_GotFocus(object sender, RoutedEventArgs e)
@@ -103,6 +110,33 @@ namespace Lessium.CustomControls
 
         #endregion
 
+        #region ShortcutControl
+
+        private void ShortcutControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.IsRepeat)
+            {
+                e.Handled = true; // Won't further travel to KeyDown
+                return;
+            }
+
+            if (e.IsSpecialKey() && e.SystemKey.IsModifier())
+            {
+                e.Handled = true; // Won't further travel to KeyDown
+                prevModifierKey = e.SystemKey;
+            }
+
+            else if (e.Key.IsModifier())
+            {
+                e.Handled = true; // Won't further travel to KeyDown
+                prevModifierKey = e.Key;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
         #region Dependency Properties
 
         public string ShortcutHeader
@@ -124,7 +158,14 @@ namespace Lessium.CustomControls
         /// Represents Key in Hotkeys dictionary that shortcut should be assigned to.
         /// </summary>
         public static readonly DependencyProperty ShortcutKeyNameProperty =
-            DependencyProperty.Register("ShortcutKeyName", typeof(string), typeof(ShortcutControl), new PropertyMetadata(null));
+            DependencyProperty.Register("ShortcutKeyName", typeof(string), typeof(ShortcutControl), new PropertyMetadata(null, OnShortcutKeyNameChanged));
+
+        private static void OnShortcutKeyNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as ShortcutControl;
+
+            control.RaisePropertyChanged(nameof(Hotkey));
+        }
 
         #endregion
 
@@ -138,5 +179,31 @@ namespace Lessium.CustomControls
         }
 
         #endregion
+    }
+
+    public class UniqueHotkeyValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            if (value is BindingExpression expression)
+            {
+                var propertyName = expression.ResolvedSourcePropertyName;
+                var source = expression.ResolvedSource;
+
+                // Using reflection to get value of source binding property and update argument with it.
+
+                value = source.GetType().GetProperty(propertyName).GetValue(source, null);
+            }
+
+            if (value is Hotkey hotkey)
+            {
+                // No error if is None or is unique (not present in Hotkeys).
+                if (hotkey.Equals(default) || Hotkeys.Current.IsUnique(hotkey)) return ValidationResult.ValidResult;
+
+                return new ValidationResult(false, Resources.HotkeyExistError);
+            }
+
+            return new ValidationResult(false, "Value should must have non-empty string type");
+        }
     }
 }

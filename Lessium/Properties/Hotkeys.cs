@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Globalization;
 using System.Windows.Input;
 using Lessium.Utility;
+using System.Linq;
 
 namespace Lessium.Properties
 {
@@ -12,6 +13,13 @@ namespace Lessium.Properties
         private static Hotkeys instance = (Hotkeys)Synchronized(new Hotkeys());
 
         public static Hotkeys Current { get; } = instance;
+
+        public bool IsUnique(Hotkey hotkey)
+        {
+            return !PropertyValues.OfType<Hotkey>().Contains(hotkey);
+        }
+
+        #region Setting Properties
 
         [UserScopedSetting()]
         [DefaultSettingValueAttribute("Control + Z")]
@@ -43,6 +51,8 @@ namespace Lessium.Properties
                 var g = ApplicationCommands.Undo.InputGestures;
             }
         }
+
+        #endregion
     }
 
     [TypeConverterAttribute(typeof(HotkeyConverter))]
@@ -131,6 +141,11 @@ namespace Lessium.Properties
                 else
                 {
                     string[] tokens = text.Split(separator);
+
+                    if (tokens.Length != 2)
+                    {
+                        throw new ArgumentException($"Hotkey \"{hotkeyString}\" is not completed. Hotkey should contain modifier and key.");
+                    }
 
                     bool modifierGood = Enum.TryParse(tokens[0], true, out ModifierKeys modifier);
                     bool keyGood = Enum.TryParse(tokens[1], true, out Key key);

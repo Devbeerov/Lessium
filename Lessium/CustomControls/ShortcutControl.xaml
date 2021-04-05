@@ -7,16 +7,24 @@
              xmlns:prop="clr-namespace:Lessium.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="200"
-             DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
+             DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
+             PreviewKeyDown="ShortcutControl_PreviewKeyDown" >
     
     <DockPanel LastChildFill="True">
         <TextBlock Text="{Binding ShortcutHeader}" Width="Auto"/>
         <TextBox x:Name="shortcutBox" Margin="5,0"
-                 Text="{Binding Hotkey, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="{Binding CombinationToolTip}"
                  GotFocus="ShortcutBox_GotFocus" LostFocus="ShortcutBox_LostFocus"
-                 KeyDown="ShortcutBox_KeyDown" PreviewTextInput="ShortcutBox_PreviewTextInput" 
+                 KeyDown="ShortcutBox_KeyDown" PreviewTextInput="ShortcutBox_PreviewTextInput"
                  CommandManager.PreviewCanExecute="ShortcutBox_PreviewCanExecute" >
+
+            <TextBox.Text>
+                <Binding Path="Hotkey" Mode="OneWay" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <local:UniqueHotkeyValidationRule ValidationStep="UpdatedValue" ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text> 
 
             <TextBox.InputBindings>
                 <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Key}" 

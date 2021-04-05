@@ -280,4 +280,7 @@
   <data name="CombinationToolTip" xml:space="preserve">
     <value>Для смены сочетания клавиш, выберите это поле и нажмите новую комбинацию (например: Ctrl + Z)</value>
   </data>
+  <data name="HotkeyExistError" xml:space="preserve">
+    <value>Это сочетание клавиш уже используется.</value>
+  </data>
 </root>

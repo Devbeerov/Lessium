@@ -280,4 +280,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   <data name="CombinationToolTip" xml:space="preserve">
     <value>To change hotkey, select this field and press new combination (for example: Ctrl + Z)</value>
   </data>
+  <data name="HotkeyExistError" xml:space="preserve">
+    <value>This shortcut is already being used.</value>
+  </data>
 </root>

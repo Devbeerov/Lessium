@@ -87,6 +87,11 @@
             <controls:ShortcutControl ShortcutKeyName="UndoHotkey" 
                                       ShortcutHeader="{x:Static prop:Resources.UndoChangesHeader}"/>
 
+            <!-- Redo -->
+
+            <controls:ShortcutControl ShortcutKeyName="RedoHotkey" 
+                                      ShortcutHeader="{x:Static prop:Resources.RedoChangesHeader}"/>
+
         </StackPanel>
     </ContentControl>
 

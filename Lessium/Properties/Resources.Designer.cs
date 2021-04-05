@@ -223,6 +223,15 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на This shortcut is already being used..
+        /// </summary>
+        public static string HotkeyExistError {
+            get {
+                return ResourceManager.GetString("HotkeyExistError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Image.
         /// </summary>
         public static string ImageHeader {

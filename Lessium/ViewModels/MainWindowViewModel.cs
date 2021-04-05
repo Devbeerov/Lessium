@@ -527,7 +527,12 @@ namespace Lessium.ViewModels
         {
             switch (e.PropertyName)
             {
-                
+                case nameof(Hotkeys.UndoHotkey):
+                    RaisePropertyChanged(nameof(UndoChangesHeader));
+                    break;
+                case nameof(Hotkeys.RedoHotkey):
+                    RaisePropertyChanged(nameof(RedoChangesHeader));
+                    break;
             }
         }
 

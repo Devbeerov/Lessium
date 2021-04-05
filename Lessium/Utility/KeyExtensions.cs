@@ -18,5 +18,23 @@ namespace Lessium.Utility
         {
             return ToModifier(modifierKey) != ModifierKeys.None;
         }
+
+        public static bool IsSpecialKey(this KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.System:
+                    return true;
+
+                case Key.ImeProcessed:
+                    return true;
+
+                case Key.DeadCharProcessed:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
     }
 }
