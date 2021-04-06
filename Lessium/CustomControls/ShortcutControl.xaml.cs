@@ -7,15 +7,19 @@ using System.Windows.Input;
 using Lessium.Utility;
 using System.Windows.Data;
 using System.Globalization;
+using System.Collections;
+using System.Collections.Generic;
+using System;
 
 namespace Lessium.CustomControls
 {
-    public partial class ShortcutControl : UserControl, INotifyPropertyChanged
+    public partial class ShortcutControl : UserControl, INotifyPropertyChanged, INotifyDataErrorInfo
     {
         #region Fields
 
         private Key prevModifierKey = Key.None;
         private string prevHotkeyString = string.Empty;
+        private readonly Dictionary<string, List<string>> dataErrors = new Dictionary<string, List<string>>();
 
         #endregion
 
@@ -54,11 +58,60 @@ namespace Lessium.CustomControls
         public ShortcutControl()
         {
             InitializeComponent();
+
+            Hotkeys.Current.PropertyChanged += OnHotkeysUpdated;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private void ValidateHotkeyUnique()
+        {
+            // Clears all errors linked to Hotkey, if validation won't fail, therefore it won't have errors.
+
+            ClearErrors(nameof(Hotkey));
+
+            // No error if is None or is unique (not present in Hotkeys).
+
+            if (Hotkeys.Current.IsUnique(Hotkey, ShortcutKeyName)) return;
+
+            TryAddError(nameof(Hotkey), Properties.Resources.HotkeyExistError);
+        }
+
+        private void TryAddError(string propertyName, string error)
+        {
+            // If property is not exist is dictionary, adds new List for it.
+
+            if (!dataErrors.ContainsKey(propertyName)) dataErrors.Add(propertyName, new List<string>());
+
+            // If property errors List already contains error, returns.
+
+            else if (dataErrors[propertyName].Contains(error)) return;
+
+            // Now we can be sure that dictionary contains propertyName key and it's list not already have this error, so we add it.
+
+            dataErrors[propertyName].Add(error);
+            
+        }
+
+        private void ClearErrors(string propertyName)
+        {
+            if (!dataErrors.ContainsKey(propertyName)) return;
+
+            dataErrors[propertyName].Clear();
+            RaiseErrorsChanged(propertyName);
         }
 
         #endregion
 
         #region Events
+
+        private void OnHotkeysUpdated(object sender, PropertyChangedEventArgs e)
+        {
+            // If any hotkey is updated, we check if Hotkey is still unique. Also if this hotkey updated by itself, it will be checked too.
+            ValidateHotkeyUnique();
+        }
 
         #region ShortcutBox
 
@@ -85,14 +138,18 @@ namespace Lessium.CustomControls
 
         private void ShortcutBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            prevHotkeyString = shortcutBox.Text;
+            if (prevHotkeyString != string.Empty)
+            {
+                prevHotkeyString = shortcutBox.Text;
+            }
 
             shortcutBox.Clear();
         }
 
         private void ShortcutBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            shortcutBox.Text = prevHotkeyString;
+            // IMPORTANT NOTE: Don't set Text property to any value! It will detach binding. Instead, use replace method.
+            shortcutBox.Text.Replace(shortcutBox.Text, prevHotkeyString);
         }
 
         private void ShortcutBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -164,6 +221,7 @@ namespace Lessium.CustomControls
         {
             var control = d as ShortcutControl;
 
+            control.ValidateHotkeyUnique();
             control.RaisePropertyChanged(nameof(Hotkey));
         }
 
@@ -179,31 +237,26 @@ namespace Lessium.CustomControls
         }
 
         #endregion
-    }
 
-    public class UniqueHotkeyValidationRule : ValidationRule
-    {
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        #region INotifyDataErrorInfo
+
+        public bool HasErrors => dataErrors.Count > 0;
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        public IEnumerable GetErrors(string propertyName)
         {
-            if (value is BindingExpression expression)
-            {
-                var propertyName = expression.ResolvedSourcePropertyName;
-                var source = expression.ResolvedSource;
+            if (propertyName == null) return null;
 
-                // Using reflection to get value of source binding property and update argument with it.
+            if(dataErrors.ContainsKey(propertyName)) return dataErrors[propertyName];
 
-                value = source.GetType().GetProperty(propertyName).GetValue(source, null);
-            }
-
-            if (value is Hotkey hotkey)
-            {
-                // No error if is None or is unique (not present in Hotkeys).
-                if (hotkey.Equals(default) || Hotkeys.Current.IsUnique(hotkey)) return ValidationResult.ValidResult;
-
-                return new ValidationResult(false, Resources.HotkeyExistError);
-            }
-
-            return new ValidationResult(false, "Value should must have non-empty string type");
+            return null;
         }
+
+        private void RaiseErrorsChanged([CallerMemberName] string propertyName = "")
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 }

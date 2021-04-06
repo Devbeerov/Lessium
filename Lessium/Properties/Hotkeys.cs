@@ -14,9 +14,21 @@ namespace Lessium.Properties
 
         public static Hotkeys Current { get; } = instance;
 
-        public bool IsUnique(Hotkey hotkey)
+        public bool IsUnique(Hotkey hotkey, string hotkeyPropertyName)
         {
-            return !PropertyValues.OfType<Hotkey>().Contains(hotkey);
+            if (hotkey.Equals(default)) return true;
+
+            foreach (SettingsProperty property in Properties)
+            {
+                if (property.PropertyType == typeof(Hotkey) && property.Name != hotkeyPropertyName)
+                {
+                    var value = (Hotkey)this[property.Name];
+
+                    if (value.Equals(hotkey)) return false;
+                }
+            }
+
+            return true;
         }
 
         #region Setting Properties
@@ -144,6 +156,8 @@ namespace Lessium.Properties
 
                     if (tokens.Length != 2)
                     {
+                        if (tokens.Length == 1 && tokens[0] == Key.None.ToString()) return default(Hotkey);
+
                         throw new ArgumentException($"Hotkey \"{hotkeyString}\" is not completed. Hotkey should contain modifier and key.");
                     }
 
