@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
+    <Compile Include="Utility\SystemParametersService.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />

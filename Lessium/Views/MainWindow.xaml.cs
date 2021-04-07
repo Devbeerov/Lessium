@@ -1,8 +1,5 @@
-﻿using Lessium.Properties;
-using Lessium.Utility;
+﻿using Lessium.Utility;
 using Lessium.ViewModels;
-using System;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,6 +10,7 @@ namespace Lessium.Views
     {
         // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
         private readonly MainWindowViewModel viewModel;
+        private static readonly uint lineScrollAmount = SystemSettingsService.GetMouseWheelScrollingLines();
 
         public MainWindow()
         {
@@ -37,6 +35,29 @@ namespace Lessium.Views
                 else
                 {
                     viewModel.CurrentPageNumber--;
+                }
+            }
+        }
+
+        #endregion
+
+        #region SectionsListBox
+
+        private void SectionsListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta == 0) return;
+
+            bool scrollDown = e.Delta < 0;
+
+            for (int i = 0; i < lineScrollAmount; i++)
+            {
+                if (scrollDown)
+                {
+                    sectionsScrollViewer.LineDown();
+                }
+                else
+                {
+                    sectionsScrollViewer.LineUp();
                 }
             }
         }
@@ -76,9 +97,13 @@ namespace Lessium.Views
             }
 
             textBox.Text = page.ToString();
-            
+
             viewModel.CurrentPageNumber = page;
         }
+
+
+
+
 
         #endregion
 

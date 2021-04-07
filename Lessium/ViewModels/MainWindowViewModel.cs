@@ -307,6 +307,7 @@ namespace Lessium.ViewModels
                 model.Sections[key].Clear();
                 model.LastSelectedSection[key] = null;
             }
+
             RaisePropertyChanged(nameof(Sections));
             SelectSection(null);
             HasChanges = true;
@@ -869,6 +870,8 @@ namespace Lessium.ViewModels
 
                 if (Keyboard.IsKeyDown(Key.C))
                 {
+                    if (CurrentSection == null) return;
+
                     var dataObject = new DataObject(DataFormats.Serializable, CurrentSection);
                     Clipboard.Clear();
                     Clipboard.SetDataObject(dataObject);
@@ -877,7 +880,7 @@ namespace Lessium.ViewModels
 
                 if (Keyboard.IsKeyDown(Key.V))
                 {
-                    if(ReadOnly) { return; }
+                    if (ReadOnly) { return; }
 
                     IDataObject dataObject = Clipboard.GetDataObject();
                     if (dataObject.GetDataPresent(DataFormats.Serializable))
@@ -900,11 +903,8 @@ namespace Lessium.ViewModels
 
                             SelectSection(section);
                         }
-
-
                     }
                 }
-
             }
         }
 

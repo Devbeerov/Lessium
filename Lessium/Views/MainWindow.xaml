@@ -153,18 +153,30 @@
         <!-- Border serves as separator of Sections and (selected) Section content 
              Also used as container for Sections and AddSectionButton -->
 
-        <Border BorderThickness="1" BorderBrush="DarkGray"
+        <Border x:Name="sectionsBorder" BorderThickness="1" BorderBrush="DarkGray"
                 Grid.Row="1" Margin="11,22,0,11"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Orientation="Vertical" >
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <StackPanel Orientation="Vertical" >
+                
+                <ScrollViewer x:Name="sectionsScrollViewer" VerticalScrollBarVisibility="Auto">
+
+                    <ScrollViewer.MaxHeight>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
+                            <Binding ElementName="sectionsBorder" Path="ActualHeight" />
+                            <Binding ElementName="addSectionButton" Path="ActualHeight" />
+                        </MultiBinding>
+                    </ScrollViewer.MaxHeight>
+
                     <!-- Sections Headers -->
+
                     <ListBox x:Name="Sections" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                            ItemsSource="{Binding Sections}"
-                            SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
-                            SelectionChanged="Sections_SelectionChanged"
-                            IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
-                            ItemTemplate="{StaticResource SectionTemplate}">
+                             ItemsSource="{Binding Sections}"
+                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                             SelectionChanged="Sections_SelectionChanged"
+                             IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
+                             ItemTemplate="{StaticResource SectionTemplate}"
+                             PreviewMouseWheel="SectionsListBox_PreviewMouseWheel">
 
                         <i:Interaction.Triggers>
 
@@ -175,24 +187,24 @@
                         </i:Interaction.Triggers>
 
                     </ListBox>
+                </ScrollViewer>
+                
+                <!-- Add Section -->
 
-                    <!-- Add Section -->
-
-                    <Button Template="{StaticResource AddSectionButton}" Height="25" 
+                <Button x:Name="addSectionButton" Template="{StaticResource AddSectionButton}" Height="25" 
                             Command="{Binding AddSection}"
                             ToolTip="{Binding ReadOnlyToolTip}" 
                             ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
                             Style="{StaticResource AddSectionButtonStyle}">
-                    </Button>
-
-                </StackPanel>
-            </ScrollViewer>
+                </Button>
+            </StackPanel>
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="KeyDown">
                     <i:InvokeCommandAction Command="{Binding SectionInput}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+            
          </Border>
 
 

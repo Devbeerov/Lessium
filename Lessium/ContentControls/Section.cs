@@ -58,6 +58,7 @@ namespace Lessium.ContentControls
             var title = info.GetString("Title");
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
+            Pages = pages; // will add storedPages to it later.
             ContentType = type;
             Title = title;
 
