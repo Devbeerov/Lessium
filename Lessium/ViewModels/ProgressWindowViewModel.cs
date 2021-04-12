@@ -4,8 +4,6 @@ using Lessium.Properties;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Lessium.ViewModels
 {

@@ -361,7 +361,10 @@ namespace Lessium.ContentControls.TestControls
 
             // Reads attributes
 
-            Question = reader.GetAttribute("Question");
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Question = reader.GetAttribute("Question");
+            });
 
             // Reads Answers
 
@@ -373,7 +376,10 @@ namespace Lessium.ContentControls.TestControls
                 var answer = new AnswerModel();
                 await answer.ReadXmlAsync(reader, progress, token);
 
-                Answers.Add(answer);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Answers.Add(answer);
+                });
             }
         }
 
@@ -421,7 +427,10 @@ namespace Lessium.ContentControls.TestControls
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
-            Text = await reader.ReadElementContentAsStringAsync();
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                Text = await reader.ReadElementContentAsStringAsync();
+            });
         }
     }
 }

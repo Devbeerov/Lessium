@@ -228,7 +228,10 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Content of TextControl is string. So we just extracts it entirely.
 
-            Text = await reader.ReadElementContentAsStringAsync();
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                Text = await reader.ReadElementContentAsStringAsync();
+            });
         }
 
         #endregion

@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Lessium.Views;
 using System.Text;
 using Lessium.Properties;
+using System.Threading.Tasks;
 
 namespace Lessium.ViewModels
 {
@@ -114,6 +115,11 @@ namespace Lessium.ViewModels
         public Dictionary<ContentType, ObservableCollection<Section>> SectionsByType
         {
             get { return model.Sections; }
+        }
+
+        public Dictionary<ContentType, double> TabsVerticalScrollOffsets
+        {
+            get { return model.TabsVerticalScrollOffsets; }
         }
 
         // Use SelectSection method to "Set" CurrentSection.
@@ -680,7 +686,7 @@ namespace Lessium.ViewModels
 
                 try
                 {
-                    countData = await LsnReader.CountDataAsync(loadDialog.FileName);
+                    countData = await Task.Run(async () => await LsnReader.CountDataAsync(loadDialog.FileName));
                 }
 
                 catch (Exception e)
@@ -692,16 +698,18 @@ namespace Lessium.ViewModels
                 }
 
                 // New window
+
                 var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading,
                     countData, IOType.Read);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
+
                 progressView.Show();
 
                 (IOResult, LessonModel) result = (IOResult.Null, null);
                 try
                 {
                     // Pauses method until LoadAsync will be completed.
-                    result = await LsnReader.LoadAsync(loadDialog.FileName, progress);
+                    result = await Task.Run(async () => await LsnReader.LoadAsync(loadDialog.FileName, progress));
                 }
 
                 finally
@@ -1060,7 +1068,6 @@ namespace Lessium.ViewModels
             TryCollapseCurrentSection();
 
             Section previousSection = null;
-
             if (CurrentSectionID != -1)
             {
                 previousSection = Sections[CurrentSectionID];
@@ -1069,10 +1076,10 @@ namespace Lessium.ViewModels
             SelectedContentType = (ContentType) Enum.Parse(typeof(ContentType), param);
 
             RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
-
             SelectSection(model.LastSelectedSection[SelectedContentType], previousSection, true);
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
+
             RaisePropertyChanged(nameof(CurrentSectionID));
         }
 

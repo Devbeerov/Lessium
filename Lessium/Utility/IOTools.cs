@@ -49,7 +49,7 @@ namespace Lessium.Utility
                 throw new ThreadStateException("The current threads apartment state is not STA");
             }
 
-            var countData = await LsnReader.CountDataAsync(filePath);
+            var countData = await Task.Run(async () => await LsnReader.CountDataAsync(filePath));
 
             // Creates ProgressView
 
@@ -61,7 +61,7 @@ namespace Lessium.Utility
             // Tests Lesson's loading, in case it will throw any Exceptions during load,
             // Assert.DoesNotThrowAsync will fail test.
 
-            var loadResult = await LsnReader.LoadAsync(filePath, progress); // Nuget.System.ValueTuple
+            var loadResult = await Task.Run(async () => await LsnReader.LoadAsync(filePath, progress)); // Nuget.System.ValueTuple
 
             progressView.Close();
 

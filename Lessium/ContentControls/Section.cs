@@ -21,12 +21,13 @@ using System.Resources;
 namespace Lessium.ContentControls
 {
     [Serializable]
-    public class Section : StackPanel, ILsnSerializable
+    public class Section : VirtualizingStackPanel, ILsnSerializable
     {
         public const double PageWidth = 795;
         public const double PageHeight = 637;
 
         private bool editable = false;
+        private bool setupDone = false;
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
@@ -37,15 +38,13 @@ namespace Lessium.ContentControls
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
-            ContentType = ContentType.Material;
-            Pages = pages;
+            SetupProperties(ContentType.Material);
             Initialize();
         }
 
         public Section(ContentType type, bool initialize = true) : base()
         {
-            ContentType = type;
-            Pages = pages;
+            SetupProperties(type);
             if (initialize)
             {
                 Initialize();
@@ -58,8 +57,7 @@ namespace Lessium.ContentControls
             var title = info.GetString("Title");
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
 
-            Pages = pages; // will add storedPages to it later.
-            ContentType = type;
+            SetupProperties(type);
             Title = title;
 
             // Further initialization at OnSerialized method.
@@ -97,6 +95,17 @@ namespace Lessium.ContentControls
         #region Methods
 
         #region Private
+
+        private void SetupProperties(ContentType type)
+        {
+            if (setupDone) throw new InvalidOperationException("SetupProperties method should be called only once!");
+
+            SetIsVirtualizing(this, true);
+            SetVirtualizationMode(this, VirtualizationMode.Recycling);
+
+            ContentType = type;
+            Pages = pages;
+        }
 
         private void UpdatePageEditable(ContentPage page)
         {
@@ -280,7 +289,10 @@ namespace Lessium.ContentControls
                 throw new ArgumentNullException(title);
             }
 
-            Title = title;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Title = title;
+            });
 
             // Reports to process new Section.
 
@@ -303,10 +315,13 @@ namespace Lessium.ContentControls
 
             }
 
-            if (Pages.Count == 0)
+            Application.Current.Dispatcher.Invoke(() => 
             {
-                throw new InvalidDataException("Section must have at least 1 Page. Something is wrong with Section.");
-            }
+                if (Pages.Count == 0)
+                {
+                    throw new InvalidDataException("Section must have at least 1 Page. Something is wrong with Section.");
+                }
+            });
         }
 
         #endregion

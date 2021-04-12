@@ -17,7 +17,7 @@ namespace Lessium.Classes.IO
                     return MaterialSections;
                 case ContentType.Test:
                     return TestSections;
-                default: throw new NotSupportedException($"{type.ToString()} not supported.");
+                default: throw new NotSupportedException($"{type} not supported.");
             }
         }
     }

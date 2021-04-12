@@ -28,6 +28,11 @@ namespace Lessium.Models
         #region Tabs
 
         public ContentType SelectedContentType = ContentType.Material;
+        public Dictionary<ContentType, double> TabsVerticalScrollOffsets = new Dictionary<ContentType, double>()
+        {
+            { ContentType.Material, 0d },
+            { ContentType.Test, 0d }
+        };
 
         #endregion
 

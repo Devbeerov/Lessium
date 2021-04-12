@@ -75,11 +75,14 @@ namespace Lessium.ContentControls.Models
 
             Items.Add(control);
 
-            // If control is already loaded (for example, moved from another page to this one), validates it
-            if ((control as FrameworkElement).IsLoaded)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                ValidateContentPlacement(control);
-            }
+                // If control is already loaded (for example, moved from another page to this one), validates it
+                if ((control as FrameworkElement).IsLoaded)
+                {
+                    ValidateContentPlacement(control);
+                }
+            });
         }
 
         // Won't validate control if it's in zero position.
@@ -89,12 +92,15 @@ namespace Lessium.ContentControls.Models
 
             Items.Insert(position, control);
 
-            // If control is already loaded (for example, moved from another page to this one), validates forward
-            if ((control as FrameworkElement).IsLoaded)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                bool ignore = position == 0; // Only skips check if inserted at zero position.
-                ValidateAllForward(control, ignore);
-            }
+                // If control is already loaded (for example, moved from another page to this one), validates forward
+                if ((control as FrameworkElement).IsLoaded)
+                {
+                    bool ignore = position == 0; // Only skips check if inserted at zero position.
+                    ValidateAllForward(control, ignore);
+                }
+            });
         }
 
         public void Remove(IContentControl element)
@@ -205,7 +211,10 @@ namespace Lessium.ContentControls.Models
         {
             if (contentControl != null)
             {
-                contentControl.SetEditable(editable);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    contentControl.SetEditable(editable);
+                });
             }
         }
 
@@ -240,13 +249,16 @@ namespace Lessium.ContentControls.Models
         /// <param name="control"></param>
         private void BindControl(IContentControl control)
         {
-            control.SetMaxWidth(maxWidth);
-            control.SetMaxHeight(maxHeight);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                control.SetMaxWidth(maxWidth);
+                control.SetMaxHeight(maxHeight);
 
-            control.Resize += OnContentResized;
-            control.RemoveControl += OnRemove;
+                control.Resize += OnContentResized;
+                control.RemoveControl += OnRemove;
 
-            UpdateItemEditable(control);
+                UpdateItemEditable(control);
+            });
         }
 
         [OnDeserialized]
@@ -400,7 +412,10 @@ namespace Lessium.ContentControls.Models
                 var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
                 if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }
 
-                var control = (IContentControl)Activator.CreateInstance(controlType);
+                var control = Application.Current.Dispatcher.Invoke(() =>
+                {
+                    return (IContentControl)Activator.CreateInstance(controlType);
+                });
                 await control.ReadXmlAsync(subtreeReader, progress, token);
 
                 Add(control);

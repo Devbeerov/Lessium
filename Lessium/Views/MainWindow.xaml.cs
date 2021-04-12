@@ -3,6 +3,10 @@ using Lessium.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
+using static System.Windows.Forms.SystemInformation;
+using Lessium.ContentControls;
+using System;
 
 namespace Lessium.Views
 {
@@ -10,7 +14,6 @@ namespace Lessium.Views
     {
         // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
         private readonly MainWindowViewModel viewModel;
-        private static readonly uint lineScrollAmount = SystemSettingsService.GetMouseWheelScrollingLines();
 
         public MainWindow()
         {
@@ -41,6 +44,35 @@ namespace Lessium.Views
 
         #endregion
 
+        #region TabControl
+
+        private void OnTabChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var newTab = e.AddedItems.OfType<TabItem>().Single();
+            var newTabType = GetTabType(newTab);
+
+            if (e.RemovedItems.Count > 0)
+            {
+                var oldTab = e.RemovedItems.OfType<TabItem>().Single();
+                var oldTabType = GetTabType(oldTab);
+
+                viewModel.TabsVerticalScrollOffsets[oldTabType] = sectionsScrollViewer.VerticalOffset;
+            }
+
+            var offset = viewModel.TabsVerticalScrollOffsets[newTabType];
+            sectionsScrollViewer.ScrollToVerticalOffset(offset);
+        }
+
+        private ContentType GetTabType(TabItem tab)
+        {
+            if (tab == Materials) return ContentType.Material;
+            else if (tab == Tests) return ContentType.Test;
+
+            throw new NotSupportedException($"Tab is not supported. You can only get ContentType from Materials or Tests tabs.");
+        }
+
+        #endregion
+
         #region SectionsListBox
 
         private void SectionsListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -48,16 +80,34 @@ namespace Lessium.Views
             if (e.Delta == 0) return;
 
             bool scrollDown = e.Delta < 0;
+            int linesAmount = MouseWheelScrollLines;
 
-            for (int i = 0; i < lineScrollAmount; i++)
+            if (linesAmount == -1) // "One screen at time"
             {
                 if (scrollDown)
                 {
-                    sectionsScrollViewer.LineDown();
+                    sectionsScrollViewer.ScrollToBottom();
                 }
+
                 else
                 {
-                    sectionsScrollViewer.LineUp();
+                    sectionsScrollViewer.ScrollToTop();
+                }
+            }
+
+            else
+            {
+                for (int i = 0; i < MouseWheelScrollLines; i++)
+                {
+                    if (scrollDown)
+                    {
+                        sectionsScrollViewer.LineDown();
+                    }
+
+                    else
+                    {
+                        sectionsScrollViewer.LineUp();
+                    }
                 }
             }
         }

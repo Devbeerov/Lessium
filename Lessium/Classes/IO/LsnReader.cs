@@ -3,11 +3,14 @@ using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -15,6 +18,7 @@ namespace Lessium.Classes.IO
 {
     public static class LsnReader
     {
+        private static readonly Dispatcher dispatcher = Application.Current.Dispatcher;
         private static CancellationTokenSource cts;
         private static bool canceledManually;
         private static bool disposed = true; // Not initialized yet, so we can count it as disposed, considering design of class.
@@ -35,13 +39,13 @@ namespace Lessium.Classes.IO
 
             catch (XmlSchemaException e)
             {
-                Debug.WriteLine($"[CRITICAL ERROR] lsn.xsd is corrupted. Line {e.LineNumber} position {e.LinePosition}{Environment.NewLine}{e.Message}");
+                Debug.WriteLine($"[CRITICAL ERROR] lsn.xsd is corrupted. Line {e.LineNumber} position {e.LinePosition}{Environment.NewLine} {e.Message}");
             }
         }
 
         public static void Cancel()
         {
-            if(!disposed)
+            if (!disposed)
             {
                 cts.Cancel();
             }
@@ -49,11 +53,14 @@ namespace Lessium.Classes.IO
 
         public async static Task<(IOResult, LessonModel)> LoadAsync(string fileName, IProgress<ProgressType> progress)
         {
-            canceledManually = false;
-            cts = new CancellationTokenSource();
-            disposed = false;
+            if (cts != null) throw new ThreadStateException("Thread is already started.");
+
             var result = IOResult.Null;
             LessonModel model = null;
+
+            canceledManually = false;
+            disposed = false;
+            cts = new CancellationTokenSource();
 
             using (cts)
             {
@@ -186,6 +193,7 @@ namespace Lessium.Classes.IO
             var token = cts.Token;
             Dictionary<ContentType, CountData> result = new Dictionary<ContentType, CountData>();
  
+            using (cts)
             using (XmlReader reader = XmlReader.Create(fileName, settings))
             {
                 try
@@ -260,13 +268,22 @@ namespace Lessium.Classes.IO
 
                         // Creates Section instance, but not initializing it yet.
 
-                        var section = new Section(type, false);
+                        var section = dispatcher.Invoke(() =>
+                        {
+                            return new Section(type, false);
+                        });
+
                         await section.ReadXmlAsync(reader, progress, token);
 
                         // Now after loading XML, we can initialize Section properly.
 
-                        section.Initialize();
+                        dispatcher.Invoke(() =>
+                        {
+                            section.Initialize();
+                        });
+
                         sections.Add(section);
+
                     }
 
                     // Returns collection of Sections relative to this ContentType (tab).

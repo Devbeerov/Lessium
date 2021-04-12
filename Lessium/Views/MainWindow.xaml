@@ -116,10 +116,11 @@
 
         <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Margin="10,0,10,10" >
+                    Margin="10,0,10,10"
+                    SelectionChanged="OnTabChanged" > <!-- Code-behind versin of OnTabChanged. Used for restoring scroll -->
 
-            <!-- Material -->
-            <TabItem Name="MaterialHeader" Header="{Binding Materials}" >
+            <!-- Materials -->
+            <TabItem Name="Materials" Header="{Binding Materials}" >
 
                 <!-- Interaction -->
 
@@ -132,7 +133,7 @@
             </TabItem>
 
             <!-- Tests -->
-            <TabItem Name="TestsHeader" Header="{Binding Tests}">
+            <TabItem Name="Tests" Header="{Binding Tests}">
 
                 <!-- Interaction -->
 
@@ -157,9 +158,9 @@
                 Grid.Row="1" Margin="11,22,0,11"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-            <StackPanel Orientation="Vertical" >
+            <VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling">
                 
-                <ScrollViewer x:Name="sectionsScrollViewer" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="sectionsScrollViewer" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
 
                     <ScrollViewer.MaxHeight>
                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
@@ -176,7 +177,9 @@
                              SelectionChanged="Sections_SelectionChanged"
                              IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
                              ItemTemplate="{StaticResource SectionTemplate}"
-                             PreviewMouseWheel="SectionsListBox_PreviewMouseWheel">
+                             PreviewMouseWheel="SectionsListBox_PreviewMouseWheel"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling" >
 
                         <i:Interaction.Triggers>
 
@@ -197,7 +200,7 @@
                             ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
                             Style="{StaticResource AddSectionButtonStyle}">
                 </Button>
-            </StackPanel>
+            </VirtualizingStackPanel>
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="KeyDown">
