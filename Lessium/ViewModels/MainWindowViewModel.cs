@@ -324,7 +324,7 @@ namespace Lessium.ViewModels
             var lessonModel = new LessonModel();
 
             lessonModel.MaterialSections.AddRange(SectionsByType[ContentType.Material]);
-            lessonModel.TestSections.AddRange(SectionsByType[ContentType.Material]);
+            lessonModel.TestSections.AddRange(SectionsByType[ContentType.Test]);
 
             return lessonModel;
         }
@@ -638,8 +638,10 @@ namespace Lessium.ViewModels
                
                 progressView.Show();
 
-                // Pauses method until SaveAsync method is completed.
-                var result = await LsnWriter.SaveAsync(lessonModel, fileName, progress);
+                // Awaits until SaveAsync method is completed asynchronously.
+
+                var result = await Task.Run(async () => await LsnWriter.SaveAsync(lessonModel, fileName, progress));
+
                 if (result == IOResult.Sucessful)
                 {
                     HasChanges = false;
@@ -708,7 +710,6 @@ namespace Lessium.ViewModels
                 (IOResult, LessonModel) result = (IOResult.Null, null);
                 try
                 {
-                    // Pauses method until LoadAsync will be completed.
                     result = await Task.Run(async () => await LsnReader.LoadAsync(loadDialog.FileName, progress));
                 }
 

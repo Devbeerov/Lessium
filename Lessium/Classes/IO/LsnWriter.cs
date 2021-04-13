@@ -1,9 +1,7 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Utility;
-using Lessium.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -28,6 +26,8 @@ namespace Lessium.Classes.IO
 
         public async static Task<IOResult> SaveAsync(LessonModel lessonModel, string fileName, IProgress<ProgressType> progress)
         {
+            if (cts != null) throw new ThreadStateException("Thread is already started.");
+
             canceledManually = false;
             cts = new CancellationTokenSource();
             var result = IOResult.Null;
@@ -49,7 +49,7 @@ namespace Lessium.Classes.IO
                     }
                     else
                     {
-                        Console.WriteLine($"Error while saving file - {e.ToString()}");
+                        Console.WriteLine($"Error while saving file - {e}");
                     }
                 }
 

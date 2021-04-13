@@ -44,12 +44,7 @@ namespace Lessium.Utility
 
         public static async Task<(IOResult, LessonModel)> LoadLesson(string filePath, Window owner = null)
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                throw new ThreadStateException("The current threads apartment state is not STA");
-            }
-
-            var countData = await Task.Run(async () => await LsnReader.CountDataAsync(filePath));
+            var countData = await LsnReader.CountDataAsync(filePath);
 
             // Creates ProgressView
 

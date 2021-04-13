@@ -1,16 +1,14 @@
 ﻿using Lessium.ContentControls;
+using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -18,7 +16,22 @@ namespace Lessium.Classes.IO
 {
     public static class LsnReader
     {
-        private static readonly Dispatcher dispatcher = Application.Current.Dispatcher;
+        private static IDispatcher dispatcher = null;
+        public static IDispatcher Dispatcher
+        {
+            get
+            {
+                if (dispatcher == null)
+                {
+                    dispatcher = DispatcherUtility.Dispatcher;
+                }
+
+                return dispatcher;
+            }
+
+            set { dispatcher = value; }
+        }
+
         private static CancellationTokenSource cts;
         private static bool canceledManually;
         private static bool disposed = true; // Not initialized yet, so we can count it as disposed, considering design of class.
@@ -268,7 +281,7 @@ namespace Lessium.Classes.IO
 
                         // Creates Section instance, but not initializing it yet.
 
-                        var section = dispatcher.Invoke(() =>
+                        var section = Dispatcher.Invoke(() =>
                         {
                             return new Section(type, false);
                         });
@@ -277,7 +290,7 @@ namespace Lessium.Classes.IO
 
                         // Now after loading XML, we can initialize Section properly.
 
-                        dispatcher.Invoke(() =>
+                        Dispatcher.Invoke(() =>
                         {
                             section.Initialize();
                         });

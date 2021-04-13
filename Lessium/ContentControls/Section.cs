@@ -17,6 +17,7 @@ using Lessium.Classes.IO;
 using Lessium.Properties;
 using System.Globalization;
 using System.Resources;
+using Lessium.Classes.Wrappers;
 
 namespace Lessium.ContentControls
 {
@@ -28,6 +29,7 @@ namespace Lessium.ContentControls
 
         private bool editable = false;
         private bool setupDone = false;
+        private IDispatcher dispatcher;
 
         private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
 
@@ -38,13 +40,26 @@ namespace Lessium.ContentControls
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
+            // Dispatcher
+
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            // Initialization
+
             SetupProperties(ContentType.Material);
             Initialize();
         }
 
-        public Section(ContentType type, bool initialize = true) : base()
+        public Section(ContentType type, bool initialize = true, IDispatcher dispatcher = null) : base()
         {
+            // Dispatcher
+
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            // Initialization
+
             SetupProperties(type);
+
             if (initialize)
             {
                 Initialize();
@@ -56,6 +71,12 @@ namespace Lessium.ContentControls
             var type = (ContentType)info.GetValue("ContentType", typeof(ContentType));
             var title = info.GetString("Title");
             storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
+
+            // Dispatcher
+
+            dispatcher = DispatcherUtility.Dispatcher;
+
+            // Setup
 
             SetupProperties(type);
             Title = title;
@@ -241,8 +262,12 @@ namespace Lessium.ContentControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Title", Title);
-            info.AddValue("Pages", Pages.ToList());
+            dispatcher.Invoke(() =>
+            {
+                info.AddValue("Title", Title);
+                info.AddValue("Pages", Pages.ToList());
+            });
+
             info.AddValue("ContentType", ContentType);
         }
 
@@ -259,7 +284,11 @@ namespace Lessium.ContentControls
             #region Section
 
             await writer.WriteStartElementAsync("Section");
-            await writer.WriteAttributeStringAsync("Title", Title);
+
+            await dispatcher.InvokeAsync(async () => 
+            {
+                await writer.WriteAttributeStringAsync("Title", Title);
+            });
 
             #region Page(s)
 
@@ -289,7 +318,7 @@ namespace Lessium.ContentControls
                 throw new ArgumentNullException(title);
             }
 
-            Application.Current.Dispatcher.Invoke(() =>
+            dispatcher.Invoke(() =>
             {
                 Title = title;
             });
@@ -315,7 +344,7 @@ namespace Lessium.ContentControls
 
             }
 
-            Application.Current.Dispatcher.Invoke(() => 
+            dispatcher.Invoke(() => 
             {
                 if (Pages.Count == 0)
                 {

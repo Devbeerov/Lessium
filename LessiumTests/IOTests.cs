@@ -12,6 +12,9 @@ using Lessium.ContentControls.TestControls;
 using Lessium;
 using System.Windows;
 using System.Threading.Tasks;
+using Lessium.Classes.Wrappers;
+using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace LessiumTests
 {
@@ -53,22 +56,13 @@ namespace LessiumTests
         [Apartment(ApartmentState.STA)]
         public void TestLoad()
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                throw new ThreadStateException("The current threads apartment state is not STA");
-            }
+            // Should be called to avoid deadlock.
 
-            // Validates Lessium's App. It's required for proper work of Lessium's Views.
-            var app = (App) Application.Current;
-            if (app == null)
-            {
-                app = new App();
-                app.InitializeComponent();
-            }
+            SetupTestDispatcher();
 
             // Creates expected Lesson's Model
 
-            var expectedLessonModel = CreateExpectedLessonModel();
+            var expectedLessonModel = DispatcherUtility.Dispatcher.Invoke(() => CreateExpectedLessonModel());
 
             // Checks if code doesn't throws any exceptions during load, and also Asserts results.
 
@@ -100,8 +94,16 @@ namespace LessiumTests
                 throw new ThreadStateException("The current threads apartment state is not STA");
             }
 
+            // Should be called to avoid deadlock.
+
+            SetupTestDispatcher();
+
+            // Loads Lesson and retrieves it's LessonModel
+
             var loadResult = await IOTools.LoadLesson(filePath);
             var serializedModel = loadResult.Item2;
+
+            // Saving
 
             IOResult saveResult = IOResult.Null;
             Assert.DoesNotThrowAsync(async () =>
@@ -113,8 +115,9 @@ namespace LessiumTests
 
                 progressView.Show();
 
-                // Pauses method until SaveAsync method is completed.
-                saveResult = await LsnWriter.SaveAsync(serializedModel, tempPath, progress);
+                // Awaits until SaveAsync method is completed asynchronously.
+
+                saveResult = await Task.Run(async () => await LsnWriter.SaveAsync(serializedModel, tempPath, progress));
             });
 
             Assert.AreEqual(IOResult.Sucessful, saveResult);
@@ -132,6 +135,12 @@ namespace LessiumTests
         [Apartment(ApartmentState.STA)]
         public void TestBigLoad()
         {
+            // Should be called to avoid deadlock.
+
+            SetupTestDispatcher();
+
+            // Check if loaded large file without exceptions. For more detail testing of Load, use TestLoad().
+
             Assert.DoesNotThrowAsync(async () =>
             {
                 await IOTools.LoadLesson(bigLessonPath);
@@ -141,6 +150,24 @@ namespace LessiumTests
         #endregion
 
         #region Private Methods
+
+        private void SetupTestDispatcher()
+        {
+            ManualResetEvent resetEvent = new ManualResetEvent(false);
+
+            Thread thr = new Thread(() =>
+            {
+                DispatcherUtility.Dispatcher = new DispatcherWrapper(Dispatcher.CurrentDispatcher);
+
+                resetEvent.Set();
+                Dispatcher.Run();
+            });
+
+            thr.SetApartmentState(ApartmentState.STA);
+            thr.Start();
+
+            resetEvent.WaitOne();
+        }
 
         /// <summary>
         /// Using current filePath field.

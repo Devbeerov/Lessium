@@ -20,16 +20,29 @@ namespace Lessium.ContentControls.MaterialControls
     [Serializable]
     public partial class TextControl : UserControl, IMaterialControl
     {
+        private IDispatcher dispatcher;
+
         #region Constructors
 
         public TextControl()
         {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            Initialize();
+        }
+
+        public TextControl(IDispatcher dispatcher)
+        {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
             Initialize();
         }
 
         // For serialization
         protected TextControl(SerializationInfo info, StreamingContext context)
         {
+            dispatcher = DispatcherUtility.Dispatcher;
+
             // Initializes component
 
             Initialize();
@@ -196,7 +209,10 @@ namespace Lessium.ContentControls.MaterialControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Text", Text);
+            dispatcher.Invoke(() =>
+            {
+                info.AddValue("Text", Text);
+            });
         }
 
         #endregion
@@ -213,7 +229,10 @@ namespace Lessium.ContentControls.MaterialControls
 
             await writer.WriteStartElementAsync(GetType().Name);
 
-            await writer.WriteStringAsync(Text);
+            await dispatcher.InvokeAsync(async () =>
+            {
+                await writer.WriteStringAsync(Text);
+            });
 
             await writer.WriteEndElementAsync();
 
@@ -228,7 +247,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Content of TextControl is string. So we just extracts it entirely.
 
-            await Application.Current.Dispatcher.InvokeAsync(async () =>
+            await dispatcher.InvokeAsync(async () =>
             {
                 Text = await reader.ReadElementContentAsStringAsync();
             });

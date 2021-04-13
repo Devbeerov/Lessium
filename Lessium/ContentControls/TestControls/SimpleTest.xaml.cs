@@ -22,6 +22,7 @@ namespace Lessium.ContentControls.TestControls
     public partial class SimpleTest : UserControl, ITestControl
     {
         private Guid id;
+        private IDispatcher dispatcher;
 
         private bool editable;
         private bool raiseResizeEvent = true;
@@ -47,12 +48,23 @@ namespace Lessium.ContentControls.TestControls
 
         public SimpleTest()
         {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            Initialize();
+        }
+
+        public SimpleTest(IDispatcher dispatcher)
+        {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
             Initialize();
         }
 
         // For serialization
         protected SimpleTest(SerializationInfo info, StreamingContext context)
         {
+            dispatcher = DispatcherUtility.Dispatcher;
+
             // Initializes component
 
             Initialize();
@@ -341,6 +353,7 @@ namespace Lessium.ContentControls.TestControls
             #region SimpleTest
 
             await writer.WriteStartElementAsync(GetType().Name);
+
             await writer.WriteAttributeStringAsync("Question", Question);
 
             foreach (var answer in Answers)
@@ -361,11 +374,8 @@ namespace Lessium.ContentControls.TestControls
 
             // Reads attributes
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Question = reader.GetAttribute("Question");
-            });
-
+            Question = reader.GetAttribute("Question");
+            
             // Reads Answers
 
             while (await reader.ReadToFollowingAsync("Answer"))
@@ -376,7 +386,7 @@ namespace Lessium.ContentControls.TestControls
                 var answer = new AnswerModel();
                 await answer.ReadXmlAsync(reader, progress, token);
 
-                Application.Current.Dispatcher.Invoke(() =>
+                dispatcher.Invoke(() =>
                 {
                     Answers.Add(answer);
                 });
@@ -389,15 +399,19 @@ namespace Lessium.ContentControls.TestControls
     [Serializable]
     public class AnswerModel : ILsnSerializable
     {
+        private IDispatcher dispatcher;
+
         public string Text { get; set; } = string.Copy(Properties.Resources.DefaultAnswerHeader);
 
-        public AnswerModel()
+        public AnswerModel(IDispatcher dispatcher = null)
         {
-
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
         }
 
-        public AnswerModel(string text)
+        public AnswerModel(string text, IDispatcher dispatcher = null)
         {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
             Text = text;
         }
 
@@ -409,7 +423,10 @@ namespace Lessium.ContentControls.TestControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Text", Text);
+            dispatcher.Invoke(() =>
+            {
+                info.AddValue("Text", Text);
+            });
         }
 
         public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
@@ -418,7 +435,10 @@ namespace Lessium.ContentControls.TestControls
 
             await writer.WriteStartElementAsync("Answer");
 
-            await writer.WriteStringAsync(Text);
+            await dispatcher.InvokeAsync(async () =>
+            {
+                await writer.WriteStringAsync(Text);
+            });
 
             await writer.WriteEndElementAsync();
 
@@ -427,7 +447,7 @@ namespace Lessium.ContentControls.TestControls
 
         public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
         {
-            await Application.Current.Dispatcher.InvokeAsync(async () =>
+            await dispatcher.InvokeAsync(async () =>
             {
                 Text = await reader.ReadElementContentAsStringAsync();
             });

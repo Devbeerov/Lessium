@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Utility;
 using Lessium.Classes.IO;
+using Lessium.Classes.Wrappers;
 
 namespace Lessium.ContentControls.Models
 {
@@ -31,6 +32,7 @@ namespace Lessium.ContentControls.Models
 
         private bool editable = false;
         private ContentPageControl pageControl;
+        private IDispatcher dispatcher;
 
         // Serialization
 
@@ -47,9 +49,10 @@ namespace Lessium.ContentControls.Models
 
         #region Public
 
-        public ContentPage(ContentType contentType)
+        public ContentPage(ContentType contentType, IDispatcher dispatcher = null)
         {
             this.ContentType = contentType;
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
         }
 
         public static ContentPage CreateWithPageControlInjection(ContentPage oldPage, ContentType? contentType = null)
@@ -75,7 +78,7 @@ namespace Lessium.ContentControls.Models
 
             Items.Add(control);
 
-            Application.Current.Dispatcher.Invoke(() =>
+            dispatcher.Invoke(() =>
             {
                 // If control is already loaded (for example, moved from another page to this one), validates it
                 if ((control as FrameworkElement).IsLoaded)
@@ -92,7 +95,7 @@ namespace Lessium.ContentControls.Models
 
             Items.Insert(position, control);
 
-            Application.Current.Dispatcher.Invoke(() =>
+            dispatcher.Invoke(() =>
             {
                 // If control is already loaded (for example, moved from another page to this one), validates forward
                 if ((control as FrameworkElement).IsLoaded)
@@ -211,7 +214,7 @@ namespace Lessium.ContentControls.Models
         {
             if (contentControl != null)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                dispatcher.Invoke(() =>
                 {
                     contentControl.SetEditable(editable);
                 });
@@ -249,7 +252,7 @@ namespace Lessium.ContentControls.Models
         /// <param name="control"></param>
         private void BindControl(IContentControl control)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            dispatcher.Invoke(() =>
             {
                 control.SetMaxWidth(maxWidth);
                 control.SetMaxHeight(maxHeight);
@@ -412,7 +415,7 @@ namespace Lessium.ContentControls.Models
                 var controlType = Type.GetType($"Lessium.ContentControls.{controlTypeNamespace}.{subtreeReader.Name}");
                 if (controlType == null) { throw new InvalidDataException($"Invalid control type detected - {subtreeReader.Name}"); }
 
-                var control = Application.Current.Dispatcher.Invoke(() =>
+                var control = dispatcher.Invoke(() =>
                 {
                     return (IContentControl)Activator.CreateInstance(controlType);
                 });
