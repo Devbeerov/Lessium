@@ -65,7 +65,6 @@
     </ApplicationDefinition>
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
-    <Compile Include="Classes\Wrappers\SynchronousDispatcherWrapper.cs" />
     <Compile Include="Classes\Wrappers\DispatcherWrapper.cs" />
     <Compile Include="CustomControls\ShortcutControl.xaml.cs">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>

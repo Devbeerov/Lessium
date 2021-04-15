@@ -15,6 +15,8 @@ namespace Lessium.Utility
     {
         public static ProgressWindow CreateProgressView(Window owner, string title, Dictionary<ContentType, CountData> countDataDictionary, IOType operationType)
         {
+            if (countDataDictionary.Count == 0) throw new ArgumentException("CountData is empty!");
+
             var progressView = new ProgressWindow(title, countDataDictionary)
             {
                 Owner = owner,

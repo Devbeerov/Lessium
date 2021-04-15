@@ -1,7 +1,11 @@
 ﻿using Lessium.ContentControls;
+using Lessium.ContentControls.Models;
+using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -10,6 +14,22 @@ namespace Lessium.Classes.IO
 {
     public static class LsnWriter
     {
+        private static IDispatcher dispatcher = null;
+        public static IDispatcher Dispatcher
+        {
+            get
+            {
+                if (dispatcher == null)
+                {
+                    dispatcher = DispatcherUtility.Dispatcher;
+                }
+
+                return dispatcher;
+            }
+
+            set { dispatcher = value; }
+        }
+
         private static CancellationTokenSource cts;
         private static bool canceledManually;
 
@@ -34,10 +54,11 @@ namespace Lessium.Classes.IO
 
             using (cts)
             {
-                var task = SaveInternalAsync(lessonModel, fileName, cts.Token, progress);
+                Task task = null;
 
                 try
                 {
+                    task = SaveInternalAsync(lessonModel, fileName, cts.Token, progress);
                     await task;
                 }
 
@@ -123,7 +144,14 @@ namespace Lessium.Classes.IO
         {
             int pageIndex = 0;
 
-            foreach (var page in section.Pages)
+            ObservableCollection<ContentPage> pages = null;
+
+            Dispatcher.Invoke(() =>
+            {
+                pages = section.Pages;
+            });
+
+            foreach (var page in pages)
             {
                 if(token.IsCancellationRequested) { break; }
 

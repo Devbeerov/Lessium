@@ -38,5 +38,10 @@ namespace Lessium.Classes.Wrappers
         {
             return dispatcher.InvokeAsync(func).Task;
         }
+
+        public Dispatcher GetUnderlyingDispatcher()
+        {
+            return dispatcher;
+        }
     }
 }

@@ -9,8 +9,6 @@ using NUnit.Framework;
 using Lessium.ContentControls.Models;
 using Lessium.ContentControls.MaterialControls;
 using Lessium.ContentControls.TestControls;
-using Lessium;
-using System.Windows;
 using System.Threading.Tasks;
 using Lessium.Classes.Wrappers;
 using System.Windows.Threading;
@@ -73,6 +71,8 @@ namespace LessiumTests
                 loadResult = await IOTools.LoadLesson(filePath);
             });
 
+            ShutdownDispatcher();
+
             Assert.AreEqual(true, loadResult.HasValue);
 
             // Asserts results
@@ -89,11 +89,6 @@ namespace LessiumTests
         [Apartment(ApartmentState.STA)]
         public async Task TestSave()
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                throw new ThreadStateException("The current threads apartment state is not STA");
-            }
-
             // Should be called to avoid deadlock.
 
             SetupTestDispatcher();
@@ -106,11 +101,14 @@ namespace LessiumTests
             // Saving
 
             IOResult saveResult = IOResult.Null;
+
             Assert.DoesNotThrowAsync(async () =>
             {
+                var countData = await LsnWriter.CountDataAsync(serializedModel, filePath);
+
                 // New window
-                var progressView = IOTools.CreateProgressView(null, "TestSave",
-                    await LsnWriter.CountDataAsync(serializedModel, filePath), IOType.Write);
+
+                var progressView = IOTools.CreateProgressView(null, "TestSave", countData, IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
 
                 progressView.Show();
@@ -118,12 +116,18 @@ namespace LessiumTests
                 // Awaits until SaveAsync method is completed asynchronously.
 
                 saveResult = await Task.Run(async () => await LsnWriter.SaveAsync(serializedModel, tempPath, progress));
-            });
 
+                // Closes window
+
+                progressView.Close();
+            });
+            
             Assert.AreEqual(IOResult.Sucessful, saveResult);
 
             var tempLoadResult = await IOTools.LoadLesson(tempPath);
             var tempSerializedModel = tempLoadResult.Item2;
+
+            ShutdownDispatcher();
 
             // Asserts temp file is loaded sucessfully and serializedModel is the same.
 
@@ -144,6 +148,7 @@ namespace LessiumTests
             Assert.DoesNotThrowAsync(async () =>
             {
                 await IOTools.LoadLesson(bigLessonPath);
+                ShutdownDispatcher();
             });
         }
 
@@ -160,13 +165,28 @@ namespace LessiumTests
                 DispatcherUtility.Dispatcher = new DispatcherWrapper(Dispatcher.CurrentDispatcher);
 
                 resetEvent.Set();
-                Dispatcher.Run();
+                while (!DispatcherUtility.Dispatcher.GetUnderlyingDispatcher().HasShutdownStarted)
+                {
+                    Dispatcher.Run();
+                }
+
+                Dispatcher.ExitAllFrames();
+                Debug.WriteLine("[INFO] Dispatcher thread terminated.");
             });
 
+            thr.IsBackground = false;
             thr.SetApartmentState(ApartmentState.STA);
             thr.Start();
 
             resetEvent.WaitOne();
+
+            var context = new DispatcherSynchronizationContext(DispatcherUtility.Dispatcher.GetUnderlyingDispatcher());
+            SynchronizationContext.SetSynchronizationContext(context);
+        }
+
+        private void ShutdownDispatcher()
+        {
+            DispatcherUtility.Dispatcher.GetUnderlyingDispatcher().InvokeShutdown();
         }
 
         /// <summary>

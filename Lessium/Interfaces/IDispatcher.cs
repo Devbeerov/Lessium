@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace Lessium.Interfaces
 {
@@ -10,5 +11,6 @@ namespace Lessium.Interfaces
 
         Task InvokeAsync(Action action);
         Task<T> InvokeAsync<T>(Func<T> func);
+        Dispatcher GetUnderlyingDispatcher();
     }
 }
