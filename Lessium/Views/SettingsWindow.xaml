@@ -54,8 +54,8 @@
         <!--#region Column 1-->
 
         <ContentControl x:Name="sectionContent" Grid.Column="1" Margin="10" 
-                        utility:Extensions.DynamicContentKey="{Binding SelectedSectionKey}"
-                        utility:Extensions.DynamicContentResourceDictionary="{Binding ElementName=settingsViewDictionary}"/>
+                        utility:WpfExtensions.DynamicContentKey="{Binding SelectedSectionKey}"
+                        utility:WpfExtensions.DynamicContentResourceDictionary="{Binding ElementName=settingsViewDictionary}"/>
 
         <!--#endregion-->
     </Grid>

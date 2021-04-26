@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace Lessium.Utility
 {
-    public static class Extensions
+    public static class WpfExtensions
     {
         public static T FindParent<T>(this DependencyObject child) where T : DependencyObject
         {
@@ -79,10 +79,10 @@ namespace Lessium.Utility
         #region Attached Properties
 
         public static readonly DependencyProperty DynamicContentKeyProperty = DependencyProperty.RegisterAttached("DynamicContentKey",
-            typeof(object), typeof(Extensions), new PropertyMetadata(null, DynamicContentKeyChanged));
+            typeof(object), typeof(WpfExtensions), new PropertyMetadata(null, DynamicContentKeyChanged));
 
         public static readonly DependencyProperty DynamicContentResourceDictionaryProperty = DependencyProperty.RegisterAttached("DynamicContentResourceDictionary",
-            typeof(ResourceDictionary), typeof(Extensions), new PropertyMetadata(null, DynamicContentResourceDictionaryChanged));
+            typeof(ResourceDictionary), typeof(WpfExtensions), new PropertyMetadata(null, DynamicContentResourceDictionaryChanged));
 
         private static void DynamicContentKeyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {

@@ -85,8 +85,10 @@
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utility\DispatcherUtility.cs" />
+    <Compile Include="Utility\DataStructuresExtensions.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
+    <Compile Include="Utility\LessonDataService.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />
@@ -185,7 +187,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Utility\Behaviors.cs" />
-    <Compile Include="Utility\Extensions.cs" />
+    <Compile Include="Utility\WpfExtensions.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -267,6 +269,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\question.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\checkmark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

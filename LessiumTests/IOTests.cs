@@ -52,7 +52,7 @@ namespace LessiumTests
 
         [Test]
         [Apartment(ApartmentState.STA)]
-        public void TestLoad()
+        public async Task TestLoad()
         {
             // Should be called to avoid deadlock.
 
@@ -66,10 +66,15 @@ namespace LessiumTests
 
             (IOResult, LessonModel)? loadResult = null;
 
-            Assert.DoesNotThrowAsync(async () =>
+            try
             {
                 loadResult = await IOTools.LoadLesson(filePath);
-            });
+            }
+
+            catch (Exception e)
+            {
+                Assert.Fail("Exception occured during loading: {0}", e.ToString());
+            }
 
             ShutdownDispatcher();
 
@@ -102,7 +107,7 @@ namespace LessiumTests
 
             IOResult saveResult = IOResult.Null;
 
-            Assert.DoesNotThrowAsync(async () =>
+            try
             {
                 var countData = await LsnWriter.CountDataAsync(serializedModel, filePath);
 
@@ -120,7 +125,12 @@ namespace LessiumTests
                 // Closes window
 
                 progressView.Close();
-            });
+            }
+
+            catch (Exception e)
+            {
+                Assert.Fail("Exception occured during saving: {0}", e.ToString());
+            }
             
             Assert.AreEqual(IOResult.Sucessful, saveResult);
 
@@ -137,7 +147,7 @@ namespace LessiumTests
 
         [Test]
         [Apartment(ApartmentState.STA)]
-        public void TestBigLoad()
+        public async Task TestBigLoad()
         {
             // Should be called to avoid deadlock.
 
@@ -145,11 +155,17 @@ namespace LessiumTests
 
             // Check if loaded large file without exceptions. For more detail testing of Load, use TestLoad().
 
-            Assert.DoesNotThrowAsync(async () =>
+            try
             {
                 await IOTools.LoadLesson(bigLessonPath);
-                ShutdownDispatcher();
-            });
+            }
+
+            catch (Exception e)
+            {
+                Assert.Fail("Exception occured during loading: {0}", e.ToString());
+            }
+
+            ShutdownDispatcher();
         }
 
         #endregion

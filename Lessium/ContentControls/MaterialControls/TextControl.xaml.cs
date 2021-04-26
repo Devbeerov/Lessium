@@ -9,7 +9,6 @@ using Lessium.Utility;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Collections.Generic;
 using Lessium.Classes.IO;
 
 namespace Lessium.ContentControls.MaterialControls
@@ -49,7 +48,7 @@ namespace Lessium.ContentControls.MaterialControls
 
             // Serializes properties
 
-            Text = info.GetString("Text");
+            Text = info.GetString(nameof(Text));
         }
 
         #endregion
@@ -211,7 +210,7 @@ namespace Lessium.ContentControls.MaterialControls
         {
             dispatcher.Invoke(() =>
             {
-                info.AddValue("Text", Text);
+                info.AddValue(nameof(Text), Text);
             });
         }
 

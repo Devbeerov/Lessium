@@ -38,9 +38,21 @@
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
+
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
+                                <!-- Toggles Answer is true -->
+                                <Border BorderBrush="Black" BorderThickness="2">
+                                    <Button x:Name="ToggleAnswerTrue" Click="ToggleAnswerTrue_Click" Width="16" Height="16"
+                                            HorizontalAlignment="Left" >
+
+                                        <Image x:Name="toggleAnswerIcon" Source="{StaticResource ResourceKey=CheckmarkIcon}" />
+                                    </Button>
+                                </Border>
+
+                                <!-- Answer inside RadioButton for selecting -->
                                 <RadioButton x:Name="radioButton" 
                                              GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
+
                                     <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
                                     <materials:TextControl x:Name="TextContainer"
                                                            Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
@@ -65,6 +77,7 @@
                                     </materials:TextControl>
                                 </RadioButton>
                             </StackPanel>
+
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

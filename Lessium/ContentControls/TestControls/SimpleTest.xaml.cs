@@ -29,7 +29,7 @@ namespace Lessium.ContentControls.TestControls
 
         // Serialization
 
-        private List<AnswerModel> storedAnswers;
+        private List<AnswerModel> storedAnswers; // Store Answers, because AnswersControl won't be loaded at time of deserialization.
 
         #region CLR Properties
 
@@ -71,8 +71,16 @@ namespace Lessium.ContentControls.TestControls
 
             // Serializes properties
 
-            this.Question = info.GetString("Question");
-            storedAnswers = (List<AnswerModel>)info.GetValue("Answers", typeof(List<AnswerModel>));
+            Question = info.GetString(nameof(Question));
+            storedAnswers = (List<AnswerModel>)info.GetValue(nameof(Answers), typeof(List<AnswerModel>));
+
+            // ITestControl
+
+            AnswersMode = (AnswersMode)info.GetValue(nameof(AnswersMode), typeof(AnswersMode));
+            TrueAnswer = info.GetValue(nameof(TrueAnswer), typeof(object));
+
+            var TrueAnswersList = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
+            TrueAnswers = TrueAnswersList.ToArray();
         }
 
         #endregion
@@ -156,6 +164,33 @@ namespace Lessium.ContentControls.TestControls
 
         public event RoutedEventHandler RemoveControl;
         public event SizeChangedEventHandler Resize;
+
+        #endregion
+
+        #region ITestControl
+
+        public AnswersMode AnswersMode { get; set; } = AnswersMode.Single;
+
+        public object SelectedAnswer { get; set; }
+        public object[] SelectedAnswers { get; set; }
+
+        public object TrueAnswer { get; set; }
+        public object[] TrueAnswers { get; set; }
+
+        public bool CheckAnswers()
+        {
+            if (AnswersMode == AnswersMode.Single)
+            {
+                return SelectedAnswer?.Equals(TrueAnswer) ?? false; // Check if equals, if SelectedAnswer is null, returns false.
+            }
+
+            if (AnswersMode == AnswersMode.Multiple)
+            {
+                return DataStructuresExtensions.IsSame(SelectedAnswers, TrueAnswers);
+            }
+
+            throw new NotSupportedException($"{AnswersMode} is not supported.");
+        }
 
         #endregion
 
@@ -325,8 +360,14 @@ namespace Lessium.ContentControls.TestControls
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Question", Question);
-            info.AddValue("Answers", Answers.ToList());
+            info.AddValue(nameof(Question), Question);
+            info.AddValue(nameof(Answers), Answers.ToList());
+
+            // ITestControl
+
+            info.AddValue(nameof(AnswersMode), AnswersMode);
+            info.AddValue(nameof(TrueAnswer), TrueAnswer);
+            info.AddValue(nameof(TrueAnswers), TrueAnswers.ToList());
         }
 
         [OnDeserialized]
@@ -354,7 +395,7 @@ namespace Lessium.ContentControls.TestControls
 
             await writer.WriteStartElementAsync(GetType().Name);
 
-            await writer.WriteAttributeStringAsync("Question", Question);
+            await writer.WriteAttributeStringAsync(nameof(Question), Question);
 
             foreach (var answer in Answers)
             {
@@ -374,7 +415,7 @@ namespace Lessium.ContentControls.TestControls
 
             // Reads attributes
 
-            Question = reader.GetAttribute("Question");
+            Question = reader.GetAttribute(nameof(Question));
             
             // Reads Answers
 
@@ -394,6 +435,11 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
+
+        private void ToggleAnswerTrue_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     [Serializable]
@@ -418,14 +464,14 @@ namespace Lessium.ContentControls.TestControls
         // For serialization
         protected AnswerModel(SerializationInfo info, StreamingContext context)
         {
-            Text = info.GetString("Text");
+            Text = info.GetString(nameof(Text));
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             dispatcher.Invoke(() =>
             {
-                info.AddValue("Text", Text);
+                info.AddValue(nameof(Text), Text);
             });
         }
 
