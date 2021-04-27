@@ -36,50 +36,63 @@
                 </materials:TextControl>
 
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
+
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
 
-                            <StackPanel Orientation="Horizontal" x:Name="dataPanel">
-                                <!-- Toggles Answer is true -->
-                                <Border BorderBrush="Black" BorderThickness="2">
-                                    <Button x:Name="ToggleAnswerTrue" Click="ToggleAnswerTrue_Click" Width="16" Height="16"
-                                            HorizontalAlignment="Left" >
+                                <ContentPresenter x:Name="SelectionBox" />
 
-                                        <Image x:Name="toggleAnswerIcon" Source="{StaticResource ResourceKey=CheckmarkIcon}" />
-                                    </Button>
-                                </Border>
+                                <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
+                                <materials:TextControl x:Name="TextContainer"
+                                                       Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
+                                                       Loaded="TextContainer_Loaded"
+                                                       Unloaded="TextContainer_Unloaded"
+                                                       RemoveControl="RemoveAnswer_Click" >
 
-                                <!-- Answer inside RadioButton for selecting -->
-                                <RadioButton x:Name="radioButton" 
-                                             GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
+                                    <materials:TextControl.Tag>
+                                        <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
+                                            <Binding ElementName="TextContainer" />
+                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                        </MultiBinding>
+                                    </materials:TextControl.Tag>
 
-                                    <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
-                                    <materials:TextControl x:Name="TextContainer"
-                                                           Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
-                                                           Loaded="TextContainer_Loaded"
-                                                           Unloaded="TextContainer_Unloaded"
-                                                           RemoveControl="RemoveAnswer_Click" >
+                                    <materials:TextControl.MaxWidth>
+                                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
+                                            <Binding Path="Tag" />
+                                        </MultiBinding>
+                                    </materials:TextControl.MaxWidth>
 
-                                        <materials:TextControl.Tag>
-                                            <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
-                                                <Binding ElementName="TextContainer" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                            </MultiBinding>
-                                        </materials:TextControl.Tag>
-
-                                        <materials:TextControl.MaxWidth>
-                                            <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
-                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
-                                                <Binding Path="Tag" />
-                                            </MultiBinding>
-                                        </materials:TextControl.MaxWidth>
-
-                                    </materials:TextControl>
-                                </RadioButton>
+                                </materials:TextControl>
+                                
                             </StackPanel>
-
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
+                    
+                    <ItemsControl.Resources>
+                        
+                        <DataTemplate x:Key="ReadOnlyBoxTemplate" >
+                            <!-- Answer inside RadioButton for selecting -->
+                            <RadioButton x:Name="radioButton" 
+                                         GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
+
+                            </RadioButton>
+                        </DataTemplate>
+
+                        <DataTemplate x:Key="EditingModeBoxTemplate">
+                            <!-- Toggles Answer is true -->
+
+                            <CheckBox x:Name="ToggleAnswerTrue" Width="16" Height="16"
+                                      HorizontalAlignment="Left" VerticalAlignment="Top"
+                                      IsChecked="False"
+                                      Checked="ToggleAnswerTrue_Checked"
+                                      Unchecked="ToggleAnswerTrue_Unchecked" />
+
+                        </DataTemplate>
+
+                    </ItemsControl.Resources>
+
                 </ItemsControl>
 
                 <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"

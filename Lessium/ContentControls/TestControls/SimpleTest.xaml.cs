@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
@@ -41,6 +42,7 @@ namespace Lessium.ContentControls.TestControls
         }
 
         public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
+        public float DisabledAnswerIconOpacity { get; set; } = 0.5f;
 
         #endregion
 
@@ -48,7 +50,7 @@ namespace Lessium.ContentControls.TestControls
 
         public SimpleTest()
         {
-            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+            this.dispatcher = DispatcherUtility.Dispatcher;
 
             Initialize();
         }
@@ -75,9 +77,6 @@ namespace Lessium.ContentControls.TestControls
             storedAnswers = (List<AnswerModel>)info.GetValue(nameof(Answers), typeof(List<AnswerModel>));
 
             // ITestControl
-
-            AnswersMode = (AnswersMode)info.GetValue(nameof(AnswersMode), typeof(AnswersMode));
-            TrueAnswer = info.GetValue(nameof(TrueAnswer), typeof(object));
 
             var TrueAnswersList = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
             TrueAnswers = TrueAnswersList.ToArray();
@@ -120,11 +119,13 @@ namespace Lessium.ContentControls.TestControls
             if (editable)
             {
                 removeButton.Visibility = Visibility.Visible;
+                AnswersItemControl.ItemTemplate = (DataTemplate)AnswersItemControl.FindResource("EditingTemplate");
             }
 
             else
             {
                 removeButton.Visibility = Visibility.Collapsed;
+                AnswersItemControl.ItemTemplate = (DataTemplate)AnswersItemControl.FindResource("ReadOnlyTemplate");
             }
 
             addAnswerButton.IsEnabled = editable;
@@ -169,27 +170,12 @@ namespace Lessium.ContentControls.TestControls
 
         #region ITestControl
 
-        public AnswersMode AnswersMode { get; set; } = AnswersMode.Single;
-
-        public object SelectedAnswer { get; set; }
         public object[] SelectedAnswers { get; set; }
-
-        public object TrueAnswer { get; set; }
         public object[] TrueAnswers { get; set; }
 
         public bool CheckAnswers()
         {
-            if (AnswersMode == AnswersMode.Single)
-            {
-                return SelectedAnswer?.Equals(TrueAnswer) ?? false; // Check if equals, if SelectedAnswer is null, returns false.
-            }
-
-            if (AnswersMode == AnswersMode.Multiple)
-            {
-                return DataStructuresExtensions.IsSame(SelectedAnswers, TrueAnswers);
-            }
-
-            throw new NotSupportedException($"{AnswersMode} is not supported.");
+            return DataStructuresExtensions.IsSame(SelectedAnswers, TrueAnswers);
         }
 
         #endregion
@@ -354,6 +340,18 @@ namespace Lessium.ContentControls.TestControls
             control.SetEditable(editable);
         }
 
+        private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
+        {
+            var toggleButton = sender as ToggleButton;
+            toggleButton.Opacity = 1f;
+        }
+
+        private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var toggleButton = sender as ToggleButton;
+            toggleButton.Opacity = 0.5f;
+        }
+
         #endregion
 
         #region ISerializable
@@ -365,8 +363,6 @@ namespace Lessium.ContentControls.TestControls
 
             // ITestControl
 
-            info.AddValue(nameof(AnswersMode), AnswersMode);
-            info.AddValue(nameof(TrueAnswer), TrueAnswer);
             info.AddValue(nameof(TrueAnswers), TrueAnswers.ToList());
         }
 
@@ -435,11 +431,6 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
-
-        private void ToggleAnswerTrue_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 
     [Serializable]
