@@ -5,6 +5,5 @@
 
     <BitmapImage x:Key="AddContentIcon" UriSource="../Resources/green plus.png" />
     <BitmapImage x:Key="RemoveContentIcon" UriSource="../Resources/cross.png" />
-    <BitmapImage x:Key="CheckmarkIcon" UriSource="../Resources/checkmark.png" />
 
 </ResourceDictionary>

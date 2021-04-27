@@ -20,6 +20,7 @@ namespace Lessium.ContentControls.MaterialControls
     public partial class TextControl : UserControl, IMaterialControl
     {
         private IDispatcher dispatcher;
+        private bool raiseResizeEvent = true;
 
         #region Constructors
 
@@ -85,34 +86,6 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region IContentControl
 
-        public void SetEditable(bool editable)
-        {
-            // ReadOnly
-
-            textBox.IsReadOnly = !editable;
-
-            // Border
-
-            var converter = new ThicknessConverter();
-
-            // Size 0 if not editable, size 1 if editable.
-
-            var thickness = (Thickness)converter.ConvertFrom(editable);
-
-            textBox.BorderThickness = thickness;
-
-            // Button
-
-            if (ShowRemoveButton)
-            {
-                removeButton.IsEnabled = editable;
-            }
-
-            // Tooltip
-
-            ToolTipService.SetIsEnabled(textBox, editable);
-        }
-
         public void SetMaxWidth(double width)
         {
             var adjusted = width - removeButton.Width;
@@ -137,7 +110,49 @@ namespace Lessium.ContentControls.MaterialControls
         public event RoutedEventHandler RemoveControl;
         public event SizeChangedEventHandler Resize;
 
-        private bool raiseResizeEvent = true;
+        public bool IsReadOnly
+        {
+            get { return (bool)GetValue(IsReadOnlyProperty); }
+            set 
+            { 
+                SetValue(IsReadOnlyProperty, value);
+
+                // ReadOnly
+
+                textBox.IsReadOnly = value;
+
+                // Size 0 if not editable, size 1 if editable.
+
+                Thickness thickness;
+
+                if (value)
+                {
+                    thickness = new Thickness(0);
+                }
+
+                else
+                {
+                    thickness = new Thickness(1);
+                }
+
+                textBox.BorderThickness = thickness;
+
+                // Button
+
+                if (ShowRemoveButton)
+                {
+                    removeButton.IsEnabled = !value;
+                }
+
+                // Tooltip
+
+                ToolTipService.SetIsEnabled(textBox, !value);
+            }
+        }
+
+        // Using a DependencyProperty as the backing store for IsReadOnly.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsReadOnlyProperty =
+            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
 
         #endregion
 

@@ -12,7 +12,8 @@
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" >
+             d:DesignHeight="450" d:DesignWidth="800" 
+             x:Name="control" >
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -29,7 +30,7 @@
 
                 <materials:TextControl x:Name="testQuestion"
                                        ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                                       Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
                                        ShowRemoveButton="False" 
                                        SizeChanged="Question_SizeChanged">
 
@@ -39,11 +40,24 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" x:Name="dataPanel">
 
-                                <ContentPresenter x:Name="SelectionBox" />
+                                <!-- ReadOnly version -->
+                                <RadioButton x:Name="radioButton" 
+                                             GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" 
+                                             IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                             Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
+                                <!-- Editing version -->
+                                <CheckBox x:Name="ToggleAnswerTrue" Width="16" Height="16"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                                            IsChecked="False"
+                                            Checked="ToggleAnswerTrue_Checked"
+                                            Unchecked="ToggleAnswerTrue_Unchecked" 
+                                            IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource InverseBooleanConverter}}" 
+                                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+  
+                                <!-- TextControl. It's have it's own DataContext, so we bind to dataPanel.DataContext -->
                                 <materials:TextControl x:Name="TextContainer"
                                                        Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
                                                        Loaded="TextContainer_Loaded"
@@ -65,36 +79,13 @@
                                     </materials:TextControl.MaxWidth>
 
                                 </materials:TextControl>
-                                
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                    
-                    <ItemsControl.Resources>
-                        
-                        <DataTemplate x:Key="ReadOnlyBoxTemplate" >
-                            <!-- Answer inside RadioButton for selecting -->
-                            <RadioButton x:Name="radioButton" 
-                                         GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
-
-                            </RadioButton>
-                        </DataTemplate>
-
-                        <DataTemplate x:Key="EditingModeBoxTemplate">
-                            <!-- Toggles Answer is true -->
-
-                            <CheckBox x:Name="ToggleAnswerTrue" Width="16" Height="16"
-                                      HorizontalAlignment="Left" VerticalAlignment="Top"
-                                      IsChecked="False"
-                                      Checked="ToggleAnswerTrue_Checked"
-                                      Unchecked="ToggleAnswerTrue_Unchecked" />
-
-                        </DataTemplate>
-
-                    </ItemsControl.Resources>
 
                 </ItemsControl>
 
+                <!-- Using code-behind instead of bindings, because there will be direct value changes and it will break bindings. -->
                 <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
                         HorizontalAlignment="Left" > <!-- Have additional properties changes in code-behind (Border_SizeChanged) -->
 
@@ -104,7 +95,9 @@
             </StackPanel>
 
             <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
-                    HorizontalAlignment="Right" VerticalAlignment="Top">
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    IsEnabled="{Binding IsReadOnly}" 
+                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                 <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
             </Button>

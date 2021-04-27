@@ -9,9 +9,6 @@ namespace Lessium.Interfaces
     /// </summary>
     public interface IContentControl : ILsnSerializable
     {
-        // Similar to IsReadOnly
-        void SetEditable(bool editable);
-
         // MaxWidth, MaxHeight
 
         void SetMaxWidth(double width);
@@ -21,5 +18,9 @@ namespace Lessium.Interfaces
 
         event RoutedEventHandler RemoveControl;
         event SizeChangedEventHandler Resize;
+
+        // Preferable to implement with Dependency Properties
+
+        bool IsReadOnly { get; set; }
     }
 }

@@ -25,7 +25,6 @@ namespace Lessium.ContentControls.TestControls
         private Guid id;
         private IDispatcher dispatcher;
 
-        private bool editable;
         private bool raiseResizeEvent = true;
 
         // Serialization
@@ -42,7 +41,6 @@ namespace Lessium.ContentControls.TestControls
         }
 
         public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
-        public float DisabledAnswerIconOpacity { get; set; } = 0.5f;
 
         #endregion
 
@@ -100,50 +98,104 @@ namespace Lessium.ContentControls.TestControls
 
         #endregion
 
+        #region Private
+
+        private void ValidateAnswersControl(double? lineHeight, SizeChangedEventArgs e)
+        {
+            // No items, no problems.
+            if (AnswersItemControl.Items.Count == 0) return;
+
+            var lastIndex = AnswersItemControl.Items.Count - 1;
+            var last = AnswersItemControl.Items.GetItemAt(lastIndex);
+            var lastContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
+
+            // If container does not exist yet, returns.
+            if (lastContainer == null) return;
+
+            var dataTemplate = lastContainer.ContentTemplate;
+            var textContainer = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
+
+            var pageControl = this.FindParent<ContentPageControl>();
+
+            // Checks if element fits, returns in that case.
+
+            if (textContainer == null || pageControl.IsElementFits(textContainer)) return;
+
+            var textBox = textContainer.textBox;
+
+            lineHeight = textBox.CalculateLineHeight();
+
+            var pos = textBox.TranslatePoint(default(Point), pageControl);
+            var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
+
+            // Returns if lines count is valid.
+            if (textBox.LineCount <= maxLineCount) return;
+
+
+            raiseResizeEvent = false;
+
+            int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
+
+            // Calculates values of MaxLine
+
+            int MaxLineIndex = maxLineCount - 1;
+            int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
+            int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
+            int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
+
+            // Removes everything past MaxLine
+
+            var actualText = textContainer.Text;
+            var newText = actualText.Remove(lastPositionInMaxLine - 1);
+
+            textContainer.Text = newText;
+            textContainer.InvalidateMeasure();
+            textContainer.UpdateLayout();
+
+            border.InvalidateMeasure();
+            border.UpdateLayout();
+
+            // Restores caret
+
+            if (prevCaret > newText.Length)
+            {
+                prevCaret = newText.Length - 1;
+            }
+
+            textBox.CaretIndex = prevCaret;
+
+            e.Handled = true;
+        }
+
+        private double CalculateAnswersControlMaxHeight()
+        {
+            double toSubstract = 0d;
+
+            for (int i = 0; i < AnswersItemControl.Items.Count; i++)
+            {
+                var item = AnswersItemControl.Items.GetItemAt(i);
+                var itemContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
+                toSubstract += itemContainer.ActualHeight;
+            }
+
+            return border.MaxHeight - toSubstract; // new maxHeight
+        }
+
+        private void UpdateAnswersControlMaxHeight(double? lineHeight)
+        {
+            var maxHeight = CalculateAnswersControlMaxHeight();
+
+            if (!lineHeight.HasValue) { lineHeight = testQuestion.textBox.CalculateLineHeight(); }
+
+            testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
+            testQuestion.SetMaxHeight(maxHeight);
+        }
+
+        #endregion
+
         #endregion
 
         #region IContentControl
-
-        public void SetEditable(bool editable)
-        {
-            this.editable = editable;
-
-            // Text Editable
-
-            testQuestion.SetEditable(editable);
-
-            // Buttons
-
-            removeButton.IsEnabled = editable;
-
-            if (editable)
-            {
-                removeButton.Visibility = Visibility.Visible;
-                AnswersItemControl.ItemTemplate = (DataTemplate)AnswersItemControl.FindResource("EditingTemplate");
-            }
-
-            else
-            {
-                removeButton.Visibility = Visibility.Collapsed;
-                AnswersItemControl.ItemTemplate = (DataTemplate)AnswersItemControl.FindResource("ReadOnlyTemplate");
-            }
-
-            addAnswerButton.IsEnabled = editable;
-            addAnswerButton.Visibility = removeButton.Visibility;
-
-            // Answers Controls
-
-            foreach (var item in AnswersItemControl.Items)
-            {
-                var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
-                if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
-                {
-                    DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-                    TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
-                    textContainer.SetEditable(editable);
-                }
-            }
-        }
 
         public void SetMaxWidth(double width)
         {
@@ -165,6 +217,38 @@ namespace Lessium.ContentControls.TestControls
 
         public event RoutedEventHandler RemoveControl;
         public event SizeChangedEventHandler Resize;
+
+        public bool IsReadOnly
+        {
+            get { return (bool)GetValue(IsReadOnlyProperty); }
+            set 
+            { 
+                SetValue(IsReadOnlyProperty, value);
+
+                // Text Editable
+
+                testQuestion.IsReadOnly = value;
+
+                addAnswerButton.IsEnabled = !IsReadOnly;
+                addAnswerButton.Visibility = value ? Visibility.Collapsed : Visibility.Visible;
+
+                // Answers Controls
+
+                foreach (var item in AnswersItemControl.Items)
+                {
+                    var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
+                    if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
+                    {
+                        DataTemplate dataTemplate = contentPresenter.ContentTemplate;
+                        TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
+                        textContainer.IsReadOnly = IsReadOnly;
+                    }
+                }
+            }
+        }
+
+        public static readonly DependencyProperty IsReadOnlyProperty =
+            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(SimpleTest), new PropertyMetadata(true));
 
         #endregion
 
@@ -205,78 +289,13 @@ namespace Lessium.ContentControls.TestControls
 
             double? lineHeight = new double?(); // Declares variable here to avoid double-calculating.
 
-            if (AnswersItemControl.Items.Count > 0)
-            {
-                var lastIndex = AnswersItemControl.Items.Count - 1;
-                var last = AnswersItemControl.Items.GetItemAt(lastIndex);
-                var lastContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
-                if (lastContainer != null)
-                {
-                    DataTemplate dataTemplate = lastContainer.ContentTemplate;
-                    var textContainer = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
+            // Performs all validation and fixing, could also set e.Handled = true, to prevent multiple event calls.
 
-                    var pageControl = this.FindParent<ContentPageControl>();
+            ValidateAnswersControl(lineHeight, e);
 
-                    if (textContainer != null && !pageControl.IsElementFits(textContainer))
-                    {
-                        var textBox = textContainer.textBox;
-                        lineHeight = textBox.CalculateLineHeight();
-                        var pos = textBox.TranslatePoint(default(Point), pageControl);
-                        var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
+            // Updates AnswersControl.MaxHeight properly with calculations.
 
-                        if (textBox.LineCount > maxLineCount)
-                        {
-                            raiseResizeEvent = false;
-
-                            int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
-
-                            // Calculates values of MaxLine
-
-                            int MaxLineIndex = maxLineCount - 1;
-                            int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
-                            int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
-                            int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
-
-                            // Removes everything past MaxLine
-
-                            var actualText = textContainer.Text;
-                            var newText = actualText.Remove(lastPositionInMaxLine - 1);
-                            textContainer.Text = newText;
-                            textContainer.InvalidateMeasure();
-                            textContainer.UpdateLayout();
-                            border.InvalidateMeasure();
-                            border.UpdateLayout();
-
-                            // Restores caret
-
-                            if (prevCaret > newText.Length)
-                            {
-                                prevCaret = newText.Length - 1;
-                            }
-
-                            textBox.CaretIndex = prevCaret;
-
-                            e.Handled = true;
-                        }
-                    }
-                }
-            }
-
-            double toSubstract = 0d;
-
-            for (int i = 0; i < AnswersItemControl.Items.Count; i++)
-            {
-                var item = AnswersItemControl.Items.GetItemAt(i);
-                var itemContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
-                toSubstract += itemContainer.ActualHeight;
-            }
-
-            var maxHeight = border.MaxHeight - toSubstract;
-
-            if (!lineHeight.HasValue) { lineHeight = testQuestion.textBox.CalculateLineHeight(); }
-
-            testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
-            testQuestion.SetMaxHeight(maxHeight);
+            UpdateAnswersControlMaxHeight(lineHeight);
 
             // Sets source to SimpleTest Control, not Border
 
@@ -330,26 +349,24 @@ namespace Lessium.ContentControls.TestControls
             var control = e.Source as TextControl; // TextContainer
 
             control.RemoveBehavior<TextBoxCutBehavior>();
-            control.SetEditable(editable);
+            control.IsReadOnly = IsReadOnly;
         }
 
         private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
         {
             var control = e.Source as TextControl;
 
-            control.SetEditable(editable);
+            control.IsReadOnly = IsReadOnly;
         }
 
         private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
         {
-            var toggleButton = sender as ToggleButton;
-            toggleButton.Opacity = 1f;
+            
         }
 
         private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
         {
-            var toggleButton = sender as ToggleButton;
-            toggleButton.Opacity = 0.5f;
+            
         }
 
         #endregion

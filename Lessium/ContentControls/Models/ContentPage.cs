@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Windows;
 using System.Linq;
 using System.Threading;
@@ -12,7 +11,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Utility;
 using Lessium.Classes.IO;
-using Lessium.Classes.Wrappers;
 
 namespace Lessium.ContentControls.Models
 {
@@ -216,7 +214,7 @@ namespace Lessium.ContentControls.Models
             {
                 dispatcher.Invoke(() =>
                 {
-                    contentControl.SetEditable(editable);
+                    contentControl.IsReadOnly = !editable;
                 });
             }
         }

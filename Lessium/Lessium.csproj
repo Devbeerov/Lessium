@@ -270,9 +270,6 @@
   <ItemGroup>
     <Resource Include="Resources\question.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\checkmark.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>; Move all assemblies and related files to lib folder
