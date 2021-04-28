@@ -260,7 +260,7 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
     <value>Generic</value>
   </data>
   <data name="UndoLimitHeader" xml:space="preserve">
-    <value>Undo Limit</value>
+    <value>Undo/Redo Limit</value>
   </data>
   <data name="AboutHeader" xml:space="preserve">
     <value>About</value>

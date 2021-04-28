@@ -530,7 +530,7 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Undo Limit.
+        ///   Ищет локализованную строку, похожую на Undo/Redo Limit.
         /// </summary>
         public static string UndoLimitHeader {
             get {
