@@ -10,7 +10,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:utility="clr-namespace:Lessium.Utility"
         mc:Ignorable="d"
-        Title="{Binding SettingsHeader}" Height="250" Width="500"
+        Title="{Binding SettingsHeader}" Height="300" Width="600"
         WindowStartupLocation="CenterOwner" Icon="../Resources/gear.png"
         x:Name="window" >
 
@@ -30,8 +30,8 @@
     <Grid Background="LightGray">
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.4*" />
-            <ColumnDefinition Width="0.6*" />
+            <ColumnDefinition Width="0.3*" />
+            <ColumnDefinition Width="0.7*" />
         </Grid.ColumnDefinitions>
         
         <!--#region Column 0 -->

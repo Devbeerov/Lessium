@@ -82,7 +82,7 @@ namespace LessiumTests
 
             // Asserts results
 
-            Assert.AreEqual(IOResult.Sucessful, loadResult.Value.Item1);
+            Assert.AreEqual(IOResult.successful, loadResult.Value.Item1);
             AssertHelper.AreEqual(expectedLessonModel, loadResult.Value.Item2);
         }
 
@@ -132,16 +132,16 @@ namespace LessiumTests
                 Assert.Fail("Exception occured during saving: {0}", e.ToString());
             }
             
-            Assert.AreEqual(IOResult.Sucessful, saveResult);
+            Assert.AreEqual(IOResult.successful, saveResult);
 
             var tempLoadResult = await IOTools.LoadLesson(tempPath);
             var tempSerializedModel = tempLoadResult.Item2;
 
             ShutdownDispatcher();
 
-            // Asserts temp file is loaded sucessfully and serializedModel is the same.
+            // Asserts temp file is loaded successfully and serializedModel is the same.
 
-            Assert.AreEqual(IOResult.Sucessful, tempLoadResult.Item1);
+            Assert.AreEqual(IOResult.successful, tempLoadResult.Item1);
             AssertHelper.AreEqual(serializedModel, tempSerializedModel);
         }
 

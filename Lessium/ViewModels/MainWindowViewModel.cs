@@ -150,7 +150,7 @@ namespace Lessium.ViewModels
             }
             set
             {
-                if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedContentType, value))
+                if (SetDictionaryProperty(ref model.CurrentSectionID, SelectedContentType, value))
                 {
                     // Returns if there is no Section.
 
@@ -211,8 +211,8 @@ namespace Lessium.ViewModels
 
                 var number = value;
 
-                if (number <= 0) { number = 1; }
-                else if (number > Pages.Count) { number = Pages.Count; }
+                if (number <= 0) number = 1;
+                else if (number > Pages.Count) number = Pages.Count;
 
                 var index = number - 1;
 
@@ -227,24 +227,23 @@ namespace Lessium.ViewModels
             get { return CurrentSection?.SelectedPage; }
             set
             {
-                if (CurrentPage != value)
+                if (CurrentPage == value) return;
+                
+                CurrentSection.SelectedPage = value;
+
+                if (CurrentPage == null)
                 {
-                    CurrentSection.SelectedPage = value;
-
-                    if (CurrentPage == null)
-                    {
-                        CurrentPageIndex = -1;
-                    }
-
-                    else
-                    {
-                        CurrentPageIndex = CurrentSection.Pages.IndexOf(value);
-                    }
-
-                    UpdateCurrentPageNotFirst();
-                    RaisePropertyChanged(nameof(CurrentPageNumber));
-                    RaisePropertyChanged(nameof(CurrentPage));
+                    CurrentPageIndex = -1;
                 }
+
+                else
+                {
+                    CurrentPageIndex = CurrentSection.Pages.IndexOf(value);
+                }
+
+                UpdateCurrentPageNotFirst();
+                RaisePropertyChanged(nameof(CurrentPageNumber));
+                RaisePropertyChanged(nameof(CurrentPage));
             }
         }
 
@@ -385,8 +384,31 @@ namespace Lessium.ViewModels
             RaisePropertyChanged(nameof(HasChanges));
         }
 
+        private void SwitchReadOnly(bool readOnly)
+        {
+            ReadOnly = readOnly;
+        }
+
+        private void SwitchReadOnly()
+        {
+            SwitchReadOnly(!ReadOnly);
+        }
+
+        private string BuildHeaderWithHotkey(string defaultHeader, Hotkey hotkey)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(defaultHeader);
+            sb.Append($" ({hotkey})");
+
+            return sb.ToString();
+        }
+
+        #region Hotkeys
+
         private void SetupHotkeys()
         {
+            RegisterEditHotkey();
             RegisterUndoHotkey();
             RegisterRedoHotkey();
         }
@@ -401,6 +423,11 @@ namespace Lessium.ViewModels
             return actionsService.TryRedo();
         }
 
+        private void RegisterEditHotkey()
+        {
+            hotkeysService.RegisterHotkey(Hotkeys.Current.EditHotkey, () => SwitchReadOnly());
+        }
+
         private void RegisterUndoHotkey()
         {
             hotkeysService.RegisterHotkey(Hotkeys.Current.UndoHotkey, () => TryUndo());
@@ -410,6 +437,8 @@ namespace Lessium.ViewModels
         {
             hotkeysService.RegisterHotkey(Hotkeys.Current.RedoHotkey, () => TryRedo());
         }
+
+        #endregion
 
         #region Section
 
@@ -456,6 +485,65 @@ namespace Lessium.ViewModels
             }
         }
 
+        private bool UpdateModelCurrentSection(Section section, bool tabChange)
+        {
+            Section retrievedSection = section;
+
+            // If tab changed, retrieves stored Section or null if it's not present.
+
+            if (tabChange)
+            {
+                retrievedSection = model.LastSelectedSection[SelectedContentType];
+            }
+
+            return SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, retrievedSection, nameof(CurrentSection));
+        }
+
+        /// <summary>
+        /// Sets CurrentPage to the last selected Page in Section.
+        /// </summary>
+        /// <param name="section"></param>
+        /// <returns>True if successful, false otherwise.</returns>
+        private bool SetCurrentPageToLastSelectedPage(Section section)
+        {
+            if (!model.LastSelectedPage.ContainsKey(section)) return false; // Returns if there is no stored Page.
+
+            // Retrieves stored Page reference
+
+            var storedPage = model.LastSelectedPage[section];
+
+            // Updates CurrentPage property
+
+            CurrentPage = storedPage;
+
+            return true;
+        }
+
+        private void UpdatePreviousSection(Section previousSection)
+        {
+            // If no previous section, just returns.
+
+            if (previousSection == null) return;
+
+            // If previousSection is not stored, stores it.
+
+            if (!model.LastSelectedPage.ContainsKey(previousSection))
+            {
+                model.LastSelectedPage.Add(previousSection, previousSection.SelectedPage);
+            }
+
+            // Otherwise just update stored value.
+
+            else
+            {
+                model.LastSelectedPage[previousSection] = previousSection.SelectedPage;
+            }
+
+            // Unsubscribes event
+
+            previousSection.PagesChanged -= OnPagesChanged;
+        }
+
         /// <summary>
         /// Should be used when changing tabs.
         /// Checks section with manually providen previousSection to avoid wrong comprasion.
@@ -465,14 +553,9 @@ namespace Lessium.ViewModels
         /// <param name="tabChange">Does it selected from tab changing? If so, will clear CurrentSection for this tab.</param>
         private void SelectSection(Section section, Section previousSection = null, bool tabChange = false)
         {
-            if (tabChange)
-            {
-                SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, null, nameof(CurrentSection));
-            }
+            // Updates CurrentSection in model, returns if failed
 
-            // Sets CurrentSection, returns if failed
-
-            if (!SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, section, nameof(CurrentSection))) return;
+            if (!UpdateModelCurrentSection(section, tabChange)) return;
 
             // Each section have it's own pages
 
@@ -480,11 +563,7 @@ namespace Lessium.ViewModels
 
             // Updates previous
 
-            if (previousSection != null)
-            {
-                model.LastSelectedPage[previousSection] = previousSection.SelectedPage;
-                previousSection.PagesChanged -= OnPagesChanged;
-            }
+            UpdatePreviousSection(previousSection);
 
             // If section argument is null, we just set CurrentSectionID to relative.
 
@@ -497,32 +576,13 @@ namespace Lessium.ViewModels
             CurrentSectionID = Sections.IndexOf(section);
             section.PagesChanged += OnPagesChanged;
 
-            if (model.LastSelectedPage.ContainsKey(section))
+            // Updates CurrentPage to LastSelectedPage of section.
+
+            if (!SetCurrentPageToLastSelectedPage(section))
             {
-                var storedPage = model.LastSelectedPage[section];
+                // If not stored, then retrieves section's SelectedPage (CurrentPage of Section)
 
-                // For proper update of CurrentPage property
-
-                CurrentSection.SelectedPage = null;
-
-                // Updates CurrentPage property
-
-                CurrentPage = storedPage;
-            }
-
-            else
-            {
-                model.LastSelectedPage.Add(section, section.SelectedPage);
-
-                // Storing selected page
-
-                var selectedPage = CurrentSection.SelectedPage;
-
-                // For proper setting of property, we need to set Section SelectedPage to null.
-
-                section.SelectedPage = null;
-
-                CurrentPage = selectedPage;
+                CurrentPage = section.SelectedPage;
             }
 
             // We still should call RaisePropertyChanged, because we bind to them in View.
@@ -609,6 +669,11 @@ namespace Lessium.ViewModels
         {
             switch (e.PropertyName)
             {
+                case nameof(Hotkeys.EditHotkey):
+                    RegisterEditHotkey();
+                    RaisePropertyChanged(nameof(EditHeader));
+                    break;
+
                 case nameof(Hotkeys.UndoHotkey):
                     RegisterUndoHotkey();
                     RaisePropertyChanged(nameof(UndoChangesHeader));
@@ -645,7 +710,7 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_Edit()
         {
-            ReadOnly = false;
+            SwitchReadOnly(false);
         }
 
         bool CanExecuteLesson_Edit()
@@ -665,7 +730,7 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_StopEditing()
         {
-            ReadOnly = true;
+            SwitchReadOnly(true);
         }
 
         bool CanExecuteLesson_StopEditing()
@@ -816,7 +881,7 @@ namespace Lessium.ViewModels
 
                 finally
                 {
-                    // Will be executed whatever LoadAsync was sucessful or not.
+                    // Will be executed whatever LoadAsync was successful or not.
 
                     progressView.Close();
                 }
@@ -826,7 +891,7 @@ namespace Lessium.ViewModels
                 var resultCode = result.Item1;
                 var resultLessonModel = result.Item2;
 
-                if (resultCode == IOResult.Sucessful && resultLessonModel != null)
+                if (resultCode == IOResult.successful && resultLessonModel != null)
                 {
                     ClearLesson();
 
@@ -904,10 +969,6 @@ namespace Lessium.ViewModels
 
             newSection.SetEditable(!ReadOnly);
 
-            // Adds newSection key to LastSelectedPage dictionary.
-
-            model.LastSelectedPage.Add(newSection, null);
-
             // Adds newSection to Sections dictionary.
 
             AddSectionToSections(newSection);
@@ -917,6 +978,7 @@ namespace Lessium.ViewModels
                 SelectSection(newSection);
 
                 // Page was added from Section constructor, so we raise handler with this page.
+
                 OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.Pages, CollectionChangeAction.Add));
             }
         }
@@ -1215,40 +1277,22 @@ namespace Lessium.ViewModels
 
         public string EditHeader
         {
-            get { return model.EditHeader; }
+            get { return BuildHeaderWithHotkey(model.EditHeader, Hotkeys.Current.EditHotkey); }
         }
 
         public string StopEditingHeader
         {
-            get { return model.StopEditingHeader; }
+            get { return BuildHeaderWithHotkey(model.StopEditingHeader, Hotkeys.Current.EditHotkey); }
         }
 
         public string UndoChangesHeader
         {
-            get 
-            {
-                var sb = new StringBuilder();
-                var hotkey = Hotkeys.Current.UndoHotkey;
-
-                sb.Append(model.UndoChangesHeader);
-                sb.Append($" ({hotkey})");
-
-                return sb.ToString();
-            }
+            get { return BuildHeaderWithHotkey(model.UndoChangesHeader, Hotkeys.Current.UndoHotkey); }
         }
 
         public string RedoChangesHeader
         {
-            get
-            {
-                var sb = new StringBuilder();
-                var hotkey = Hotkeys.Current.RedoHotkey;
-
-                sb.Append(model.RedoChangesHeader);
-                sb.Append($" ({hotkey})");
-
-                return sb.ToString();
-            }
+            get { return BuildHeaderWithHotkey(model.RedoChangesHeader, Hotkeys.Current.RedoHotkey); }
         }
 
         public string RecentHeader

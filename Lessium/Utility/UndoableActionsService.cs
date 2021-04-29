@@ -38,7 +38,7 @@ namespace Lessium.Utility
         /// <summary>
         /// Creates service for managing undo/redo operations.
         /// </summary>
-        /// <param name="callback">Callback will be called on ExecuteAction and each sucessful Undo or Redo.</param>
+        /// <param name="callback">Callback will be called on ExecuteAction and each successful Undo or Redo.</param>
         public UndoableActionsService(Action callback = null)
         {
             this.callback = callback;
@@ -59,7 +59,7 @@ namespace Lessium.Utility
         /// <summary>
         /// Tries to undo last action.
         /// </summary>
-        /// <returns>True if sucessful, false otherwise.</returns>
+        /// <returns>True if successful, false otherwise.</returns>
         public bool TryUndo()
         {
             var lastActionExecuted = executedActions.Last.Value;
@@ -86,7 +86,7 @@ namespace Lessium.Utility
         /// <summary>
         /// Tries to redo last action.
         /// </summary>
-        /// <returns>True if sucessful, false otherwise.</returns>
+        /// <returns>True if successful, false otherwise.</returns>
         public bool TryRedo()
         {
             var lastActionUndone = undoneActions.Last.Value;

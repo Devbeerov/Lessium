@@ -34,6 +34,20 @@ namespace Lessium.Properties
         #region Setting Properties
 
         [UserScopedSetting()]
+        [DefaultSettingValueAttribute("Control + E")]
+        public Hotkey EditHotkey
+        {
+            get
+            {
+                return ((Hotkey)(this["EditHotkey"]));
+            }
+            set
+            {
+                this["EditHotkey"] = value;
+            }
+        }
+
+        [UserScopedSetting()]
         [DefaultSettingValueAttribute("Control + Z")]
         public Hotkey UndoHotkey
         {
@@ -44,7 +58,6 @@ namespace Lessium.Properties
             set
             {
                 this["UndoHotkey"] = value;
-                var g = ApplicationCommands.Undo.InputGestures;
             }
         }
 
@@ -60,7 +73,6 @@ namespace Lessium.Properties
             set
             {
                 this["RedoHotkey"] = value;
-                var g = ApplicationCommands.Undo.InputGestures;
             }
         }
 

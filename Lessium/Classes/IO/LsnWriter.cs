@@ -74,7 +74,7 @@ namespace Lessium.Classes.IO
                     }
                 }
 
-                if (task.IsCompleted) { result = IOResult.Sucessful; }
+                if (task.IsCompleted) { result = IOResult.successful; }
             }
 
             cts = null;

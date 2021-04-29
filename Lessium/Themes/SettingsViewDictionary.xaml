@@ -13,7 +13,7 @@
     <DataTemplate x:Key="SettingsSection">
         <Border BorderThickness="2" BorderBrush="Black" Background="Transparent" 
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <TextBlock Text="{Binding Value}" />
+            <TextBlock Text="{Binding Value}" HorizontalAlignment="Center" />
         </Border>
     </DataTemplate>
 
@@ -81,6 +81,11 @@
     <ContentControl x:Key="Shortcuts">
 
         <StackPanel Orientation="Vertical">
+
+            <!-- Edit -->
+
+            <controls:ShortcutControl ShortcutKeyName="EditHotkey" 
+                                      ShortcutHeader="{x:Static prop:Resources.EditHeader}"/>
 
             <!-- Undo -->
 

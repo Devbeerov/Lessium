@@ -126,6 +126,8 @@ namespace Lessium.ContentControls
 
             ContentType = type;
             Pages = pages;
+
+            setupDone = true;
         }
 
         private void UpdatePageEditable(ContentPage page)
