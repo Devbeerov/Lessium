@@ -8,12 +8,12 @@ using System.Windows.Data;
 
 namespace Lessium.ContentControls
 {
-    // All ContentControls should have parent of type ContentPageCotrol.
+    // All ContentControls should have parent of type ContentPageControl.
     public class ContentPageControl : WrapPanel
     {
-        private ContentPage model;
+        private ContentPage contentPage;
 
-        [Obsolete("This constructor used for creating control in XAML.", true)]
+        [Obsolete("You should not manually create ContentPageControl. This constructor used for creating control in XAML.", true)]
         public ContentPageControl() : base()
         {
             Initialize();
@@ -65,6 +65,7 @@ namespace Lessium.ContentControls
         {
             var pos = element.TranslatePoint(default(Point), this);
             var fits = pos.Y + element.ActualHeight <= ActualHeight;
+
             return fits;
         }
 
@@ -74,8 +75,8 @@ namespace Lessium.ContentControls
 
         private void UpdateModelMaxSize(Size newSize)
         {
-            model.SetMaxWidth(newSize.Width);
-            model.SetMaxHeight(newSize.Height);
+            contentPage.SetMaxWidth(newSize.Width);
+            contentPage.SetMaxHeight(newSize.Height);
         }
 
         #endregion
@@ -87,23 +88,23 @@ namespace Lessium.ContentControls
         // DataContext = CurrentPage
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            model = e.NewValue as ContentPage;
+            contentPage = e.NewValue as ContentPage;
 
-            if(model == null) { return; } // Wrong DataContext (MainWindowViewModel)
+            if (contentPage == null) { return; } // Wrong DataContext (probably MainWindowViewModel)
 
             // We set PageControl of model here and keep it for later. 
             // Therefore, we could check IsContentFit even from older model.
 
-            model.SetPageControl(this);
+            contentPage.SetPageControl(this);
 
             // Items
 
-            Items = model.Items;
+            Items = contentPage.Items;
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (model != null)
+            if (contentPage != null)
             {
                 var newSize = new Size(e.NewSize.Width, e.NewSize.Height);
 

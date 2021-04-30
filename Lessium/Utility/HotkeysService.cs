@@ -43,8 +43,8 @@ namespace Lessium.Utility
 
                 // Checks if both modifier and key are pressed.
 
-                if (!IsModifierDown(modifier)) return;
-                if (!Keyboard.IsKeyDown(hotkey.Key)) return;
+                if (!IsModifierDown(modifier)) continue;
+                if (!Keyboard.IsKeyDown(hotkey.Key)) continue;
 
                 // Calls assigned action to hotkey.
 

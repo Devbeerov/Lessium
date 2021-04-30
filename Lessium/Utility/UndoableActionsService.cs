@@ -62,7 +62,7 @@ namespace Lessium.Utility
         /// <returns>True if successful, false otherwise.</returns>
         public bool TryUndo()
         {
-            var lastActionExecuted = executedActions.Last.Value;
+            var lastActionExecuted = executedActions.Last?.Value;
 
             if (lastActionExecuted == null) return false;
             if (Keyboard.FocusedElement is IContentControl) return false; // No IContentControl should be focused.
@@ -89,7 +89,7 @@ namespace Lessium.Utility
         /// <returns>True if successful, false otherwise.</returns>
         public bool TryRedo()
         {
-            var lastActionUndone = undoneActions.Last.Value;
+            var lastActionUndone = undoneActions.Last?.Value;
 
             if (lastActionUndone == null) return false;
             if (Keyboard.FocusedElement is IContentControl) return false; // No IContentControl should be focused.

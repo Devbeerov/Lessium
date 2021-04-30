@@ -228,7 +228,13 @@ namespace Lessium.ViewModels
             set
             {
                 if (CurrentPage == value) return;
-                
+
+                // Event handling
+
+                UpdatePagesEventHandlers(CurrentPage, value);
+
+                // Update value
+
                 CurrentSection.SelectedPage = value;
 
                 if (CurrentPage == null)
@@ -318,9 +324,17 @@ namespace Lessium.ViewModels
 
         private void AddContentControl(IContentControl control)
         {
-            // Adds control to CurrentPage
-
             actionsService.ExecuteAction(new AddContentAction(CurrentPage, control));
+        }
+
+        private void InsertContentControl(IContentControl control, int position)
+        {
+            actionsService.ExecuteAction(new InsertContentAction(CurrentPage, control, position));
+        }
+
+        private void RemoveContentControl(IContentControl control)
+        {
+            actionsService.ExecuteAction(new RemoveContentAction(CurrentPage, control));
         }
 
         private void UpdateCurrentPageNotFirst()
@@ -333,6 +347,12 @@ namespace Lessium.ViewModels
             }
 
             CurrentPageIsNotFirst = notFirst;
+        }
+
+        private void UpdatePagesEventHandlers(ContentPage oldPage, ContentPage newPage)
+        {
+            if (oldPage != null) oldPage.SendContent -= OnContentReceived;
+            if (newPage != null) newPage.SendContent += OnContentReceived;
         }
 
         private void ClearLesson()
@@ -372,6 +392,11 @@ namespace Lessium.ViewModels
         private void ClearChanges()
         {
             actionsService.Clear();
+
+            // Updates CanExecute
+
+            Lesson_UndoChanges.RaiseCanExecuteChanged();
+            Lesson_RedoChanges.RaiseCanExecuteChanged();
         }
 
         private void AddSectionToSections(Section section)
@@ -415,11 +440,15 @@ namespace Lessium.ViewModels
 
         private bool TryUndo()
         {
+            if (ReadOnly) return false;
+
             return actionsService.TryUndo();
         }
 
         private bool TryRedo()
         {
+            if (ReadOnly) return false;
+
             return actionsService.TryRedo();
         }
 
@@ -500,7 +529,7 @@ namespace Lessium.ViewModels
         }
 
         /// <summary>
-        /// Sets CurrentPage to the last selected Page in Section.
+        /// Sets  = to the last selected Page in Section.
         /// </summary>
         /// <param name="section"></param>
         /// <returns>True if successful, false otherwise.</returns>
@@ -553,7 +582,7 @@ namespace Lessium.ViewModels
         /// <param name="tabChange">Does it selected from tab changing? If so, will clear CurrentSection for this tab.</param>
         private void SelectSection(Section section, Section previousSection = null, bool tabChange = false)
         {
-            // Updates CurrentSection in model, returns if failed
+            // Updates CurrentSection in model, returns if failed (for example: if section is same as previousSection)
 
             if (!UpdateModelCurrentSection(section, tabChange)) return;
 
@@ -576,14 +605,9 @@ namespace Lessium.ViewModels
             CurrentSectionID = Sections.IndexOf(section);
             section.PagesChanged += OnPagesChanged;
 
-            // Updates CurrentPage to LastSelectedPage of section.
+            // Delegates all work of updating CurrentPage to method.
 
-            if (!SetCurrentPageToLastSelectedPage(section))
-            {
-                // If not stored, then retrieves section's SelectedPage (CurrentPage of Section)
-
-                CurrentPage = section.SelectedPage;
-            }
+            ForceUpdateCurrentPage(section);
 
             // We still should call RaisePropertyChanged, because we bind to them in View.
             // So when changing Sections, Index and Number could be the same.
@@ -592,6 +616,36 @@ namespace Lessium.ViewModels
             RaisePropertyChanged(nameof(CurrentPageNumber));
 
             ShowSection(section);
+        }
+
+        /// <summary>
+        /// Forces update CurrentPage to argument Section's stored page.
+        /// If there's no not stored page, then section's selected page.
+        /// </summary>
+        /// <param name="section"></param>
+        private void ForceUpdateCurrentPage(Section section)
+        {
+            // Stores reference before clearing.
+
+            var sectionSelectedPage = section.SelectedPage;
+
+            // Clears selection, so CurrentPage.Set won't return because of same values.
+
+            ClearSectionSelectedPage(CurrentSection);
+
+            // Updates CurrentPage to LastSelectedPage of section.
+
+            if (!SetCurrentPageToLastSelectedPage(section))
+            {
+                // If not stored, then retrieves section's SelectedPage (CurrentPage of Section)
+
+                CurrentPage = sectionSelectedPage;
+            }
+        }
+
+        private void ClearSectionSelectedPage(Section section)
+        {
+            section.SelectedPage = null;
         }
 
         #endregion
@@ -663,6 +717,24 @@ namespace Lessium.ViewModels
             }
             
             UpdateCurrentPageNotFirst();
+        }
+
+        private void OnContentReceived(object sender, ContentEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case ContentEventArgs.ContentAction.Add:
+                    AddContentControl(e.Content);
+                    break;
+
+                case ContentEventArgs.ContentAction.Remove:
+                    RemoveContentControl(e.Content);
+                    break;
+
+                case ContentEventArgs.ContentAction.Insert:
+                    InsertContentControl(e.Content, e.Position);
+                    break;
+            }
         }
 
         private void OnHotkeyChanged(object sender, PropertyChangedEventArgs e)
@@ -994,7 +1066,7 @@ namespace Lessium.ViewModels
 
         private DelegateCommand<Section> RemoveSectionCommand;
         public DelegateCommand<Section> RemoveSection =>
-            RemoveSectionCommand ?? (RemoveSectionCommand = new DelegateCommand<Section>(ExecuteRemoveSection));
+            RemoveSectionCommand ?? (RemoveSectionCommand = new DelegateCommand<Section>(ExecuteRemoveSection, CanExecuteRemoveSection));
 
         void ExecuteRemoveSection(Section section)
         {
@@ -1005,6 +1077,11 @@ namespace Lessium.ViewModels
             // Remove
 
             actionsService.ExecuteAction(new RemoveSectionAction(Sections, section));
+        }
+
+        bool CanExecuteRemoveSection(Section _) // Discard Section, because we don't check it, we check only ReadOnly state.
+        {
+            return !ReadOnly;
         }
 
         #endregion

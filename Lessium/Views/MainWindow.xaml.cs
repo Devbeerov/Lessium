@@ -112,6 +112,19 @@ namespace Lessium.Views
             }
         }
 
+        private void SectionsListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && !e.IsRepeat)
+            {
+                var command = viewModel.RemoveSection;
+                var section = viewModel.CurrentSection;
+
+                if (!command.CanExecute(section)) return;
+
+                command.Execute(section);
+            }
+        }
+
         #endregion
 
         #region SectionsItemControl

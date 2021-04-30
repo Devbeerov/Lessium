@@ -43,15 +43,27 @@ namespace Lessium.ContentControls.Models
 
         #endregion
 
-        #region Methods
-
-        #region Public
+        #region Constructors
 
         public ContentPage(ContentType contentType, IDispatcher dispatcher = null)
         {
             this.ContentType = contentType;
             this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
         }
+
+        // For serialization
+        protected ContentPage(SerializationInfo info, StreamingContext context)
+        {
+            dispatcher =  DispatcherUtility.Dispatcher;
+
+            storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
+        }
+
+        #endregion
+
+        #region Methods
+
+        #region Public
 
         public static ContentPage CreateWithPageControlInjection(ContentPage oldPage, ContentType? contentType = null)
         {
@@ -60,7 +72,12 @@ namespace Lessium.ContentControls.Models
             return newPage;
         }
 
-        public void Add(IContentControl control)
+        /// <summary>
+        /// Adds IContentControl to the Items.
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="directly">If set to true, will raise SendContent event instead of directly adding.</param>
+        public void Add(IContentControl control, bool directly = false)
         {
             if (!IsContentControlTypeValid(control)) { throw new InvalidOperationException
                     ("You can only add ContentControls with equivalent interface!"); }
@@ -68,13 +85,21 @@ namespace Lessium.ContentControls.Models
             // To skip unwanted validating.
             if (Items.Count == 0)
             {
-                Insert(0, control);
+                Insert(0, control, directly);
                 return;
             }
 
             BindControl(control);
 
-            Items.Add(control);
+            if (directly)
+            {
+                Items.Add(control);
+            }
+
+            else
+            {
+                SendContent?.Invoke(this, new ContentEventArgs(control, ContentEventArgs.ContentAction.Add));
+            }
 
             dispatcher.Invoke(() =>
             {
@@ -87,11 +112,19 @@ namespace Lessium.ContentControls.Models
         }
 
         // Won't validate control if it's in zero position.
-        public void Insert(int position, IContentControl control)
+        public void Insert(int position, IContentControl control, bool directly = false)
         {
             BindControl(control);
 
-            Items.Insert(position, control);
+            if (directly)
+            {
+                Items.Insert(position, control);
+            }
+
+            else
+            {
+                SendContent?.Invoke(this, new ContentEventArgs(control, position));
+            }
 
             dispatcher.Invoke(() =>
             {
@@ -104,12 +137,21 @@ namespace Lessium.ContentControls.Models
             });
         }
 
-        public void Remove(IContentControl element)
+        public void Remove(IContentControl element, bool directly = false)
         {
             element.RemoveControl -= OnRemove;
             element.Resize -= OnContentResized;
 
-            Items.Remove(element);
+            if (directly)
+            {
+                Items.Remove(element);
+            }
+
+            else
+            {
+                var args = new ContentEventArgs(element, ContentEventArgs.ContentAction.Remove);
+                SendContent?.Invoke(this, args);
+            }
         }
 
         public bool GetEditable()
@@ -197,15 +239,6 @@ namespace Lessium.ContentControls.Models
 
         #endregion
 
-        #region Protected
-
-        protected ContentPage(SerializationInfo info, StreamingContext context)
-        {
-            storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
-        }
-
-        #endregion
-
         #region Private
 
         private void UpdateItemEditable(IContentControl contentControl)
@@ -267,7 +300,7 @@ namespace Lessium.ContentControls.Models
         {
             foreach (var item in storedItems)
             {
-                Add(item);
+                Add(item, true);
             }
 
             // Clears and sets to null, so GC will collect List instance.
@@ -315,6 +348,7 @@ namespace Lessium.ContentControls.Models
         #region Events
 
         public event EventHandler<ExceedingContentEventArgs> AddedExceedingContent;
+        public event EventHandler<ContentEventArgs> SendContent;
 
         private void OnRemove(object sender, RoutedEventArgs e)
         {
@@ -419,7 +453,7 @@ namespace Lessium.ContentControls.Models
                 });
                 await control.ReadXmlAsync(subtreeReader, progress, token);
 
-                Add(control);
+                Add(control, true);
             }
         }
 
@@ -433,6 +467,33 @@ namespace Lessium.ContentControls.Models
         public ExceedingContentEventArgs(IContentControl ExceedingItem)
         {
             this.ExceedingItem = ExceedingItem;
+        }
+    }
+
+    public class ContentEventArgs : EventArgs
+    {
+        public IContentControl Content { get; private set; }
+        public ContentAction Action { get; private set; }
+
+        // Used for Insert
+        public int Position { get; private set; } = -1;
+
+        public ContentEventArgs(IContentControl content, ContentAction action)
+        {
+            this.Content = content;
+            this.Action = action;
+        }
+
+        public ContentEventArgs(IContentControl content, int position)
+        {
+            this.Content = content;
+            this.Action = ContentAction.Insert;
+            this.Position = position;
+        }
+
+        public enum ContentAction
+        {
+            Add, Remove, Insert
         }
     }
 }

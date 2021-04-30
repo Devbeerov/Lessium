@@ -85,6 +85,8 @@
     <Compile Include="Themes\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UndoableActions\InsertContentAction.cs" />
+    <Compile Include="UndoableActions\RemoveContentAction.cs" />
     <Compile Include="UndoableActions\AddContentAction.cs" />
     <Compile Include="UndoableActions\RemovePageAction.cs" />
     <Compile Include="UndoableActions\RemoveSectionAction.cs" />

@@ -178,6 +178,7 @@
                              IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
                              ItemTemplate="{StaticResource SectionTemplate}"
                              PreviewMouseWheel="SectionsListBox_PreviewMouseWheel"
+                             KeyDown="SectionsListBox_KeyDown"
                              VirtualizingStackPanel.IsVirtualizing="True"
                              VirtualizingStackPanel.VirtualizationMode="Recycling" >
 
