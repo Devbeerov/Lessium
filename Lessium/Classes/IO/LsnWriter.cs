@@ -1,11 +1,10 @@
 ﻿using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
+using Lessium.Models;
 using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -144,7 +143,7 @@ namespace Lessium.Classes.IO
         {
             int pageIndex = 0;
 
-            ObservableCollection<ContentPage> pages = null;
+            ObservableCollection<ContentPageModel> pages = null;
 
             Dispatcher.Invoke(() =>
             {

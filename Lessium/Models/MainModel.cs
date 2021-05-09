@@ -1,5 +1,4 @@
 ﻿using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
 using Lessium.Properties;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -46,7 +45,7 @@ namespace Lessium.Models
         };
 
         // Updates only on CurrentSection change!
-        public Dictionary<Section, ContentPage> LastSelectedPage = new Dictionary<Section, ContentPage>();
+        public Dictionary<Section, ContentPageModel> LastSelectedPage = new Dictionary<Section, ContentPageModel>();
 
         #endregion
 

@@ -11,7 +11,6 @@ using System;
 using Lessium.ContentControls.MaterialControls;
 using System.Windows.Input;
 using Lessium.Interfaces;
-using Lessium.ContentControls.Models;
 using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
 using Microsoft.Win32;
@@ -24,6 +23,7 @@ using Lessium.Properties;
 using System.Threading.Tasks;
 using Lessium.UndoableActions;
 using System.Configuration;
+using Lessium.Services;
 
 namespace Lessium.ViewModels
 {
@@ -167,7 +167,7 @@ namespace Lessium.ViewModels
 
         #region Pages
 
-        public ObservableCollection<ContentPage> Pages
+        public ObservableCollection<ContentPageModel> Pages
         {
             get { return CurrentSection?.Pages; }
             set
@@ -222,7 +222,7 @@ namespace Lessium.ViewModels
             }
         }
 
-        public ContentPage CurrentPage
+        public ContentPageModel CurrentPage
         {
             get { return CurrentSection?.SelectedPage; }
             set
@@ -349,7 +349,7 @@ namespace Lessium.ViewModels
             CurrentPageIsNotFirst = notFirst;
         }
 
-        private void UpdatePagesEventHandlers(ContentPage oldPage, ContentPage newPage)
+        private void UpdatePagesEventHandlers(ContentPageModel oldPage, ContentPageModel newPage)
         {
             if (oldPage != null) oldPage.SendContent -= OnContentReceived;
             if (newPage != null) newPage.SendContent += OnContentReceived;
@@ -522,7 +522,12 @@ namespace Lessium.ViewModels
 
             if (tabChange)
             {
+                // Clears
+
+                model.CurrentSection[SelectedContentType] = null;
+
                 retrievedSection = model.LastSelectedSection[SelectedContentType];
+                
             }
 
             return SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, retrievedSection, nameof(CurrentSection));
@@ -575,7 +580,7 @@ namespace Lessium.ViewModels
 
         /// <summary>
         /// Should be used when changing tabs.
-        /// Checks section with manually providen previousSection to avoid wrong comprasion.
+        /// Checks section with manually providen previousSection to avoid wrong comparison.
         /// </summary>
         /// <param name="section">New Section</param>
         /// <param name="previousSection">Previous Section (to check with new)</param>
@@ -594,7 +599,7 @@ namespace Lessium.ViewModels
 
             UpdatePreviousSection(previousSection);
 
-            // If section argument is null, we just set CurrentSectionID to relative.
+            // If section argument is null, we just set CurrentSectionID to -1 and returns.
 
             if (section == null)
             {
@@ -657,7 +662,7 @@ namespace Lessium.ViewModels
         private void OnExceedingContent(object sender, ExceedingContentEventArgs e)
         {
             var content = e.ExceedingItem;
-            var oldPage = sender as ContentPage;
+            var oldPage = sender as ContentPageModel;
             var oldPageIndex = Pages.IndexOf(oldPage);
             
             oldPage.Remove(content);
@@ -687,7 +692,7 @@ namespace Lessium.ViewModels
             else
             {
                 // Otherwise, creates a new Page and inserts content to it
-                var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
+                var newPage = ContentPageModel.CreateWithPageControlInjection(oldPage);
                 CurrentSection.Add(newPage);
 
                 newPage.Insert(0, content);
@@ -1312,6 +1317,9 @@ namespace Lessium.ViewModels
             SelectedContentType = (ContentType) Enum.Parse(typeof(ContentType), param);
 
             RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
+
+            // SelectSection should be used instead of RaisePropertyChanged(CurrentSection), see implementation for details.
+
             SelectSection(model.LastSelectedSection[SelectedContentType], previousSection, true);
 
             // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.

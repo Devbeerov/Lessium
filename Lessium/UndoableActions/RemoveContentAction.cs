@@ -1,16 +1,16 @@
-﻿using Lessium.ContentControls.Models;
+﻿using Lessium.Models;
 using Lessium.Interfaces;
 
 namespace Lessium.UndoableActions
 {
     public class RemoveContentAction : IUndoableAction
     {
-        private readonly ContentPage page;
+        private readonly ContentPageModel page;
         private readonly IContentControl toRemove;
 
         private IContentControl storedControl;
 
-        public RemoveContentAction(ContentPage page, IContentControl toRemove)
+        public RemoveContentAction(ContentPageModel page, IContentControl toRemove)
         {
             this.page = page;
             this.toRemove = toRemove;

@@ -1,4 +1,4 @@
-﻿using Lessium.ContentControls.Models;
+﻿using Lessium.Models;
 using Lessium.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -11,7 +11,7 @@ namespace Lessium.ContentControls
     // All ContentControls should have parent of type ContentPageControl.
     public class ContentPageControl : WrapPanel
     {
-        private ContentPage contentPage;
+        private ContentPageModel contentPage;
 
         [Obsolete("You should not manually create ContentPageControl. This constructor used for creating control in XAML.", true)]
         public ContentPageControl() : base()
@@ -37,7 +37,7 @@ namespace Lessium.ContentControls
         {
             // Default properties
 
-            MaxWidth = ContentPage.PageWidth;
+            MaxWidth = ContentPageModel.PageWidth;
             Width = MaxWidth;
 
             Orientation = Orientation.Vertical;
@@ -56,7 +56,7 @@ namespace Lessium.ContentControls
 
             var binding = new Binding(nameof(MaxHeight));
             binding.Source = this;
-            binding.FallbackValue = ContentPage.PageHeight;
+            binding.FallbackValue = ContentPageModel.PageHeight;
 
             SetBinding(HeightProperty, binding);
         }
@@ -88,7 +88,7 @@ namespace Lessium.ContentControls
         // DataContext = CurrentPage
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            contentPage = e.NewValue as ContentPage;
+            contentPage = e.NewValue as ContentPageModel;
 
             if (contentPage == null) { return; } // Wrong DataContext (probably MainWindowViewModel)
 

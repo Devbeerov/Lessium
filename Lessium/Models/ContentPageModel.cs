@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Utility;
 using Lessium.Classes.IO;
+using Lessium.ContentControls;
 
-namespace Lessium.ContentControls.Models
+namespace Lessium.Models
 {
-    // Model
     [Serializable]
-    public class ContentPage : ILsnSerializable
+    public class ContentPageModel : ILsnSerializable
     {
         // Public
 
@@ -45,14 +45,14 @@ namespace Lessium.ContentControls.Models
 
         #region Constructors
 
-        public ContentPage(ContentType contentType, IDispatcher dispatcher = null)
+        public ContentPageModel(ContentType contentType, IDispatcher dispatcher = null)
         {
             this.ContentType = contentType;
             this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
         }
 
         // For serialization
-        protected ContentPage(SerializationInfo info, StreamingContext context)
+        protected ContentPageModel(SerializationInfo info, StreamingContext context)
         {
             dispatcher =  DispatcherUtility.Dispatcher;
 
@@ -65,9 +65,9 @@ namespace Lessium.ContentControls.Models
 
         #region Public
 
-        public static ContentPage CreateWithPageControlInjection(ContentPage oldPage, ContentType? contentType = null)
+        public static ContentPageModel CreateWithPageControlInjection(ContentPageModel oldPage, ContentType? contentType = null)
         {
-            var newPage = new ContentPage(contentType ?? oldPage.ContentType);
+            var newPage = new ContentPageModel(contentType ?? oldPage.ContentType);
             newPage.SetPageControl(oldPage.pageControl);
             return newPage;
         }

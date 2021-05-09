@@ -1,12 +1,11 @@
 ﻿using Lessium.Classes.IO;
 using Lessium.ContentControls;
-using Lessium.ContentControls.Models;
+using Lessium.Models;
 using Lessium.Interfaces;
 using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using System.Linq;
 
@@ -104,8 +103,8 @@ namespace LessiumTests.Extensions
 
                 if (enumerator.Name == "Pages" && enumerator.Value is IList)
                 {
-                    var expectedPages = (IList<ContentPage>)enumerator.Value;
-                    var actualPages = (IList<ContentPage>)actualInfo.GetValue(enumerator.Name, enumerator.ObjectType);
+                    var expectedPages = (IList<ContentPageModel>)enumerator.Value;
+                    var actualPages = (IList<ContentPageModel>)actualInfo.GetValue(enumerator.Name, enumerator.ObjectType);
 
                     AreEqual(expectedPages, actualPages);
                 }
@@ -122,7 +121,7 @@ namespace LessiumTests.Extensions
             }
         }
 
-        public static void AreEqual(IList<ContentPage> expected, IList<ContentPage> actual)
+        public static void AreEqual(IList<ContentPageModel> expected, IList<ContentPageModel> actual)
         {
             CheckParametersForAreEqual(expected, actual);
 
@@ -141,7 +140,7 @@ namespace LessiumTests.Extensions
             }
         }
 
-        public static void AreEqual(ContentPage expected, ContentPage actual)
+        public static void AreEqual(ContentPageModel expected, ContentPageModel actual)
         {
             CheckParametersForAreEqual(expected, actual);
 

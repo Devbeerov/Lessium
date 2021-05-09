@@ -1,5 +1,6 @@
 ﻿using Lessium.Classes.IO;
 using Lessium.ContentControls;
+using Lessium.Models;
 using Lessium.ViewModels;
 using Lessium.Views;
 using System;

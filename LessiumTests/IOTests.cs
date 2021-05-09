@@ -293,7 +293,7 @@ namespace LessiumTests
 
                     #region Page 0
                     {
-                        var firstPage = new ContentPage(ContentType.Material);
+                        var firstPage = new ContentPageModel(ContentType.Material);
 
                         // Two same TextControls
                         firstPage.Add(
@@ -350,7 +350,7 @@ namespace LessiumTests
 
                     #region Page 0
                     {
-                        var firstPage = new ContentPage(ContentType.Test);
+                        var firstPage = new ContentPageModel(ContentType.Test);
 
                         firstPage.Add(
                             new SimpleTest()

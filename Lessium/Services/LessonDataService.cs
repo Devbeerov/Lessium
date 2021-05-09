@@ -4,7 +4,7 @@ using System.Windows;
 using Lessium.Views;
 using Lessium.ViewModels;
 
-namespace Lessium.Utility
+namespace Lessium.Services
 {
     /// <summary>
     /// Helps to receive runtime data, which can be useful for getting runtime data from ViewModels.

@@ -1,14 +1,14 @@
-﻿using Lessium.ContentControls.Models;
+﻿using Lessium.Models;
 using Lessium.Interfaces;
 
 namespace Lessium.UndoableActions
 {
     public class AddContentAction : IUndoableAction
     {
-        private readonly ContentPage page;
+        private readonly ContentPageModel page;
         private readonly IContentControl control;
 
-        public AddContentAction(ContentPage page, IContentControl control)
+        public AddContentAction(ContentPageModel page, IContentControl control)
         {
             this.page = page;
             this.control = control;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace Lessium.Utility
+namespace Lessium.Services
 {
     public class UndoableActionsService
     {

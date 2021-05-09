@@ -75,6 +75,7 @@
     <Compile Include="Interfaces\IDispatcher.cs" />
     <Compile Include="Interfaces\ILsnSerializable.cs" />
     <Compile Include="Interfaces\IUndoableAction.cs" />
+    <Compile Include="Models\LessonModel.cs" />
     <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="Properties\Hotkeys.cs" />
     <Compile Include="Properties\Resources.ru-RU1.Designer.cs">
@@ -93,11 +94,11 @@
     <Compile Include="UndoableActions\AddSectionAction.cs" />
     <Compile Include="Utility\DispatcherUtility.cs" />
     <Compile Include="Utility\DataStructuresExtensions.cs" />
-    <Compile Include="Utility\HotkeysService.cs" />
+    <Compile Include="Services\HotkeysService.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
-    <Compile Include="Utility\LessonDataService.cs" />
-    <Compile Include="Utility\UndoableActionsService.cs" />
+    <Compile Include="Services\LessonDataService.cs" />
+    <Compile Include="Services\UndoableActionsService.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />
@@ -188,7 +189,7 @@
     </Compile>
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
-    <Compile Include="ContentControls\Models\ContentPage.cs" />
+    <Compile Include="Models\ContentPageModel.cs" />
     <Compile Include="Models\MainModel.cs" />
     <Compile Include="Properties\Resources.ru-RU.Designer.cs">
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>

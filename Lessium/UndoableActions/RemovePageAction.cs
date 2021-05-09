@@ -1,4 +1,4 @@
-﻿using Lessium.ContentControls.Models;
+﻿using Lessium.Models;
 using Lessium.Interfaces;
 using System.Collections.Generic;
 
@@ -6,12 +6,12 @@ namespace Lessium.UndoableActions
 {
     public class RemovePageAction : IUndoableAction
     {
-        private readonly ICollection<ContentPage> pages;
-        private readonly ContentPage toRemove;
+        private readonly ICollection<ContentPageModel> pages;
+        private readonly ContentPageModel toRemove;
 
-        private ContentPage storedPage;
+        private ContentPageModel storedPage;
 
-        public RemovePageAction(ICollection<ContentPage> pages, ContentPage toRemove)
+        public RemovePageAction(ICollection<ContentPageModel> pages, ContentPageModel toRemove)
         {
             this.pages = pages;
             this.toRemove = toRemove;

@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using Lessium.Utility;
 
-namespace Lessium.Utility
+namespace Lessium.Services
 {
     public class HotkeysService
     {

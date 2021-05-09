@@ -1,5 +1,6 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Interfaces;
+using Lessium.Models;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
-using Lessium.ContentControls.Models;
+using Lessium.Models;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -17,7 +17,6 @@ using Lessium.Classes.IO;
 using Lessium.Properties;
 using System.Globalization;
 using System.Resources;
-using Lessium.Classes.Wrappers;
 
 namespace Lessium.ContentControls
 {
@@ -31,11 +30,11 @@ namespace Lessium.ContentControls
         private bool setupDone = false;
         private IDispatcher dispatcher;
 
-        private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
+        private readonly ObservableCollection<ContentPageModel> pages = new ObservableCollection<ContentPageModel>();
 
         // Serialization
 
-        private List<ContentPage> storedPages;
+        private List<ContentPageModel> storedPages;
 
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
@@ -70,7 +69,7 @@ namespace Lessium.ContentControls
         {
             var type = (ContentType)info.GetValue("ContentType", typeof(ContentType));
             var title = info.GetString("Title");
-            storedPages = info.GetValue("Pages", typeof(List<ContentPage>)) as List<ContentPage>;
+            storedPages = info.GetValue("Pages", typeof(List<ContentPageModel>)) as List<ContentPageModel>;
 
             // Dispatcher
 
@@ -93,15 +92,15 @@ namespace Lessium.ContentControls
             set { SetValue(TitleProperty, value); }
         }
 
-        public ObservableCollection<ContentPage> Pages
+        public ObservableCollection<ContentPageModel> Pages
         {
-            get { return (ObservableCollection<ContentPage>)GetValue(PagesProperty); }
+            get { return (ObservableCollection<ContentPageModel>)GetValue(PagesProperty); }
             set { SetValue(PagesProperty, value); }
         }
 
-        public ContentPage SelectedPage
+        public ContentPageModel SelectedPage
         {
-            get { return (ContentPage)GetValue(SelectedPageProperty); }
+            get { return (ContentPageModel)GetValue(SelectedPageProperty); }
             set { SetValue(SelectedPageProperty, value); }
         }
 
@@ -130,7 +129,7 @@ namespace Lessium.ContentControls
             setupDone = true;
         }
 
-        private void UpdatePageEditable(ContentPage page)
+        private void UpdatePageEditable(ContentPageModel page)
         {
             if (page != null)
             {
@@ -180,14 +179,14 @@ namespace Lessium.ContentControls
             {
                 // Section should contain at least 1 page.
 
-                var page = new ContentPage(ContentType);
+                var page = new ContentPageModel(ContentType);
                 pages.Add(page);
             }
 
             SelectedPage = pages[0];
         }
 
-        public void Add(ContentPage page)
+        public void Add(ContentPageModel page)
         {
             if (page.ContentType != this.ContentType) { throw new InvalidOperationException
                      ("You can only add pages with same ContentType to Section!"); }
@@ -196,7 +195,7 @@ namespace Lessium.ContentControls
 
             // Raising event
 
-            var affectedPages = new Collection<ContentPage>();
+            var affectedPages = new Collection<ContentPageModel>();
             affectedPages.Add(page);
 
             var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Add);
@@ -205,13 +204,13 @@ namespace Lessium.ContentControls
             UpdatePageEditable(page);
         }
 
-        public void Remove(ContentPage page)
+        public void Remove(ContentPageModel page)
         {
             pages.Remove(page);
 
             // Raising event
 
-            var affectedPages = new Collection<ContentPage>();
+            var affectedPages = new Collection<ContentPageModel>();
             affectedPages.Add(page);
 
             var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Remove);
@@ -246,11 +245,11 @@ namespace Lessium.ContentControls
             DependencyProperty.RegisterAttached("Title", typeof(string), typeof(Section), new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty PagesProperty =
-            DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPage>),
+            DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPageModel>),
                 typeof(Section), new PropertyMetadata(null));
 
         public static readonly DependencyProperty SelectedPageProperty =
-            DependencyProperty.Register("SelectedPage", typeof(ContentPage),
+            DependencyProperty.Register("SelectedPage", typeof(ContentPageModel),
                 typeof(Section), new PropertyMetadata(null));
 
         // Won't do anything with Section here. Used in ViewModel to change SelectedPage.
@@ -339,7 +338,7 @@ namespace Lessium.ContentControls
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
                 if (reader.NodeType != XmlNodeType.Element) continue;
 
-                var page = new ContentPage(this.ContentType);
+                var page = new ContentPageModel(this.ContentType);
 
                 await page.ReadXmlAsync(reader, progress, token);
                 Add(page);
@@ -360,10 +359,10 @@ namespace Lessium.ContentControls
 
     public class PagesChangedEventArgs
     {
-        public Collection<ContentPage> Pages { get; private set; }
+        public Collection<ContentPageModel> Pages { get; private set; }
         public CollectionChangeAction Action { get; private set; }
 
-        public PagesChangedEventArgs(Collection<ContentPage> pages, CollectionChangeAction action)
+        public PagesChangedEventArgs(Collection<ContentPageModel> pages, CollectionChangeAction action)
         {
             Pages = pages;
             Action = action;

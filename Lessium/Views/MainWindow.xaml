@@ -8,7 +8,7 @@
         xmlns:utility="clr-namespace:Lessium.Utility"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
-        xmlns:models="clr-namespace:Lessium.ContentControls.Models"
+        xmlns:models="clr-namespace:Lessium.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
         MouseWheel="MainWindow_MouseWheel"
@@ -42,7 +42,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/> <!-- UI above content -->
             <RowDefinition Height="92*"/> <!-- Content (materials/tests) -->
-            <RowDefinition Height="3*"/> <!-- ContentPage Counter -->
+            <RowDefinition Height="3*"/> <!-- ContentPageModel Counter -->
         </Grid.RowDefinitions>
 
         <!-- Columns (percentage space) -->
@@ -223,8 +223,8 @@
                  VerticalAlignment="Top" HorizontalAlignment="Left">
 
             <controls:Section x:Name="section" CanVerticallyScroll="False"
-                              MaxWidth="{x:Static models:ContentPage.PageWidth}"
-                              MaxHeight="{x:Static models:ContentPage.PageHeight}"
+                              MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
+                              MaxHeight="{x:Static models:ContentPageModel.PageHeight}"
                               Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
                               Style="{StaticResource CurrentSectionStyle}">
 
@@ -330,7 +330,7 @@
         
         <!--#endregion-->
         
-        <!--#region Row 2 - ContentPage Counter-->
+        <!--#region Row 2 - ContentPageModel Counter-->
 
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="20" Grid.Row="2" Grid.Column="1" Margin="0,0,11,1"
