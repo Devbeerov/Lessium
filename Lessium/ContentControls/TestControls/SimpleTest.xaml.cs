@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
@@ -22,8 +21,7 @@ namespace Lessium.ContentControls.TestControls
     [Serializable]
     public partial class SimpleTest : UserControl, ITestControl
     {
-        private Guid id;
-        private IDispatcher dispatcher;
+        private readonly IDispatcher dispatcher;
 
         private bool raiseResizeEvent = true;
 
@@ -34,11 +32,6 @@ namespace Lessium.ContentControls.TestControls
         #region CLR Properties
 
         public ObservableCollection<AnswerModel> Answers { get; set; } = new ObservableCollection<AnswerModel>();
-
-        public string GUID
-        {
-            get { return id.ToString(); }
-        }
 
         public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
 
@@ -78,6 +71,9 @@ namespace Lessium.ContentControls.TestControls
 
             var TrueAnswersList = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
             TrueAnswers = TrueAnswersList.ToArray();
+
+            var SelectedAnswersList = (List<object>)info.GetValue(nameof(SelectedAnswers), typeof(List<object>));
+            SelectedAnswers = SelectedAnswersList.ToArray();
         }
 
         #endregion
@@ -90,7 +86,6 @@ namespace Lessium.ContentControls.TestControls
         {
             // Custom control initialization
 
-            id = Guid.NewGuid();
             DataContext = this;
 
             InitializeComponent();
@@ -100,71 +95,102 @@ namespace Lessium.ContentControls.TestControls
 
         #region Private
 
-        private void ValidateAnswersControl(double? lineHeight, SizeChangedEventArgs e)
+        private ContentPresenter GetLastContainer()
         {
             // No items, no problems.
-            if (AnswersItemControl.Items.Count == 0) return;
+
+            if (AnswersItemControl.Items.Count == 0) return null;
 
             var lastIndex = AnswersItemControl.Items.Count - 1;
             var last = AnswersItemControl.Items.GetItemAt(lastIndex);
-            var lastContainer = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
+            return AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
+        }
 
+        private TextControl GetTextContainer(ContentPresenter contentPresenter)
+        {
             // If container does not exist yet, returns.
-            if (lastContainer == null) return;
+            if (contentPresenter == null) return null;
 
-            var dataTemplate = lastContainer.ContentTemplate;
-            var textContainer = dataTemplate.FindName("TextContainer", lastContainer) as TextControl;
+            var dataTemplate = contentPresenter.ContentTemplate;
+            return dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
+        }
 
+        private int GetMaxLineCount(TextBox textBox, ContentPageControl pageControl, double? lineHeight)
+        {
+            lineHeight = textBox.CalculateLineHeight();
+
+            var pos = textBox.TranslatePoint(default(Point), pageControl);
+            return Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
+        }
+
+        private void ValidateAnswersControl(double? lineHeight, SizeChangedEventArgs e)
+        {
+            var lastContainer = GetLastContainer();
+            var textContainer = GetTextContainer(lastContainer);
             var pageControl = this.FindParent<ContentPageControl>();
-
-            // Checks if element fits, returns in that case.
 
             if (textContainer == null || pageControl.IsElementFits(textContainer)) return;
 
             var textBox = textContainer.textBox;
+            var maxLineCount = GetMaxLineCount(textBox, pageControl, lineHeight);
 
-            lineHeight = textBox.CalculateLineHeight();
-
-            var pos = textBox.TranslatePoint(default(Point), pageControl);
-            var maxLineCount = Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
-
-            // Returns if lines count is valid.
             if (textBox.LineCount <= maxLineCount) return;
-
 
             raiseResizeEvent = false;
 
-            int prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
+            var prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
+            var lastPositionInMaxLine = CalculateLastPositionInMaxLine(textBox, maxLineCount);
 
-            // Calculates values of MaxLine
+            // Removes all excessing and creates new text.
 
+            var newText = CreateNewText(textContainer, lastPositionInMaxLine);
+
+            UpdateTextContainer(textContainer, newText);
+            UpdateBorder();
+            UpdateCaret(textBox, prevCaret, newText.Length);
+
+            e.Handled = true;
+        }
+
+        private static int CalculateLastPositionInMaxLine(TextBox textBox, int maxLineCount)
+        {
             int MaxLineIndex = maxLineCount - 1;
             int firstPositionInMaxLine = textBox.GetCharacterIndexFromLineIndex(MaxLineIndex);
             int lengthOfMaxLine = textBox.GetLineLength(MaxLineIndex);
-            int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
 
-            // Removes everything past MaxLine
+            return firstPositionInMaxLine + lengthOfMaxLine;
+        }
 
+        private string CreateNewText(TextControl textContainer, int lastPositionInMaxLine)
+        {
             var actualText = textContainer.Text;
-            var newText = actualText.Remove(lastPositionInMaxLine - 1);
 
-            textContainer.Text = newText;
-            textContainer.InvalidateMeasure();
-            textContainer.UpdateLayout();
+            return actualText.Remove(lastPositionInMaxLine - 1);
+        }
 
-            border.InvalidateMeasure();
-            border.UpdateLayout();
-
+        private static void UpdateCaret(TextBox textBox, int prevCaret, int newLength)
+        {
             // Restores caret
 
-            if (prevCaret > newText.Length)
+            if (prevCaret > newLength)
             {
-                prevCaret = newText.Length - 1;
+                prevCaret = newLength - 1;
             }
 
             textBox.CaretIndex = prevCaret;
+        }
 
-            e.Handled = true;
+        private void UpdateBorder()
+        {
+            border.InvalidateMeasure();
+            border.UpdateLayout();
+        }
+
+        private static void UpdateTextContainer(TextControl textContainer, string newText)
+        {
+            textContainer.Text = newText;
+            textContainer.InvalidateMeasure();
+            textContainer.UpdateLayout();
         }
 
         private double CalculateAnswersControlMaxHeight()
@@ -189,6 +215,13 @@ namespace Lessium.ContentControls.TestControls
 
             testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
             testQuestion.SetMaxHeight(maxHeight);
+        }
+
+        private void UpdateTrueAnswers()
+        {
+            if (TrueAnswers.Count < 2) return;
+
+            
         }
 
         #endregion
@@ -254,12 +287,12 @@ namespace Lessium.ContentControls.TestControls
 
         #region ITestControl
 
-        public object[] SelectedAnswers { get; set; }
-        public object[] TrueAnswers { get; set; }
+        public IList<object> SelectedAnswers { get; set; }
+        public IList<object> TrueAnswers { get; set; }
 
         public bool CheckAnswers()
         {
-            return DataStructuresExtensions.IsSame(SelectedAnswers, TrueAnswers);
+            return SelectedAnswers.SequenceEqual(TrueAnswers);
         }
 
         #endregion
@@ -361,12 +394,22 @@ namespace Lessium.ContentControls.TestControls
 
         private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
         {
-            
+            var checkBox = sender as CheckBox;
+            var answerModel = checkBox.DataContext as AnswerModel;
+
+            TrueAnswers.Add(answerModel);
+
+            UpdateTrueAnswers();
         }
 
         private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
         {
-            
+            var checkBox = sender as CheckBox;
+            var answerModel = checkBox.DataContext as AnswerModel;
+
+            TrueAnswers.Remove(answerModel);
+
+            UpdateTrueAnswers();
         }
 
         #endregion
@@ -381,6 +424,7 @@ namespace Lessium.ContentControls.TestControls
             // ITestControl
 
             info.AddValue(nameof(TrueAnswers), TrueAnswers.ToList());
+            info.AddValue(nameof(SelectedAnswers), SelectedAnswers.ToList());
         }
 
         [OnDeserialized]
@@ -505,6 +549,18 @@ namespace Lessium.ContentControls.TestControls
             {
                 Text = await reader.ReadElementContentAsStringAsync();
             });
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is AnswerModel model &&
+                   Text == model.Text;
+        }
+
+        // Autogenerated
+        public override int GetHashCode()
+        {
+            return 1249999374 + EqualityComparer<string>.Default.GetHashCode(Text);
         }
     }
 }

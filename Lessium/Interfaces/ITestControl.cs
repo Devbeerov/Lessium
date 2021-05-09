@@ -1,10 +1,12 @@
-﻿namespace Lessium.Interfaces
+﻿using System.Collections.Generic;
+
+namespace Lessium.Interfaces
 {
     public interface ITestControl : IContentControl
     {
-        object[] SelectedAnswers { get; set; }
+        IList<object> SelectedAnswers { get; set; }
 
-        object[] TrueAnswers { get; set; }
+        IList<object> TrueAnswers { get; set; }
 
         bool CheckAnswers();
     }

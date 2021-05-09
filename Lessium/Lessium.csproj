@@ -63,9 +63,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes\IO\CountData.cs" />
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
     <Compile Include="Classes\Wrappers\DispatcherWrapper.cs" />
+    <Compile Include="CustomControls\RadioCheckBox.xaml.cs">
+      <DependentUpon>RadioCheckBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\ShortcutControl.xaml.cs">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
     </Compile>
@@ -93,8 +97,8 @@
     <Compile Include="UndoableActions\RemoveSectionAction.cs" />
     <Compile Include="UndoableActions\AddSectionAction.cs" />
     <Compile Include="Utility\DispatcherUtility.cs" />
-    <Compile Include="Utility\DataStructuresExtensions.cs" />
     <Compile Include="Services\HotkeysService.cs" />
+    <Compile Include="Utility\EqualsHelper.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
     <Compile Include="Services\LessonDataService.cs" />
@@ -113,6 +117,10 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="ContentControls\MaterialControls\TextControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\RadioCheckBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

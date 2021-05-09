@@ -44,6 +44,7 @@ namespace Lessium.ViewModels
 
         private bool currentPageIsNotFirst = false;
         private bool savingOrLoading = false;
+        private bool currentSectionUpdating = false;
 
         // Windows
 
@@ -100,7 +101,7 @@ namespace Lessium.ViewModels
                 {
                     // Updates previous
 
-                    model.LastSelectedSection[prevTab] = prevSection;
+                    model.CurrentSection[prevTab] = prevSection;
                 }
             }
         }
@@ -248,8 +249,7 @@ namespace Lessium.ViewModels
                 }
 
                 UpdateCurrentPageNotFirst();
-                RaisePropertyChanged(nameof(CurrentPageNumber));
-                RaisePropertyChanged(nameof(CurrentPage));
+                RaisePropertyCurrentPageChanged();
             }
         }
 
@@ -308,14 +308,17 @@ namespace Lessium.ViewModels
 
         #region Methods
 
+        /// <param name="name">If explicitly provided null, then won't call RaisePropertyChanged.</param>
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
             var oldValue = dictionary[key];
 
-            if (oldValue == null || !oldValue.Equals(newValue))
+            if (oldValue == null || !ReferenceEquals(oldValue, newValue))
             {
                 dictionary[key] = newValue;
-                RaisePropertyChanged(name);
+
+                if (name != null) { RaisePropertyChanged(name); }
+
                 return true;
             }
 
@@ -360,7 +363,7 @@ namespace Lessium.ViewModels
             foreach (var key in model.Sections.Keys)
             {
                 model.Sections[key].Clear();
-                model.LastSelectedSection[key] = null;
+                model.CurrentSection[key] = null;
             }
 
             // Clears changes as well.
@@ -514,143 +517,60 @@ namespace Lessium.ViewModels
             }
         }
 
-        private bool UpdateModelCurrentSection(Section section, bool tabChange)
-        {
-            Section retrievedSection = section;
-
-            // If tab changed, retrieves stored Section or null if it's not present.
-
-            if (tabChange)
-            {
-                // Clears
-
-                model.CurrentSection[SelectedContentType] = null;
-
-                retrievedSection = model.LastSelectedSection[SelectedContentType];
-                
-            }
-
-            return SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, retrievedSection, nameof(CurrentSection));
-        }
-
-        /// <summary>
-        /// Sets  = to the last selected Page in Section.
-        /// </summary>
-        /// <param name="section"></param>
-        /// <returns>True if successful, false otherwise.</returns>
-        private bool SetCurrentPageToLastSelectedPage(Section section)
-        {
-            if (!model.LastSelectedPage.ContainsKey(section)) return false; // Returns if there is no stored Page.
-
-            // Retrieves stored Page reference
-
-            var storedPage = model.LastSelectedPage[section];
-
-            // Updates CurrentPage property
-
-            CurrentPage = storedPage;
-
-            return true;
-        }
-
-        private void UpdatePreviousSection(Section previousSection)
-        {
-            // If no previous section, just returns.
-
-            if (previousSection == null) return;
-
-            // If previousSection is not stored, stores it.
-
-            if (!model.LastSelectedPage.ContainsKey(previousSection))
-            {
-                model.LastSelectedPage.Add(previousSection, previousSection.SelectedPage);
-            }
-
-            // Otherwise just update stored value.
-
-            else
-            {
-                model.LastSelectedPage[previousSection] = previousSection.SelectedPage;
-            }
-
-            // Unsubscribes event
-
-            previousSection.PagesChanged -= OnPagesChanged;
-        }
-
         /// <summary>
         /// Should be used when changing tabs.
         /// Checks section with manually providen previousSection to avoid wrong comparison.
         /// </summary>
         /// <param name="section">New Section</param>
-        /// <param name="previousSection">Previous Section (to check with new)</param>
-        /// <param name="tabChange">Does it selected from tab changing? If so, will clear CurrentSection for this tab.</param>
+        /// <param name="previousSection">Previous Section, if provided - will also unsubscribe PagesChanged.</param>
         private void SelectSection(Section section, Section previousSection = null, bool tabChange = false)
         {
-            // Updates CurrentSection in model, returns if failed (for example: if section is same as previousSection)
+            // If not tabChange and failed to SetDictionaryProperty (new and old are same), then just returns.
 
-            if (!UpdateModelCurrentSection(section, tabChange)) return;
-
-            // Each section have it's own pages
-
-            RaisePropertyChanged(nameof(Pages));
-
-            // Updates previous
-
-            UpdatePreviousSection(previousSection);
-
-            // If section argument is null, we just set CurrentSectionID to -1 and returns.
-
-            if (section == null)
+            if (!tabChange && !SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, section, null))
             {
-                CurrentSectionID = -1;
                 return;
             }
 
-            CurrentSectionID = Sections.IndexOf(section);
+            // Using logical bool because of SelectionChanged event, which will be fired with old section, due to UI won't be updated yet.
+
+            currentSectionUpdating = true;
+
+            RaisePropertyCurrentSectionChanged();
+
+            if (previousSection != null) { previousSection.PagesChanged -= OnPagesChanged; }
+
+            if (section == null) return;
+
             section.PagesChanged += OnPagesChanged;
 
-            // Delegates all work of updating CurrentPage to method.
-
-            ForceUpdateCurrentPage(section);
-
-            // We still should call RaisePropertyChanged, because we bind to them in View.
-            // So when changing Sections, Index and Number could be the same.
-
-            RaisePropertyChanged(nameof(CurrentPageIndex));
-            RaisePropertyChanged(nameof(CurrentPageNumber));
-
             ShowSection(section);
+
+            currentSectionUpdating = false;
         }
 
         /// <summary>
-        /// Forces update CurrentPage to argument Section's stored page.
-        /// If there's no not stored page, then section's selected page.
+        /// Will also call RaisePropertyChanged of CurrentPageIndex and CurrentPageNumber properties.
         /// </summary>
-        /// <param name="section"></param>
-        private void ForceUpdateCurrentPage(Section section)
+        private void RaisePropertyCurrentPageChanged()
         {
-            // Stores reference before clearing.
-
-            var sectionSelectedPage = section.SelectedPage;
-
-            // Clears selection, so CurrentPage.Set won't return because of same values.
-
-            ClearSectionSelectedPage(CurrentSection);
-
-            // Updates CurrentPage to LastSelectedPage of section.
-
-            if (!SetCurrentPageToLastSelectedPage(section))
-            {
-                // If not stored, then retrieves section's SelectedPage (CurrentPage of Section)
-
-                CurrentPage = sectionSelectedPage;
-            }
+            RaisePropertyChanged(nameof(CurrentPage));
+            RaisePropertyChanged(nameof(CurrentPageIndex));
+            RaisePropertyChanged(nameof(CurrentPageNumber));
         }
 
-        private void ClearSectionSelectedPage(Section section)
+        /// <summary>
+        /// Will execute all RaisePropertyChanged to make all bindings updated.
+        /// </summary>
+        private void RaisePropertyCurrentSectionChanged()
         {
-            section.SelectedPage = null;
+            RaisePropertyChanged(nameof(CurrentSection));
+            RaisePropertyChanged(nameof(CurrentSectionID));
+            RaisePropertyChanged(nameof(Pages));
+
+            CurrentSectionID = Sections.IndexOf(CurrentSection);
+
+            RaisePropertyCurrentPageChanged();
         }
 
         #endregion
@@ -1099,6 +1019,8 @@ namespace Lessium.ViewModels
 
         void ExecuteTrySelectSection(Section newSection)
         {
+            if (currentSectionUpdating) return;
+
             SelectSection(newSection);
         }
 
@@ -1318,13 +1240,9 @@ namespace Lessium.ViewModels
 
             RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
 
-            // SelectSection should be used instead of RaisePropertyChanged(CurrentSection), see implementation for details.
+            // SelectSection should be used here, see implementation for details.
 
-            SelectSection(model.LastSelectedSection[SelectedContentType], previousSection, true);
-
-            // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
-
-            RaisePropertyChanged(nameof(CurrentSectionID));
+            SelectSection(model.CurrentSection[SelectedContentType], previousSection, true);
         }
 
         #endregion

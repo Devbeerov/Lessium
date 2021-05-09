@@ -309,45 +309,4 @@ namespace Lessium.Classes.IO
             throw new InvalidDataException($"{tabString} not found in file.");
         }
     }
-
-    /// <summary>
-    /// Contains all required data for ProgressWindowViewModel. 
-    /// NOTE: Should be class instead of struct, because it contains dictionaries.
-    /// </summary>
-    public class CountData
-    {
-        public int GetSectionsCount()
-        {
-            return data.Keys.Count;
-        }
-
-        public int GetPagesCount(int sectionIndex)
-        {
-            return data[sectionIndex].Keys.Count;
-        }
-
-        public int GetContentsCount(int sectionIndex, int pageIndex)
-        {
-            return data[sectionIndex][pageIndex];
-        }
-
-        public void AddSection(int sectionIndex)
-        {
-            data.Add(sectionIndex, new Dictionary<int, int>());
-        }
-
-        public void AddPage(int sectionIndex, int pageIndex, int contentAmount)
-        {
-            data[sectionIndex].Add(pageIndex, contentAmount);
-        }
-
-
-        /// <summary>
-        /// (int) index of Section
-        /// (Dictionary) Section's content by Page.
-        /// 1st - PageIndex
-        /// 2nd - Amount of ContentControls which specified Page contains.
-        /// </summary>
-        private readonly Dictionary<int, Dictionary<int, int>> data = new Dictionary<int, Dictionary<int, int>>();
-    }
 }

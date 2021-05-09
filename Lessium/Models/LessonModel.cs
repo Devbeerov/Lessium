@@ -1,4 +1,5 @@
 ﻿using Lessium.ContentControls;
+using Lessium.Utility;
 using System;
 using System.Collections.ObjectModel;
 
@@ -19,6 +20,26 @@ namespace Lessium.Models
                     return TestSections;
                 default: throw new NotSupportedException($"{type} not supported.");
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as LessonModel;
+
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (!EqualsHelper.AreEqual(MaterialSections, other.MaterialSections)) { return false; }
+            if (!EqualsHelper.AreEqual(TestSections, other.TestSections)) { return false; }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotSupportedException();
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Lessium.Models
         {
             dispatcher =  DispatcherUtility.Dispatcher;
 
-            storedItems = info.GetValue("Items", typeof(List<IContentControl>)) as List<IContentControl>;
+            storedItems = info.GetValue(nameof(Items), typeof(List<IContentControl>)) as List<IContentControl>;
         }
 
         #endregion
@@ -79,8 +79,11 @@ namespace Lessium.Models
         /// <param name="directly">If set to true, will raise SendContent event instead of directly adding.</param>
         public void Add(IContentControl control, bool directly = false)
         {
-            if (!IsContentControlTypeValid(control)) { throw new InvalidOperationException
-                    ("You can only add ContentControls with equivalent interface!"); }
+            if (!IsContentControlTypeValid(control)) { throw new InvalidOperationException ("You can only add ContentControls with equivalent interface!"); }
+
+            // If there's no attached handlers, we will have to do it directly.
+
+            if (SendContent == null) directly = true;
 
             // To skip unwanted validating.
             if (Items.Count == 0)
@@ -114,6 +117,10 @@ namespace Lessium.Models
         // Won't validate control if it's in zero position.
         public void Insert(int position, IContentControl control, bool directly = false)
         {
+            // If there's no attached handler, we will have to do it directly.
+
+            if (SendContent == null) directly = true;
+
             BindControl(control);
 
             if (directly)
@@ -139,6 +146,10 @@ namespace Lessium.Models
 
         public void Remove(IContentControl element, bool directly = false)
         {
+            // If there's no attached handler, we will have to do it directly.
+
+            if (SendContent == null) directly = true;
+
             element.RemoveControl -= OnRemove;
             element.Resize -= OnContentResized;
 
@@ -235,6 +246,31 @@ namespace Lessium.Models
             {
                 ValidateAllForward(Items[0], true);
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as ContentPageModel;
+
+            if (other == null) return false;
+
+            return EqualsHelper.AreEqual(Items, other.Items);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 3;
+
+            if (Items == null) return hash;
+           
+            hash = hash * 7 + Items.Count;
+
+            for (int i = 0; i > Items.Count; i++)
+            {
+                hash = hash * 7 + Items[i].GetHashCode();
+            }
+
+            return hash;
         }
 
         #endregion
@@ -388,7 +424,7 @@ namespace Lessium.Models
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Items", Items.ToList());
+            info.AddValue(nameof(Items), Items.ToList());
         }
 
         #endregion

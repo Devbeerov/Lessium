@@ -35,26 +35,12 @@ namespace Lessium.Models
 
         #endregion
 
-        #region Pages
-
-        // Updates only on SelectedContentType change!
-        public Dictionary<ContentType, Section> LastSelectedSection = new Dictionary<ContentType, Section>()
-        {
-            { ContentType.Material, null },
-            { ContentType.Test, null }
-        };
-
-        // Updates only on CurrentSection change!
-        public Dictionary<Section, ContentPageModel> LastSelectedPage = new Dictionary<Section, ContentPageModel>();
-
-        #endregion
-
         #region Sections
 
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:
         /// Section section = Sections["Materials"]["Section 1"];
-        public Dictionary<ContentType, ObservableCollection<Section>> Sections =
+        public Dictionary<ContentType, ObservableCollection<Section>> Sections = 
             new Dictionary<ContentType, ObservableCollection<Section>>()
             {
                 { ContentType.Material, new ObservableCollection<Section>() },
@@ -66,6 +52,7 @@ namespace Lessium.Models
             { ContentType.Material, null },
             { ContentType.Test, null }
         };
+
         public Dictionary<ContentType, int> CurrentSectionID = new Dictionary<ContentType, int>()
         {
             { ContentType.Material, -1 },

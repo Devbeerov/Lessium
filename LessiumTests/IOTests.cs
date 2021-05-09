@@ -6,7 +6,7 @@ using LessiumTests.Extensions;
 using Lessium.Utility;
 using System.Threading;
 using NUnit.Framework;
-using Lessium.ContentControls.Models;
+using Lessium.Models;
 using Lessium.ContentControls.MaterialControls;
 using Lessium.ContentControls.TestControls;
 using System.Threading.Tasks;

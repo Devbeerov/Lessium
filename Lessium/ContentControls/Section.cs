@@ -67,9 +67,9 @@ namespace Lessium.ContentControls
 
         protected Section(SerializationInfo info, StreamingContext context) : base()
         {
-            var type = (ContentType)info.GetValue("ContentType", typeof(ContentType));
-            var title = info.GetString("Title");
-            storedPages = info.GetValue("Pages", typeof(List<ContentPageModel>)) as List<ContentPageModel>;
+            var type = (ContentType)info.GetValue(nameof(ContentType), typeof(ContentType));
+            var title = info.GetString(nameof(Title));
+            storedPages = info.GetValue(nameof(Pages), typeof(List<ContentPageModel>)) as List<ContentPageModel>;
 
             // Dispatcher
 
@@ -229,6 +229,8 @@ namespace Lessium.ContentControls
             UpdatePagesEditable();
         }
 
+        
+
         #endregion
 
         #endregion
@@ -265,11 +267,11 @@ namespace Lessium.ContentControls
         {
             dispatcher.Invoke(() =>
             {
-                info.AddValue("Title", Title);
-                info.AddValue("Pages", Pages.ToList());
+                info.AddValue(nameof(Title), Title);
+                info.AddValue(nameof(Pages), Pages.ToList());
             });
 
-            info.AddValue("ContentType", ContentType);
+            info.AddValue(nameof(ContentType), ContentType);
         }
 
         #endregion
@@ -349,7 +351,7 @@ namespace Lessium.ContentControls
             {
                 if (Pages.Count == 0)
                 {
-                    throw new InvalidDataException("Section must have at least 1 Page. Something is wrong with Section.");
+                    throw new InvalidDataException("Section must have at least 1 Page.");
                 }
             });
         }

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
+using System.Collections.Generic;
 
 namespace Lessium.ContentControls.MaterialControls
 {
