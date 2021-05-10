@@ -12,7 +12,7 @@
 
     <DataTemplate x:Key="SettingsSection">
         <Border BorderThickness="2" BorderBrush="Black" Background="Transparent" 
-                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <TextBlock Text="{Binding Value}" HorizontalAlignment="Center" />
         </Border>
     </DataTemplate>
@@ -23,9 +23,8 @@
     <!-- IMPORTANT NOTE: ElementName binding won't work by Tree issues. To fix it, 
     use Binding Source={x:Reference elementName}, 
     ContentControls resourceKeys should match in SettingsModel! -->
-    
+
     <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged" >
-        
         <StackPanel Orientation="Vertical">
             <TextBlock Text="{Binding FontSliderHeader}" />
             <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
@@ -33,8 +32,8 @@
                     Value="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize, Mode=OneTime}" >
 
                 <!-- There are two ValueChanged handlers:
-                first - dictionary code-behind to update fontSizeTextBlock margin,
-                second - ViewModel handler, which will update actual FontSize property. -->
+                    first - dictionary code-behind to update fontSizeTextBlock margin,
+                    second - ViewModel handler, which will update actual FontSize property. -->
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ValueChanged">
@@ -50,9 +49,8 @@
     </ContentControl>
 
     <ContentControl x:Key="Editing">
-
         <StackPanel Orientation="Vertical">
-            
+
             <!-- Undo -->
 
             <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
@@ -74,26 +72,22 @@
 
                 </TextBox>
             </DockPanel>
-            
+
         </StackPanel>
     </ContentControl>
 
     <ContentControl x:Key="Shortcuts">
-
         <StackPanel Orientation="Vertical">
 
             <!-- Edit -->
-
             <controls:ShortcutControl ShortcutKeyName="EditHotkey" 
                                       ShortcutHeader="{x:Static prop:Resources.EditHeader}"/>
 
             <!-- Undo -->
-
             <controls:ShortcutControl ShortcutKeyName="UndoHotkey" 
                                       ShortcutHeader="{x:Static prop:Resources.UndoChangesHeader}"/>
 
             <!-- Redo -->
-
             <controls:ShortcutControl ShortcutKeyName="RedoHotkey" 
                                       ShortcutHeader="{x:Static prop:Resources.RedoChangesHeader}"/>
 

@@ -17,7 +17,7 @@
 
                 <!-- Icon, Themes used in View -->
 
-                <ResourceDictionary Source="../Themes/AboutViewDictionary.xaml" />
+                <ResourceDictionary Source="../Dictionaries/AboutViewDictionary.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

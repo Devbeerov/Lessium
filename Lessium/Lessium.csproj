@@ -67,8 +67,8 @@
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
     <Compile Include="Classes\Wrappers\DispatcherWrapper.cs" />
-    <Compile Include="CustomControls\RadioCheckBox.xaml.cs">
-      <DependentUpon>RadioCheckBox.xaml</DependentUpon>
+    <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
+      <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\ShortcutControl.xaml.cs">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
@@ -87,7 +87,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
-    <Compile Include="Themes\SettingsViewDictionary.xaml.cs">
+    <Compile Include="Services\ClipboardService.cs" />
+    <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
     <Compile Include="UndoableActions\InsertContentAction.cs" />
@@ -99,6 +100,8 @@
     <Compile Include="Utility\DispatcherUtility.cs" />
     <Compile Include="Services\HotkeysService.cs" />
     <Compile Include="Utility\EqualsHelper.cs" />
+    <Compile Include="Utility\IListExtensions.cs" />
+    <Compile Include="Utility\ILsnSerializableExtensions.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
     <Compile Include="Services\LessonDataService.cs" />
@@ -120,7 +123,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\RadioCheckBox.xaml">
+    <Page Include="CustomControls\DynamicCheckBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -136,31 +139,31 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\AboutViewDictionary.Icons.xaml">
+    <Page Include="Dictionaries\AboutViewDictionary.Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\AboutViewDictionary.xaml">
+    <Page Include="Dictionaries\AboutViewDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\MainViewDictionary.Icons.xaml">
+    <Page Include="Dictionaries\MainViewDictionary.Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Generic.Icons.xaml">
+    <Page Include="Dictionaries\Generic.Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Generic.xaml">
+    <Page Include="Dictionaries\Generic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\MainViewDictionary.xaml">
+    <Page Include="Dictionaries\MainViewDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\SettingsViewDictionary.xaml">
+    <Page Include="Dictionaries\SettingsViewDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

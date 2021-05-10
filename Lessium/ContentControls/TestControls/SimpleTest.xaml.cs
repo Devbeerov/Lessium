@@ -1,5 +1,6 @@
 ﻿using Lessium.Classes.IO;
 using Lessium.ContentControls.MaterialControls;
+using Lessium.CustomControls;
 using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
@@ -21,6 +22,7 @@ namespace Lessium.ContentControls.TestControls
     [Serializable]
     public partial class SimpleTest : UserControl, ITestControl
     {
+        private Guid id;
         private readonly IDispatcher dispatcher;
 
         private bool raiseResizeEvent = true;
@@ -34,6 +36,11 @@ namespace Lessium.ContentControls.TestControls
         public ObservableCollection<AnswerModel> Answers { get; set; } = new ObservableCollection<AnswerModel>();
 
         public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
+
+        public string GUID
+        {
+            get { return id.ToString(); }
+        }
 
         #endregion
 
@@ -69,11 +76,11 @@ namespace Lessium.ContentControls.TestControls
 
             // ITestControl
 
-            var TrueAnswersList = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
-            TrueAnswers = TrueAnswersList.ToArray();
+            var storedTrueAnswers = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
+            TrueAnswers.AddRange(storedTrueAnswers);
 
-            var SelectedAnswersList = (List<object>)info.GetValue(nameof(SelectedAnswers), typeof(List<object>));
-            SelectedAnswers = SelectedAnswersList.ToArray();
+            var storedSelectedAnswers = (List<object>)info.GetValue(nameof(SelectedAnswers), typeof(List<object>));
+            SelectedAnswers.AddRange(storedSelectedAnswers);
         }
 
         #endregion
@@ -86,8 +93,10 @@ namespace Lessium.ContentControls.TestControls
         {
             // Custom control initialization
 
+            id = Guid.NewGuid();
             DataContext = this;
 
+            ValidateAnswersSelectionMode();
             InitializeComponent();
         }
 
@@ -217,11 +226,18 @@ namespace Lessium.ContentControls.TestControls
             testQuestion.SetMaxHeight(maxHeight);
         }
 
-        private void UpdateTrueAnswers()
+        private DynamicCheckBoxType GetActualCheckBoxType()
         {
-            if (TrueAnswers.Count < 2) return;
+            if (!IsReadOnly) { return DynamicCheckBoxType.CheckBox; }
 
-            
+            if (TrueAnswers.Count < 2) return DynamicCheckBoxType.RadioSingle;
+
+            return DynamicCheckBoxType.RadioMultiple;
+        }
+
+        private void ValidateAnswersSelectionMode()
+        {
+            CheckBoxType = GetActualCheckBoxType();
         }
 
         #endregion
@@ -257,6 +273,7 @@ namespace Lessium.ContentControls.TestControls
             set 
             { 
                 SetValue(IsReadOnlyProperty, value);
+                ValidateAnswersSelectionMode();
 
                 // Text Editable
 
@@ -287,8 +304,8 @@ namespace Lessium.ContentControls.TestControls
 
         #region ITestControl
 
-        public IList<object> SelectedAnswers { get; set; }
-        public IList<object> TrueAnswers { get; set; }
+        public IList<object> SelectedAnswers { get; set; } = new List<object>();
+        public IList<object> TrueAnswers { get; set; } = new List<object>();
 
         public bool CheckAnswers()
         {
@@ -399,7 +416,7 @@ namespace Lessium.ContentControls.TestControls
 
             TrueAnswers.Add(answerModel);
 
-            UpdateTrueAnswers();
+            ValidateAnswersSelectionMode();
         }
 
         private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
@@ -409,8 +426,44 @@ namespace Lessium.ContentControls.TestControls
 
             TrueAnswers.Remove(answerModel);
 
-            UpdateTrueAnswers();
+            ValidateAnswersSelectionMode();
         }
+
+        private void AnswerSelected(object sender, RoutedEventArgs e)
+        {
+            var control = sender as Control;
+            var answerModel = control.DataContext as AnswerModel;
+
+            SelectedAnswers.Add(answerModel);
+        }
+
+        private void AnswerUnselected(object sender, RoutedEventArgs e)
+        {
+            var control = sender as Control;
+            var answerModel = control.DataContext as AnswerModel;
+
+            SelectedAnswers.Remove(answerModel);
+        }
+
+        #endregion
+
+        #region Dependency Properties
+
+        private DynamicCheckBoxType CheckBoxType
+        {
+            get
+            {
+                var stringValue = (string)GetValue(CheckBoxTypeProperty);
+                var parsedDynamicCheckBoxType = (DynamicCheckBoxType)Enum.Parse(typeof(DynamicCheckBoxType), stringValue);
+
+                return parsedDynamicCheckBoxType;
+            }
+            set { SetValue(CheckBoxTypeProperty, value.ToString()); }
+        }
+
+        private static readonly DependencyProperty CheckBoxTypeProperty =
+            DependencyProperty.Register("CheckBoxType", typeof(string), typeof(SimpleTest), new PropertyMetadata(null));
+
 
         #endregion
 
@@ -492,6 +545,8 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
+
+
     }
 
     [Serializable]

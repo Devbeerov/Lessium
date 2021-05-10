@@ -104,7 +104,7 @@ namespace Lessium.Utility
             var control = (ContentControl)obj;
             var resourceKey = e.NewValue as string;
 
-            // Control in ResourceDictionary associated with resourceKey.
+            // Presenter in ResourceDictionary associated with resourceKey.
 
             var associatedControl = resourceDictionary[resourceKey];
 

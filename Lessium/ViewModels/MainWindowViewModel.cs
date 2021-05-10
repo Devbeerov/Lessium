@@ -1040,9 +1040,7 @@ namespace Lessium.ViewModels
             {
                 if (CurrentSection == null) return;
 
-                var dataObject = new DataObject(DataFormats.Serializable, CurrentSection);
-                Clipboard.Clear();
-                Clipboard.SetDataObject(dataObject);
+                ClipboardService.CopySerializable(CurrentSection);
 
                 return;
             }
@@ -1053,17 +1051,7 @@ namespace Lessium.ViewModels
 
                 if (ReadOnly) { return; }
 
-                // Gets object from Clipboard
-
-                IDataObject dataObject = Clipboard.GetDataObject();
-
-                // Checks if data present
-
-                if (!dataObject.GetDataPresent(DataFormats.Serializable)) return;
-
-                // Serializes Section
-
-                var section = dataObject.GetData(DataFormats.Serializable) as Section;
+                var section = ClipboardService.GetStoredSerializable() as Section;
 
                 // Checks if SelectedContentType is same as Section's ContentType
 

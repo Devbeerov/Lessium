@@ -20,7 +20,7 @@
 
                 <!-- Icon, Themes used in View -->
 
-                <ResourceDictionary Source="../Themes/SettingsViewDictionary.xaml" />
+                <ResourceDictionary Source="../Dictionaries/SettingsViewDictionary.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -53,7 +53,7 @@
         
         <!--#region Column 1-->
 
-        <ContentControl x:Name="sectionContent" Grid.Column="1" Margin="10" 
+        <ContentControl x:Name="sectionContent" Grid.Column="1" Margin="10"
                         utility:WpfExtensions.DynamicContentKey="{Binding SelectedSectionKey}"
                         utility:WpfExtensions.DynamicContentResourceDictionary="{Binding ElementName=settingsViewDictionary}"/>
 
