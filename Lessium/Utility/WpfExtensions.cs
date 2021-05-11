@@ -84,6 +84,23 @@ namespace Lessium.Utility
         public static readonly DependencyProperty DynamicContentResourceDictionaryProperty = DependencyProperty.RegisterAttached("DynamicContentResourceDictionary",
             typeof(ResourceDictionary), typeof(WpfExtensions), new PropertyMetadata(null, DynamicContentResourceDictionaryChanged));
 
+        public static readonly RoutedEvent DynamicContentChangedEvent = EventManager.RegisterRoutedEvent("DynamicContentChanged",
+            RoutingStrategy.Bubble, typeof(DynamicContentEventHandler), typeof(WpfExtensions));
+
+        public static void AddDynamicContentChangedHandler(DependencyObject element, DynamicContentEventHandler handler)
+        {
+            var uiElement = element as UIElement;
+
+            uiElement.AddHandler(DynamicContentChangedEvent, handler);
+        }
+
+        public static void RemoveDynamicContentChangedHandler(DependencyObject element, DynamicContentEventHandler handler)
+        {
+            var uiElement = element as UIElement;
+
+            uiElement.RemoveHandler(DynamicContentChangedEvent, handler);
+        }
+
         private static void DynamicContentKeyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var resourceDictionary = GetDynamicContentResourceDictionary(obj);
@@ -107,10 +124,15 @@ namespace Lessium.Utility
             // Presenter in ResourceDictionary associated with resourceKey.
 
             var associatedControl = resourceDictionary[resourceKey];
+            var oldContent = control.GetValue(ContentControl.ContentProperty);
 
             // Sets ContentProperty to associatedControl (dynamic) resource.
 
             control.SetValue(ContentControl.ContentProperty, associatedControl);
+
+            // Raises event
+            var args = new DynamicContentChangedArgs(oldContent, associatedControl);
+            control.RaiseEvent(args);
         }
 
         private static void DynamicContentResourceDictionaryChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
@@ -141,5 +163,21 @@ namespace Lessium.Utility
         }
 
         #endregion
+    }
+
+    public delegate void DynamicContentEventHandler(object sender, DynamicContentChangedArgs e);
+
+    public class DynamicContentChangedArgs : RoutedEventArgs
+    {
+        public object OldContent { get; private set; }
+        public object NewContent { get; private set; }
+
+        public DynamicContentChangedArgs(object oldContent, object newContent)
+        {
+            OldContent = oldContent;
+            NewContent = newContent;
+
+            base.RoutedEvent = WpfExtensions.DynamicContentChangedEvent;
+        }
     }
 }

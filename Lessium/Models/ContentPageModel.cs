@@ -371,6 +371,7 @@ namespace Lessium.Models
                 {
                     if (ignoreControl && pos == controlPos) { return; }
                     if (pos == 0) { return; } // Don't check if its in zero position, it will be always valid.
+
                     var item = collection[pos];
                     ValidateContentPlacement(item);
                 }

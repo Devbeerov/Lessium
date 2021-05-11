@@ -67,6 +67,7 @@
     <Compile Include="Classes\IO\LsnIO.cs" />
     <Compile Include="Classes\IO\LsnReader.cs" />
     <Compile Include="Classes\Wrappers\DispatcherWrapper.cs" />
+    <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
       <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
     </Compile>

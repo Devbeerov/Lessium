@@ -102,7 +102,7 @@ namespace Lessium.ContentControls.MaterialControls
 
         public void SetMaxHeight(double height)
         {
-            // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
+            // We do not calculate adjustedHeight here because of design. Not considering removeButton.Height here.
 
             this.MaxHeight = height;
             textBox.MaxHeight = height;

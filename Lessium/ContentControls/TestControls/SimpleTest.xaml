@@ -40,54 +40,8 @@
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
 
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:Name="template">
+                        <DataTemplate>
 
-                            <DataTemplate.Resources>
-                                <ResourceDictionary x:Name="templateResources">
-
-                                    <Style x:Key="radioCheckBoxStyle" TargetType="{x:Type CheckBox}">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type RadioButton}">
-                                                    <Grid>
-                                                        <!-- RadioButton is visible, but doesn't receive input -->
-                                                        <RadioButton IsHitTestVisible="False"
-                                                                     IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsChecked}"
-                                                                     Content="{TemplateBinding Content}" />
-                                                        <!-- Invisible CheckBox, which receives input -->
-                                                        <CheckBox Visibility="Collapsed"
-                                                                  IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsChecked, Mode=TwoWay}" />
-                                                    </Grid>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-
-                                    <ContentControl x:Key="Editing" >
-                                        <CheckBox Checked="ToggleAnswerTrue_Checked"
-                                                  Unchecked="ToggleAnswerTrue_Unchecked"
-                                                  IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource InverseBooleanConverter}}" 
-                                                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                    </ContentControl>
-
-                                    <ContentControl x:Key="ReadOnlySingle" >
-                                        <RadioButton Checked="AnswerSelected"
-                                                     Unchecked="AnswerUnselected"
-                                                     GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" 
-                                                     IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                    </ContentControl>
-
-                                    <ContentControl x:Key="ReadOnlyMultiple" >
-                                        <CheckBox Checked="AnswerSelected"
-                                                  Unchecked="AnswerUnselected"
-                                                  IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                    </ContentControl>
-
-                                </ResourceDictionary>
-                            </DataTemplate.Resources>
-                            
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
 
                                 <cc:DynamicCheckBox Grid.Column="1"

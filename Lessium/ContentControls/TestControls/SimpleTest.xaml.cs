@@ -284,9 +284,11 @@ namespace Lessium.ContentControls.TestControls
 
                 // Answers Controls
 
-                foreach (var item in AnswersItemControl.Items)
+                for(int i = 0; i < AnswersItemControl.Items.Count; i++)
                 {
-                    var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
+                    // Should be used ContainerFromIndex instead of ContainerFromItem,
+                    // Because it will return same ContentPresenter for each element due to overriden AnswerMode.Equals (perhaps GetHashCode involved too)
+                    var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromIndex(i) as ContentPresenter;
                     if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
                     {
                         DataTemplate dataTemplate = contentPresenter.ContentTemplate;
