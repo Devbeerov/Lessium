@@ -61,9 +61,9 @@ namespace Lessium.Services
         public void ExecuteAction(IUndoableAction action)
         {
             action.ExecuteDo();
-            callback();
-
             AddAction(executedActions, action);
+
+            callback();
         }
 
         /// <summary>

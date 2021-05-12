@@ -9,7 +9,7 @@ using System.Windows.Data;
 namespace Lessium.ContentControls
 {
     // All ContentControls should have parent of type ContentPageControl.
-    public class ContentPageControl : WrapPanel
+    public partial class ContentPageControl : UserControl
     {
         private ContentPageModel contentPage;
 
@@ -19,34 +19,19 @@ namespace Lessium.ContentControls
             Initialize();
         }
 
-        #region Public CLR Properties
-
-        public ObservableCollection<IContentControl> Items
-        {
-            get { return (ObservableCollection<IContentControl>) GetValue(ItemsProperty); }
-            set { SetValue(ItemsProperty, value); }
-        }
-
-        #endregion
-
         #region Methods
 
         #region Public
 
         public void Initialize()
         {
-            // Default properties
-
-            MaxWidth = ContentPageModel.PageWidth;
-            Width = MaxWidth;
-
-            Orientation = Orientation.Vertical;
-
-            // Events
+            // Subscribes to events
 
             DataContextChanged += OnDataContextChanged;
             SizeChanged += OnSizeChanged;
             Loaded += OnLoaded;
+
+            InitializeComponent();
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -90,7 +75,11 @@ namespace Lessium.ContentControls
         {
             contentPage = e.NewValue as ContentPageModel;
 
-            if (contentPage == null) { return; } // Wrong DataContext (probably MainWindowViewModel)
+            if (contentPage == null) // Wrong DataContext (probably MainWindowViewModel) or empty page
+            { 
+                Items = null;
+                return; 
+            }
 
             // We set PageControl of model here and keep it for later. 
             // Therefore, we could check IsContentFit even from older model.
@@ -116,10 +105,16 @@ namespace Lessium.ContentControls
 
         #region Dependency Properties
 
+        public ObservableCollection<IContentControl> Items
+        {
+            get { return (ObservableCollection<IContentControl>)GetValue(ItemsProperty); }
+            set { SetValue(ItemsProperty, value); }
+        }
+
         public static readonly DependencyProperty ItemsProperty =
             DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
             typeof(ContentPageControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
         #endregion
-     }
+    }
 }

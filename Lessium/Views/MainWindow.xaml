@@ -247,11 +247,11 @@
                         <!-- Column 0 -->
 
                         <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}"
-                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
+                              Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
 
                             <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
-                                  ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                  Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
+                                      ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                      Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
 
                                 <MenuItem.Header>
                                     <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,-5,0" />
@@ -288,10 +288,10 @@
                         <!-- Column 2 -->
 
                         <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
-                            Command="{Binding RemovePage}"
-                            ToolTip="{Binding ReadOnlyToolTip}"
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
-                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                Command="{Binding RemovePage}"
+                                ToolTip="{Binding ReadOnlyToolTip}"
+                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                                Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <Button.IsEnabled>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
@@ -309,10 +309,9 @@
                 <!-- ContentPageControl -->
 
                 <controls:ContentPageControl x:Name="contentPageControl" HorizontalAlignment="Left"
-                                             DataContext="{Binding CurrentPage}"
-                                             Style="{StaticResource CurrentPageControlStyle}">
-
-                    <ItemsControl x:Name="itemsControl" ItemsSource="{Binding ElementName=contentPageControl, Path=Items}" />
+                                             MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
+                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
+                                             DataContext="{Binding CurrentPage}">
 
                     <controls:ContentPageControl.MaxHeight>
                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >

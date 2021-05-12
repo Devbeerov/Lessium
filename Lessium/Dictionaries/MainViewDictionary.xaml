@@ -47,17 +47,6 @@
     
     <!--#region Styles -->
 
-    <Style x:Key="CurrentPageControlStyle" TargetType="{x:Type controls:ContentPageControl}">
-        <Setter Property="Focusable" Value="False" />
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding ElementName=itemsControl, Path=HasItems}" Value="True" >
-                <DataTrigger.Setters>
-                    <Setter Property="Focusable" Value="True"/>
-                </DataTrigger.Setters>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-
     <Style x:Key="CurrentSectionStyle" TargetType="{x:Type controls:Section}">
         <Setter Property="IsEnabled" Value="False" />
         <Style.Triggers>
