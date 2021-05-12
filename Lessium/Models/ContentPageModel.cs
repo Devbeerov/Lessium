@@ -16,7 +16,7 @@ using Lessium.ContentControls;
 namespace Lessium.Models
 {
     [Serializable]
-    public class ContentPageModel : ILsnSerializable
+    public class ContentPageModel : ILsnSerializable, IActionSender
     {
         // Public
 
@@ -69,6 +69,7 @@ namespace Lessium.Models
         {
             var newPage = new ContentPageModel(contentType ?? oldPage.ContentType);
             newPage.SetPageControl(oldPage.pageControl);
+
             return newPage;
         }
 
@@ -76,14 +77,14 @@ namespace Lessium.Models
         /// Adds IContentControl to the Items.
         /// </summary>
         /// <param name="control"></param>
-        /// <param name="directly">If set to true, will raise SendContent event instead of directly adding.</param>
+        /// <param name="directly">If set to true, will raise SendAction event instead of directly adding.</param>
         public void Add(IContentControl control, bool directly = false)
         {
-            if (!IsContentControlTypeValid(control)) { throw new InvalidOperationException ("You can only add ContentControls with equivalent interface!"); }
+            if (!IsContentControlTypeValid(control)) throw new InvalidOperationException ("You can only add ContentControls with equivalent interface!");
 
             // If there's no attached handlers, we will have to do it directly.
 
-            if (SendContent == null) directly = true;
+            if (SendAction == null) directly = true;
 
             // To skip unwanted validating.
             if (Items.Count == 0)
@@ -101,7 +102,7 @@ namespace Lessium.Models
 
             else
             {
-                SendContent?.Invoke(this, new ContentEventArgs(control, ContentEventArgs.ContentAction.Add));
+                SendAction?.Invoke(this, new SendActionEventArgs(control, SendActionEventArgs.ContentAction.Add));
             }
 
             dispatcher.Invoke(() =>
@@ -119,7 +120,7 @@ namespace Lessium.Models
         {
             // If there's no attached handler, we will have to do it directly.
 
-            if (SendContent == null) directly = true;
+            if (SendAction == null) directly = true;
 
             BindControl(control);
 
@@ -130,7 +131,7 @@ namespace Lessium.Models
 
             else
             {
-                SendContent?.Invoke(this, new ContentEventArgs(control, position));
+                SendAction?.Invoke(this, new SendActionEventArgs(control, position));
             }
 
             dispatcher.Invoke(() =>
@@ -148,7 +149,7 @@ namespace Lessium.Models
         {
             // If there's no attached handler, we will have to do it directly.
 
-            if (SendContent == null) directly = true;
+            if (SendAction == null) directly = true;
 
             element.RemoveControl -= OnRemove;
             element.Resize -= OnContentResized;
@@ -160,8 +161,8 @@ namespace Lessium.Models
 
             else
             {
-                var args = new ContentEventArgs(element, ContentEventArgs.ContentAction.Remove);
-                SendContent?.Invoke(this, args);
+                var args = new SendActionEventArgs(element, SendActionEventArgs.ContentAction.Remove);
+                SendAction?.Invoke(this, args);
             }
         }
 
@@ -385,7 +386,6 @@ namespace Lessium.Models
         #region Events
 
         public event EventHandler<ExceedingContentEventArgs> AddedExceedingContent;
-        public event EventHandler<ContentEventArgs> SendContent;
 
         private void OnRemove(object sender, RoutedEventArgs e)
         {
@@ -495,6 +495,12 @@ namespace Lessium.Models
         }
 
         #endregion
+
+        #region IActionSender
+
+        public event EventHandler<SendActionEventArgs> SendAction;
+
+        #endregion
     }
 
     public class ExceedingContentEventArgs : EventArgs
@@ -507,7 +513,7 @@ namespace Lessium.Models
         }
     }
 
-    public class ContentEventArgs : EventArgs
+    public class SendActionEventArgs : EventArgs
     {
         public IContentControl Content { get; private set; }
         public ContentAction Action { get; private set; }
@@ -515,13 +521,13 @@ namespace Lessium.Models
         // Used for Insert
         public int Position { get; private set; } = -1;
 
-        public ContentEventArgs(IContentControl content, ContentAction action)
+        public SendActionEventArgs(IContentControl content, ContentAction action)
         {
             this.Content = content;
             this.Action = action;
         }
 
-        public ContentEventArgs(IContentControl content, int position)
+        public SendActionEventArgs(IContentControl content, int position)
         {
             this.Content = content;
             this.Action = ContentAction.Insert;

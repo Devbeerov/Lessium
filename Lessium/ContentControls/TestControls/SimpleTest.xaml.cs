@@ -2,6 +2,8 @@
 using Lessium.ContentControls.MaterialControls;
 using Lessium.CustomControls;
 using Lessium.Interfaces;
+using Lessium.Services;
+using Lessium.UndoableActions.Generic;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;
@@ -40,6 +42,11 @@ namespace Lessium.ContentControls.TestControls
         public string GUID
         {
             get { return id.ToString(); }
+        }
+
+        private UndoableActionsService ActionsService
+        {
+            get { return UndoableActionsServiceLocator.GetService(this); }
         }
 
         #endregion
@@ -377,7 +384,9 @@ namespace Lessium.ContentControls.TestControls
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            Answers.Add(new AnswerModel());
+            var answer = new AnswerModel();
+
+            ActionsService.ExecuteAction(new AddToCollectionAction<AnswerModel>(Answers, answer));
         }
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
@@ -388,9 +397,10 @@ namespace Lessium.ContentControls.TestControls
             {
                 var text = textControl.Text;
 
-                if (ReferenceEquals(answer.Text, text)) // Checks for string reference, not value!
+                if (ReferenceEquals(answer.Text, text)) // Checks for string reference equality, not value!
                 {
-                    Answers.Remove(answer); // We remove Text string by it's reference, not by value!
+                    ActionsService.ExecuteAction(new RemoveFromCollectionAction<AnswerModel>(Answers, answer));
+
                     return;
                 }
             }

@@ -77,6 +77,7 @@
     <Compile Include="CustomControls\TitledProgressBar.xaml.cs">
       <DependentUpon>TitledProgressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IActionSender.cs" />
     <Compile Include="Interfaces\IDispatcher.cs" />
     <Compile Include="Interfaces\ILsnSerializable.cs" />
     <Compile Include="Interfaces\IUndoableAction.cs" />
@@ -92,12 +93,12 @@
     <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\UndoableActionsServiceLocator.cs" />
     <Compile Include="UndoableActions\InsertContentAction.cs" />
     <Compile Include="UndoableActions\RemoveContentAction.cs" />
     <Compile Include="UndoableActions\AddContentAction.cs" />
-    <Compile Include="UndoableActions\RemovePageAction.cs" />
-    <Compile Include="UndoableActions\RemoveSectionAction.cs" />
-    <Compile Include="UndoableActions\AddSectionAction.cs" />
+    <Compile Include="UndoableActions\Generic\RemoveFromCollectionAction.cs" />
+    <Compile Include="UndoableActions\Generic\AddToCollectionAction.cs" />
     <Compile Include="Utility\DispatcherUtility.cs" />
     <Compile Include="Services\HotkeysService.cs" />
     <Compile Include="Utility\EqualsHelper.cs" />

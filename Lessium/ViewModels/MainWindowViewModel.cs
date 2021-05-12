@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Lessium.UndoableActions;
 using System.Configuration;
 using Lessium.Services;
+using Lessium.UndoableActions.Generic;
 
 namespace Lessium.ViewModels
 {
@@ -291,7 +292,7 @@ namespace Lessium.ViewModels
 
             // Creates service
 
-            actionsService = new UndoableActionsService(() => RaiseHasChanges());
+            actionsService = new UndoableActionsService(mainWindow, () => RaiseHasChanges());
             hotkeysService = new HotkeysService(mainWindow);
 
             // Setup hotkeys
@@ -354,8 +355,8 @@ namespace Lessium.ViewModels
 
         private void UpdatePagesEventHandlers(ContentPageModel oldPage, ContentPageModel newPage)
         {
-            if (oldPage != null) oldPage.SendContent -= OnContentReceived;
-            if (newPage != null) newPage.SendContent += OnContentReceived;
+            if (oldPage != null) oldPage.SendAction -= OnContentReceived;
+            if (newPage != null) newPage.SendAction += OnContentReceived;
         }
 
         private void ClearLesson()
@@ -404,7 +405,7 @@ namespace Lessium.ViewModels
 
         private void AddSectionToSections(Section section)
         {
-            actionsService.ExecuteAction(new AddSectionAction(Sections, section));
+            actionsService.ExecuteAction(new AddToCollectionAction<Section>(Sections, section));
         }
 
         private void RaiseHasChanges()
@@ -644,19 +645,19 @@ namespace Lessium.ViewModels
             UpdateCurrentPageNotFirst();
         }
 
-        private void OnContentReceived(object sender, ContentEventArgs e)
+        private void OnContentReceived(object sender, SendActionEventArgs e)
         {
             switch (e.Action)
             {
-                case ContentEventArgs.ContentAction.Add:
+                case SendActionEventArgs.ContentAction.Add:
                     AddContentControl(e.Content);
                     break;
 
-                case ContentEventArgs.ContentAction.Remove:
+                case SendActionEventArgs.ContentAction.Remove:
                     RemoveContentControl(e.Content);
                     break;
 
-                case ContentEventArgs.ContentAction.Insert:
+                case SendActionEventArgs.ContentAction.Insert:
                     InsertContentControl(e.Content, e.Position);
                     break;
             }
@@ -1001,7 +1002,7 @@ namespace Lessium.ViewModels
 
             // Remove
 
-            actionsService.ExecuteAction(new RemoveSectionAction(Sections, section));
+            actionsService.ExecuteAction(new RemoveFromCollectionAction<Section>(Sections, section));
         }
 
         bool CanExecuteRemoveSection(Section _) // Discard Section, because we don't check it, we check only ReadOnly state.
@@ -1136,7 +1137,7 @@ namespace Lessium.ViewModels
 
         void ExecuteRemovePage()
         {
-            actionsService.ExecuteAction(new RemovePageAction(Pages, CurrentPage));
+            actionsService.ExecuteAction(new RemoveFromCollectionAction<ContentPageModel>(Pages, CurrentPage));
 
             // Back to previous page index
 

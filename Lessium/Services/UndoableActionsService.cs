@@ -4,11 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Windows;
 
 namespace Lessium.Services
 {
     public class UndoableActionsService
     {
+        #region Constructors
+
+        /// <summary>
+        /// Create service for managing undo/redo operations.
+        /// </summary>
+        /// <param name="callback">Callback will be called on ExecuteAction and each successful Undo or Redo.</param>
+        /// <param name="registerService">If true, will register service automatically in UndoableActionsServiceLocator.</param>
+        public UndoableActionsService(Window window, Action callback = null, bool registerService = true)
+        {
+            this.callback = callback;
+
+            // Register service to access it from any DependencyObject which have Window parent.
+
+            if (registerService) UndoableActionsServiceLocator.RegisterService(this, window);
+
+            // Subscribes to limit change
+
+            Settings.Default.PropertyChanged += OnSettingsPropertyChanged;
+        }
+
+        #endregion
+
         #region Fields
 
         private LinkedList<IUndoableAction> executedActions = new LinkedList<IUndoableAction>();
@@ -34,19 +57,6 @@ namespace Lessium.Services
         #endregion
 
         #region Public Methods
-
-        /// <summary>
-        /// Creates service for managing undo/redo operations.
-        /// </summary>
-        /// <param name="callback">Callback will be called on ExecuteAction and each successful Undo or Redo.</param>
-        public UndoableActionsService(Action callback = null)
-        {
-            this.callback = callback;
-
-            // Subscribes to limit change
-
-            Settings.Default.PropertyChanged += OnSettingsPropertyChanged;
-        }
 
         public void ExecuteAction(IUndoableAction action)
         {

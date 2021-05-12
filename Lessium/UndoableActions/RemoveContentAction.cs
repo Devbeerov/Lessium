@@ -9,6 +9,7 @@ namespace Lessium.UndoableActions
         private readonly IContentControl toRemove;
 
         private IContentControl storedControl;
+        private int storedPosition;
 
         public RemoveContentAction(ContentPageModel page, IContentControl toRemove)
         {
@@ -18,9 +19,10 @@ namespace Lessium.UndoableActions
 
         public void ExecuteDo()
         {
-            // Stores reference
+            // Stores reference and position for undo
 
             storedControl = toRemove;
+            storedPosition = page.Items.IndexOf(toRemove);
 
             // Removes
 
@@ -29,7 +31,7 @@ namespace Lessium.UndoableActions
 
         public void Undo()
         {
-            page.Add(storedControl, true);
+            page.Insert(storedPosition, storedControl, true);
         }
     }
 }
