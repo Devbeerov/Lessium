@@ -385,7 +385,7 @@ namespace Lessium.Models
 
         #region Events
 
-        public event EventHandler<ExceedingContentEventArgs> AddedExceedingContent;
+        public event ExceedingContentEventHandler AddedExceedingContent;
 
         private void OnRemove(object sender, RoutedEventArgs e)
         {
@@ -498,10 +498,12 @@ namespace Lessium.Models
 
         #region IActionSender
 
-        public event EventHandler<SendActionEventArgs> SendAction;
+        public event SendActionEventHandler SendAction;
 
         #endregion
     }
+
+    public delegate void ExceedingContentEventHandler(object sender, ExceedingContentEventArgs args);
 
     public class ExceedingContentEventArgs : EventArgs
     {
@@ -512,6 +514,8 @@ namespace Lessium.Models
             this.ExceedingItem = ExceedingItem;
         }
     }
+
+    public delegate void SendActionEventHandler(object sender, SendActionEventArgs args);
 
     public class SendActionEventArgs : EventArgs
     {

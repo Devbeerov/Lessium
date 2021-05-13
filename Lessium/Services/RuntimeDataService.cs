@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using Lessium.Views;
 using Lessium.ViewModels;
+using Lessium.Models;
 
 namespace Lessium.Services
 {
@@ -32,6 +33,11 @@ namespace Lessium.Services
         public static bool IsLessonInReadOnly()
         {
             return MainViewModel.ReadOnly;
+        }
+
+        public static SendActionEventHandler GetSendActionEventHandler()
+        {
+            return MainViewModel.GetSendActionEventHandler();
         }
     }
 }

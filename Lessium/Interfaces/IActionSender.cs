@@ -1,5 +1,4 @@
 ﻿using Lessium.Models;
-using System;
 
 namespace Lessium.Interfaces
 {
@@ -8,6 +7,6 @@ namespace Lessium.Interfaces
     /// </summary>
     public interface IActionSender
     {
-        event EventHandler<SendActionEventArgs> SendAction;
+        event SendActionEventHandler SendAction;
     }
 }

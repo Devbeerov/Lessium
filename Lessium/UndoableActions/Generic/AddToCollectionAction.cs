@@ -1,10 +1,14 @@
 ﻿using Lessium.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Lessium.UndoableActions.Generic
 {
     public class AddToCollectionAction<T> : IUndoableAction
     {
+        public Action Callback { get; set; }
+        public Action UndoCallback { get; set; }
+
         private readonly IList<T> collection;
         private readonly T toAdd;
 
@@ -17,11 +21,13 @@ namespace Lessium.UndoableActions.Generic
         public void ExecuteDo()
         {
             collection.Add(toAdd);
+            Callback?.Invoke();
         }
 
         public void Undo()
         {
             collection.Remove(toAdd);
+            UndoCallback?.Invoke();
         }
     }
 }

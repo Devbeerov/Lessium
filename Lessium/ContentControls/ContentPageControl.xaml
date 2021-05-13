@@ -4,21 +4,75 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.ContentControls"
-             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" xmlns:materialcontrols="clr-namespace:Lessium.ContentControls.MaterialControls"
+             xmlns:models="clr-namespace:Lessium.Models"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             x:Name="control" >
+             d:DesignHeight="450" d:DesignWidth="800" >
 
     <ListBox x:Name="itemsControl"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             ScrollViewer.CanContentScroll="False" 
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+             MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
              Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
-             ItemsSource="{Binding Items}" >
+             ItemsSource="{Binding Items}"
+             Keyboard.KeyDown="itemsControl_KeyDown" 
+             PreviewMouseWheel="itemsControl_PreviewMouseWheel">
 
-        <ListBox.ItemsPanel>
+        <ListBox.Resources>
+
+            <Style x:Key="DeselectListBoxItemStyle" TargetType="{x:Type ListBoxItem}">
+                <EventSetter Event="LostFocus" Handler="ListBoxItem_LostFocus" />
+            </Style>
+
+            <Style x:Key="FixedWidthStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
+                <!--Value="{x:Static models:ContentPageModel.PageWidth}"-->
+                <Setter Property="MaxWidth" >
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
+                            <Binding Source="{x:Static models:ContentPageModel.PageWidth}" />
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}" Path="BorderThickness.Left" />
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}" Path="BorderThickness.Right" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="UnselectableItemsStyle" TargetType="ListBoxItem" BasedOn="{StaticResource FixedWidthStyle}">
+                <Style.Resources>
+                    <!-- SelectedItem with focus -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                       Color="Transparent" />
+                    <!-- SelectedItem without focus -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"
+                       Color="Transparent" />
+                    <!-- SelectedItem text foreground -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
+                       Color="Black" />
+                </Style.Resources>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            </Style>
+
+            
+        </ListBox.Resources>
+        
+        <ListBox.Style>
+            <Style TargetType="{x:Type ListBox}">
+                <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DataContext.IsReadOnly}" Value="True">
+                        <Setter Property="ItemContainerStyle" Value="{StaticResource UnselectableItemsStyle}" />
+                    </DataTrigger>
+                </Style.Triggers>
+
+            </Style>
+        </ListBox.Style>
+
+        <!--<ListBox.ItemsPanel>
             <ItemsPanelTemplate>
                 <WrapPanel Orientation="Vertical" />
             </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
+        </ListBox.ItemsPanel>-->
         
     </ListBox>
     

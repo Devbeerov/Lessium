@@ -1,4 +1,5 @@
 ﻿using Lessium.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Lessium.UndoableActions.Generic
@@ -6,6 +7,9 @@ namespace Lessium.UndoableActions.Generic
 
     public class RemoveFromCollectionAction<T> : IUndoableAction
     {
+        public Action Callback { get; set; }
+        public Action UndoCallback { get; set; }
+
         private readonly IList<T> list;
         private readonly T toRemove;
 
@@ -28,11 +32,14 @@ namespace Lessium.UndoableActions.Generic
             // Removes
 
             list.Remove(toRemove);
+
+            Callback?.Invoke();
         }
 
         public void Undo()
         {
             list.Insert(storedPosition, storedObject);
+            UndoCallback?.Invoke();
         }
     }
     

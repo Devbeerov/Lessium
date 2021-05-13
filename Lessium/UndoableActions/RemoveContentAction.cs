@@ -1,10 +1,14 @@
 ﻿using Lessium.Models;
 using Lessium.Interfaces;
+using System;
 
 namespace Lessium.UndoableActions
 {
     public class RemoveContentAction : IUndoableAction
     {
+        public Action Callback { get; set; }
+        public Action UndoCallback { get; set; }
+
         private readonly ContentPageModel page;
         private readonly IContentControl toRemove;
 
@@ -27,11 +31,13 @@ namespace Lessium.UndoableActions
             // Removes
 
             page.Remove(toRemove, true);
+            Callback?.Invoke();
         }
 
         public void Undo()
         {
             page.Insert(storedPosition, storedControl, true);
+            UndoCallback?.Invoke();
         }
     }
 }

@@ -92,6 +92,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\ActionSenderRegistratorService.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
@@ -109,8 +110,9 @@
     <Compile Include="Utility\ILsnSerializableExtensions.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
-    <Compile Include="Services\LessonDataService.cs" />
+    <Compile Include="Services\RuntimeDataService.cs" />
     <Compile Include="Services\UndoableActionsService.cs" />
+    <Compile Include="Utility\LinkedListExtensions.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />

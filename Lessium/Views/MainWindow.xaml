@@ -10,9 +10,10 @@
         xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
         xmlns:models="clr-namespace:Lessium.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
-        MouseWheel="MainWindow_MouseWheel"
-        x:Name="MainWindowReference"> <!-- Used for referencing -->
+        Width="1024" Height="768"
+        WindowStartupLocation="CenterScreen"
+        x:Name="MainWindowReference"
+        Title="{Binding Title}" >
     
     <!--#region Resources -->
     
@@ -233,8 +234,8 @@
                 <!-- Page Toolbar -->
 
                 <Border x:Name="toolbar" Height="26"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                    BorderThickness="3" BorderBrush="Gray" Background="#dddddd" >
+                        HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                        BorderThickness="3" BorderBrush="Gray" Background="#dddddd" >
 
                     <Grid>
 
@@ -309,6 +310,8 @@
                 <!-- ContentPageControl -->
 
                 <controls:ContentPageControl x:Name="contentPageControl" HorizontalAlignment="Left"
+                                             MouseWheel="ContentPageControl_MouseWheel"
+                                             IsReadOnly="{Binding ElementName=section, Path=DataContext.ReadOnly}"
                                              MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
                                              Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
                                              DataContext="{Binding CurrentPage}">

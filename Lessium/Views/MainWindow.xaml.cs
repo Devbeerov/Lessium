@@ -24,26 +24,6 @@ namespace Lessium.Views
         #region UI related code-behind
         // Code in this region affects visual part only, it's not breaking MVVM pattern.
 
-        #region Window-Wide Events
-
-        private void MainWindow_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (viewModel.CurrentPage != null && viewModel.Pages.Count > 1)
-            {
-                if (e.Delta < 0) // Down one page (index is Top-Down)
-                {
-                    // Number > index, because of bindings to Number, it will also do all validations with value.
-                    viewModel.CurrentPageNumber++;
-                }
-                else
-                {
-                    viewModel.CurrentPageNumber--;
-                }
-            }
-        }
-
-        #endregion
-
         #region TabControl
 
         private void OnTabChanged(object sender, SelectionChangedEventArgs e)
@@ -170,6 +150,28 @@ namespace Lessium.Views
 
         #endregion
 
+        #region ContentPageControl
+
+        private void ContentPageControl_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (viewModel.CurrentPage != null && viewModel.Pages.Count > 1)
+            {
+                if (e.Delta < 0) // Down one page (index is Top-Down)
+                {
+                    // Number > index, because of bindings to Number, it will also do all validations with value.
+                    viewModel.CurrentPageNumber++;
+                }
+                else
+                {
+                    viewModel.CurrentPageNumber--;
+                }
+            }
+        }
+
         #endregion
+
+        #endregion
+
+
     }
 }

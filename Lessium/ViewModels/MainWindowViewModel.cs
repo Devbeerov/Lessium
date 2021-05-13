@@ -184,7 +184,7 @@ namespace Lessium.ViewModels
         {
             get
             {
-                if(CurrentSection == null) { return -1; }
+                if (CurrentSection == null) { return -1; }
 
                 return CurrentSection.SelectedPageIndex;
             }
@@ -230,10 +230,6 @@ namespace Lessium.ViewModels
             set
             {
                 if (CurrentPage == value) return;
-
-                // Event handling
-
-                UpdatePagesEventHandlers(CurrentPage, value);
 
                 // Update value
 
@@ -309,6 +305,17 @@ namespace Lessium.ViewModels
 
         #region Methods
 
+        #region Public
+
+        public SendActionEventHandler GetSendActionEventHandler()
+        {
+            return OnContentReceived;
+        }
+
+        #endregion
+
+        #region Private
+
         /// <param name="name">If explicitly provided null, then won't call RaisePropertyChanged.</param>
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
@@ -351,12 +358,6 @@ namespace Lessium.ViewModels
             }
 
             CurrentPageIsNotFirst = notFirst;
-        }
-
-        private void UpdatePagesEventHandlers(ContentPageModel oldPage, ContentPageModel newPage)
-        {
-            if (oldPage != null) oldPage.SendAction -= OnContentReceived;
-            if (newPage != null) newPage.SendAction += OnContentReceived;
         }
 
         private void ClearLesson()
@@ -432,6 +433,8 @@ namespace Lessium.ViewModels
 
             return sb.ToString();
         }
+
+        #endregion
 
         #region Hotkeys
 
@@ -1137,11 +1140,13 @@ namespace Lessium.ViewModels
 
         void ExecuteRemovePage()
         {
-            actionsService.ExecuteAction(new RemoveFromCollectionAction<ContentPageModel>(Pages, CurrentPage));
-
-            // Back to previous page index
-
-            CurrentPageIndex++;
+            actionsService.ExecuteAction(new RemoveFromCollectionAction<ContentPageModel>(Pages, CurrentPage)
+            {
+                Callback = () =>
+                {
+                    CurrentPageIndex--;
+                },
+            });
         }
 
         #endregion

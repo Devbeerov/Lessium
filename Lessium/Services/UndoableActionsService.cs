@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows;
+using Lessium.Utility;
 
 namespace Lessium.Services
 {
@@ -15,11 +16,11 @@ namespace Lessium.Services
         /// <summary>
         /// Create service for managing undo/redo operations.
         /// </summary>
-        /// <param name="callback">Callback will be called on ExecuteAction and each successful Undo or Redo.</param>
+        /// <param name="genericCallback">genericCallback will be called on ExecuteAction and each successful Undo or Redo.</param>
         /// <param name="registerService">If true, will register service automatically in UndoableActionsServiceLocator.</param>
-        public UndoableActionsService(Window window, Action callback = null, bool registerService = true)
+        public UndoableActionsService(Window window, Action genericCallback = null, bool registerService = true)
         {
-            this.callback = callback;
+            this.genericCallback = genericCallback;
 
             // Register service to access it from any DependencyObject which have Window parent.
 
@@ -38,7 +39,7 @@ namespace Lessium.Services
         private LinkedList<IUndoableAction> undoneActions = new LinkedList<IUndoableAction>();
 
         private ushort limit = Settings.Default.UndoLimit;
-        private readonly Action callback;
+        private readonly Action genericCallback;
 
         #endregion
 
@@ -60,10 +61,7 @@ namespace Lessium.Services
 
         public void ExecuteAction(IUndoableAction action)
         {
-            action.ExecuteDo();
-            AddAction(executedActions, action);
-
-            callback();
+            ExecuteActionInternal(action);
         }
 
         /// <summary>
@@ -72,23 +70,19 @@ namespace Lessium.Services
         /// <returns>True if successful, false otherwise.</returns>
         public bool TryUndo()
         {
-            var lastActionExecuted = executedActions.Last?.Value;
+            if (executedActions.Last == null) return false;
 
-            if (lastActionExecuted == null) return false;
+            var lastActionExecuted = executedActions.Last.Value;
+
             if (Keyboard.FocusedElement is IContentControl) return false; // No IContentControl should be focused.
 
             // Undo
 
-            lastActionExecuted.Undo();
+            UndoActionInternal(lastActionExecuted);
+
+            // Removes undone action (last) from executed.
+
             executedActions.RemoveLast();
-
-            // Adds to Undo
-
-            AddAction(undoneActions, lastActionExecuted);
-
-            // Invokes callback
-
-            callback();
 
             return true;
         }
@@ -99,23 +93,19 @@ namespace Lessium.Services
         /// <returns>True if successful, false otherwise.</returns>
         public bool TryRedo()
         {
-            var lastActionUndone = undoneActions.Last?.Value;
+            if (undoneActions.Last == null) return false;
 
-            if (lastActionUndone == null) return false;
+            var lastActionUndone = undoneActions.Last.Value;
+
             if (Keyboard.FocusedElement is IContentControl) return false; // No IContentControl should be focused.
 
             // Redo
 
-            lastActionUndone.ExecuteDo();
+            ExecuteActionInternal(lastActionUndone);
+
+            // Removes executed action (last) from undone.
+
             undoneActions.RemoveLast();
-
-            // Adds to Executed
-
-            AddAction(executedActions, lastActionUndone);
-
-            // Invokes callback
-
-            callback();
 
             return true;
         }
@@ -129,6 +119,22 @@ namespace Lessium.Services
         #endregion
 
         #region Private Methods
+
+        private void ExecuteActionInternal(IUndoableAction action)
+        {
+            action.ExecuteDo();
+            genericCallback?.Invoke();
+
+            AddAction(executedActions, action);
+        }
+
+        private void UndoActionInternal(IUndoableAction action)
+        {
+            action.Undo();
+            genericCallback?.Invoke();
+
+            AddAction(undoneActions, action);
+        }
 
         private void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -150,39 +156,17 @@ namespace Lessium.Services
 
         private void RemoveExcess()
         {
-            RemoveExcess(executedActions);
-            RemoveExcess(undoneActions);
+            executedActions.RemoveExcess(limit);
+            undoneActions.RemoveExcess(limit);
         }
 
-        /// <summary>
-        /// Removes excess actions beyond limit.
-        /// </summary>
-        /// <param name="actions"></param>
-        private void RemoveExcess(LinkedList<IUndoableAction> actions)
+        private void AddAction(LinkedList<IUndoableAction> actionsList, IUndoableAction action)
         {
-            // Returns if no excess.
+            if (actionsList.Count >= limit) return;
 
-            if (limit >= actions.Count) return;
+            // If fits to limit, adds to relative actionsList
 
-            // Calculates difference between limit and actual count.
-
-            var difference = Math.Abs(limit - actions.Count);
-
-            // Removes actions from the end.
-
-            for (int i = 0; i < difference; i++)
-            {
-                actions.RemoveLast();
-            }
-        }
-
-        private void AddAction(LinkedList<IUndoableAction> actions, IUndoableAction action)
-        {
-            if (actions.Count >= limit) return;
-
-            // If fits to limit, adds to relative actions
-
-            actions.AddLast(action);
+            actionsList.AddLast(action);
         }
 
         #endregion
