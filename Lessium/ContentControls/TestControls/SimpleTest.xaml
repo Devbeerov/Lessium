@@ -29,6 +29,13 @@
 
             <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
+                <StackPanel.MaxWidth>
+                    <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                        <Binding ElementName="control" Path="ActualWidth" />
+                        <Binding ElementName="removeButton" Path="ActualWidth" />
+                    </MultiBinding>
+                </StackPanel.MaxWidth>
+
                 <materials:TextControl x:Name="testQuestion"
                                        ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                                        Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
@@ -39,12 +46,14 @@
 
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
 
+                    
+
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
 
-                                <cc:DynamicCheckBox Grid.Column="1"
+                                <cc:DynamicCheckBox Grid.Column="1" x:Name="checkBox"
                                                     Width="16" Height="16"
                                                     HorizontalAlignment="Left" VerticalAlignment="Top"
                                                     DynamicCheckBoxTypeKey="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.CheckBoxType}" 
@@ -61,17 +70,10 @@
                                                        Unloaded="TextContainer_Unloaded"
                                                        RemoveControl="RemoveAnswer_Click" >
 
-                                    <materials:TextControl.Tag>
-                                        <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
-                                            <Binding ElementName="TextContainer" />
-                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                        </MultiBinding>
-                                    </materials:TextControl.Tag>
-
                                     <materials:TextControl.MaxWidth>
                                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
-                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
-                                            <Binding Path="Tag" />
+                                            <Binding ElementName="contentPanel" Path="MaxWidth" />
+                                            <Binding ElementName="removeButton" Path="ActualWidth" />
                                         </MultiBinding>
                                     </materials:TextControl.MaxWidth>
 

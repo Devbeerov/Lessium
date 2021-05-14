@@ -97,6 +97,7 @@
     <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\PageValidationHelperService.cs" />
     <Compile Include="Services\UndoableActionsServiceLocator.cs" />
     <Compile Include="UndoableActions\InsertContentAction.cs" />
     <Compile Include="UndoableActions\RemoveContentAction.cs" />

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.ContentControls"
              xmlns:models="clr-namespace:Lessium.Models"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" >
 
@@ -48,32 +49,27 @@
                        Color="Transparent" />
                     <!-- SelectedItem text foreground -->
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
-                       Color="Black" />
+                       Color="Transparent" />
                 </Style.Resources>
-                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <!--<Setter Property="FocusVisualStyle" Value="{x:Null}" />-->
             </Style>
 
-            
         </ListBox.Resources>
-        
+
         <ListBox.Style>
             <Style TargetType="{x:Type ListBox}">
-                <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
+                <Setter Property="ItemContainerStyle" Value="{StaticResource UnselectableItemsStyle}" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DataContext.IsReadOnly}" Value="True">
-                        <Setter Property="ItemContainerStyle" Value="{StaticResource UnselectableItemsStyle}" />
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsReadOnly}" Value="False">
+                        <DataTrigger.Setters>
+                            <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
+                        </DataTrigger.Setters>
+                        
                     </DataTrigger>
                 </Style.Triggers>
-
             </Style>
         </ListBox.Style>
 
-        <!--<ListBox.ItemsPanel>
-            <ItemsPanelTemplate>
-                <WrapPanel Orientation="Vertical" />
-            </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>-->
-        
     </ListBox>
     
 </UserControl>

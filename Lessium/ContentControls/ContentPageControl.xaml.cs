@@ -167,6 +167,25 @@ namespace Lessium.ContentControls
             RaiseEvent(newEvent);
         }
 
+        private void ListBoxItem_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var focusedObject = Keyboard.FocusedElement as DependencyObject;
+
+            if (focusedObject == null) return;
+
+            var control = focusedObject.FindParent<IContentControl>();
+            if (control == null) return;
+
+            var listBoxItem = sender as ListBoxItem;
+            //listBoxItem.isf
+            listBoxItem.IsSelected = false;
+        }
+
+        private void evt(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         #endregion
 
         #region Dependency Properties
@@ -197,24 +216,5 @@ namespace Lessium.ContentControls
         public event SendActionEventHandler SendAction;
 
         #endregion
-
-        private void ListBoxItem_GotFocus(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ListBoxItem_LostFocus(object sender, RoutedEventArgs e)
-        {
-            var focusedObject = Keyboard.FocusedElement as DependencyObject;
-
-            if (focusedObject == null) return;
-
-            var control = focusedObject.FindParent<IContentControl>();
-            if (control == null) return;
-
-            var listBoxItem = sender as ListBoxItem;
-            //listBoxItem.isf
-            listBoxItem.IsSelected = false;
-        }
     }
 }
