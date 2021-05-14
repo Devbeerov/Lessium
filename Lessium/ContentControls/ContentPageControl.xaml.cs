@@ -41,34 +41,66 @@ namespace Lessium.ContentControls
             ActionSenderRegistratorService.RegisterSender(this);
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            // If MaxHeight property will be modified before loading - it could make binding problems.
-            // It's can be fixed easily, just adding binding after loading!
-
-            var binding = new Binding(nameof(MaxHeight));
-            binding.Source = this;
-            binding.FallbackValue = ContentPageModel.PageHeight;
-
-            SetBinding(HeightProperty, binding);
-        }
-
         public bool IsElementFits(FrameworkElement element)
         {
+            // Ensures that content childs properly updated.
+
+            element.UpdateLayout();
+
+            // Ensures that all items are properly placed
+
+            this.UpdateLayout();
+
+            // Checks
+
             var pos = element.TranslatePoint(default(Point), this);
             var fits = pos.Y + element.ActualHeight <= ActualHeight;
 
             return fits;
         }
 
+        /// <summary>
+        /// Checks if ContentPageControl controls argument ContentPageModel.
+        /// </summary>
+        public bool IsControlsModel(ContentPageModel modelToCheck)
+        {
+            return ReferenceEquals(contentPage, modelToCheck);
+        }
+
         #endregion
 
         #region Private
 
+        private void UpdateModelMaxWidth(double newMaxWidth)
+        {
+            contentPage.MaxWidth = newMaxWidth;
+        }
+
+        private void UpdateModelMaxHeight(double newMaxHeight)
+        {
+            contentPage.MaxHeight = newMaxHeight;
+        }
+
+        private void UpdateModelMaxWidth()
+        {
+            UpdateModelMaxWidth(MaxWidth);
+        }
+
+        private void UpdateModelMaxHeight()
+        {
+            UpdateModelMaxHeight(MaxHeight);
+        }
+
         private void UpdateModelMaxSize(Size newSize)
         {
-            contentPage.SetMaxWidth(newSize.Width);
-            contentPage.SetMaxHeight(newSize.Height);
+            UpdateModelMaxWidth(newSize.Width);
+            UpdateModelMaxHeight(newSize.Height);
+        }
+
+        private void UpdateModelMaxSize()
+        {
+            UpdateModelMaxWidth();
+            UpdateModelMaxHeight();
         }
 
         private void ValidateSendActionRegistration(ContentPageModel oldPage, ContentPageModel newPage)
@@ -98,10 +130,7 @@ namespace Lessium.ContentControls
                 return; 
             }
 
-            // We set PageControl of model here and keep it for later. 
-            // Therefore, we could check IsContentFit even from older model.
-
-            contentPage.SetPageControl(this);
+            UpdateModelMaxSize();
 
             // Items
 
@@ -116,6 +145,18 @@ namespace Lessium.ContentControls
 
                 UpdateModelMaxSize(newSize);
             }
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // If MaxHeight property will be modified before loading - it could make binding problems.
+            // It's can be fixed easily, just adding binding after loading!
+
+            var binding = new Binding(nameof(MaxHeight));
+            binding.Source = this;
+            binding.FallbackValue = ContentPageModel.PageHeight;
+
+            SetBinding(HeightProperty, binding);
         }
 
         private void itemsControl_KeyDown(object sender, KeyEventArgs e)
@@ -177,13 +218,8 @@ namespace Lessium.ContentControls
             if (control == null) return;
 
             var listBoxItem = sender as ListBoxItem;
-            //listBoxItem.isf
+
             listBoxItem.IsSelected = false;
-        }
-
-        private void evt(object sender, RoutedEventArgs e)
-        {
-
         }
 
         #endregion

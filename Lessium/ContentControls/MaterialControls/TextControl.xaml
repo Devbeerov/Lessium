@@ -28,14 +28,14 @@
             </Grid.ColumnDefinitions>
             
             <TextBox x:Name="textBox"
-                 TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
-                 ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                 Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                 ScrollViewer.CanContentScroll="False"
-                 ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                 MaxLines="38" 
-                 FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
-                 UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
+                     TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
+                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                     Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     ScrollViewer.CanContentScroll="False"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                     MaxLines="38" 
+                     FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
+                     UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
 
                 <i:Interaction.Behaviors>
                     <utility:TextBoxNewlineBehavior />
@@ -44,11 +44,11 @@
 
                 <TextBox.InputBindings>
                     <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Key}" 
-                            Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Modifier}"
-                            Command="ApplicationCommands.Undo" />
+                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Modifier}"
+                                Command="ApplicationCommands.Undo" />
                     <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Key}" 
-                            Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
-                            Command="ApplicationCommands.Redo" />
+                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
+                                Command="ApplicationCommands.Redo" />
                 </TextBox.InputBindings>
 
             </TextBox>

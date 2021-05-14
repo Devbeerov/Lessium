@@ -4,6 +4,7 @@ using System.Windows;
 using Lessium.Views;
 using Lessium.ViewModels;
 using Lessium.Models;
+using Lessium.ContentControls;
 
 namespace Lessium.Services
 {

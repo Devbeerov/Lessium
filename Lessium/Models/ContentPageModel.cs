@@ -12,6 +12,7 @@ using System.Xml;
 using Lessium.Utility;
 using Lessium.Classes.IO;
 using Lessium.ContentControls;
+using Lessium.Services;
 
 namespace Lessium.Models
 {
@@ -29,14 +30,45 @@ namespace Lessium.Models
         private double maxHeight = PageHeight;
 
         private bool editable = false;
-        private ContentPageControl pageControl;
-        private IDispatcher dispatcher;
+        private readonly IDispatcher dispatcher;
 
         // Serialization
 
         private List<IContentControl> storedItems;
 
         #region CLR Properties
+
+        public double MaxWidth
+        {
+            get { return maxWidth; }
+            set
+            {
+                if (maxWidth == value) { return; }
+
+                maxWidth = value;
+
+                foreach (var childControl in Items)
+                {
+                    childControl.SetMaxWidth(maxWidth);
+                }
+            }
+        }
+
+        public double MaxHeight
+        {
+            get { return maxHeight; }
+            set
+            {
+                if (maxHeight == value) { return; }
+
+                maxHeight = value;
+
+                foreach (var childControl in Items)
+                {
+                    childControl.SetMaxHeight(maxHeight);
+                }
+            }
+        }
 
         public ObservableCollection<IContentControl> Items { get; } = new ObservableCollection<IContentControl>();
         public ContentType ContentType { get; set; }
@@ -64,14 +96,6 @@ namespace Lessium.Models
         #region Methods
 
         #region Public
-
-        public static ContentPageModel CreateWithPageControlInjection(ContentPageModel oldPage, ContentType? contentType = null)
-        {
-            var newPage = new ContentPageModel(contentType ?? oldPage.ContentType);
-            newPage.SetPageControl(oldPage.pageControl);
-
-            return newPage;
-        }
 
         /// <summary>
         /// Adds IContentControl to the Items.
@@ -178,67 +202,9 @@ namespace Lessium.Models
             UpdateItemsEditable();
         }
 
-        public void SetMaxWidth(double width)
-        {
-            if (maxWidth == width) { return; }
-
-            maxWidth = width;
-
-            foreach (var childControl in Items)
-            {
-                childControl.SetMaxWidth(maxWidth);
-            }
-        }
-
-        public void SetMaxHeight(double height)
-        {
-            if (maxHeight == height) { return; }
-
-            maxHeight = height;
-
-            foreach (var childControl in Items)
-            {
-                childControl.SetMaxHeight(maxHeight);
-            }
-        }
-
         public bool IsContentFits(IContentControl content)
         {
-            var contentElement = content as FrameworkElement;
-
-            // Ensures that content childs properly updated.
-
-            contentElement.UpdateLayout();
-
-            // Ensures that all items are properly placed
-
-            pageControl.UpdateLayout();
-
-            // Checks if it fits
-
-            var contentLocation = contentElement.TranslatePoint(default(Point), pageControl);
-            return contentElement.ActualHeight + contentLocation.Y <= maxHeight;
-        }
-
-        public void SetPageControl(ContentPageControl newPageControl)
-        {
-            pageControl = newPageControl;
-            if (!pageControl.IsLoaded)
-            {
-                pageControl.Loaded += (s, e) =>
-                {
-                    SetMaxHeight(pageControl.MaxHeight);
-                };
-            }
-            else
-            {
-                SetMaxHeight(pageControl.MaxHeight);
-            }
-        }
-
-        public ContentPageControl GetPageControl()
-        {
-            return pageControl;
+            return PageValidationHelperService.IsElementFits(this, content as FrameworkElement);
         }
 
         public void ValidatePage()
@@ -322,8 +288,8 @@ namespace Lessium.Models
         {
             dispatcher.Invoke(() =>
             {
-                control.SetMaxWidth(maxWidth);
-                control.SetMaxHeight(maxHeight);
+                control.SetMaxWidth(MaxWidth);
+                control.SetMaxHeight(MaxHeight);
 
                 control.Resize += OnContentResized;
                 control.RemoveControl += OnRemove;

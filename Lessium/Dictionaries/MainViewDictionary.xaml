@@ -19,7 +19,6 @@
     <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     <converters:NotNullConverter x:Key="NotNullConverter" />
     <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
-    <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
 
     <!--#endregion-->
 

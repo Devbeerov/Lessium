@@ -602,24 +602,22 @@ namespace Lessium.ViewModels
                 // WPF is not updating element arrangement (positions) if they not visible at window.
                 // To bypass it, we could select next page (make visible) and update it's layout, after that - switch back.
 
-                var pageControl = nextPage.GetPageControl();
                 var oldIndex = CurrentPageIndex;
 
                 CurrentPage = nextPage;
-                pageControl.InvalidateArrange();
-                pageControl.UpdateLayout();
-
                 CurrentPage.ValidatePage();
+
                 CurrentPageIndex = oldIndex;
             }
 
             else
             {
                 // Otherwise, creates a new Page and inserts content to it
-                var newPage = ContentPageModel.CreateWithPageControlInjection(oldPage);
-                CurrentSection.Add(newPage);
+                var newPage = new ContentPageModel(oldPage.ContentType, DispatcherUtility.Dispatcher);
 
+                CurrentSection.Add(newPage);
                 newPage.Insert(0, content);
+
                 RaisePropertyChanged(nameof(Pages));
             }
         }

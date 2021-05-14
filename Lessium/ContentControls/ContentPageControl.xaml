@@ -6,15 +6,15 @@
              xmlns:local="clr-namespace:Lessium.ContentControls"
              xmlns:models="clr-namespace:Lessium.Models"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" >
+             mc:Ignorable="d"
+             x:Name="pageControlReference" >
 
     <ListBox x:Name="itemsControl"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              ScrollViewer.CanContentScroll="False" 
              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
              ScrollViewer.VerticalScrollBarVisibility="Disabled"
-             MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
+             MaxWidth="{Binding ElementName=pageControlReference, Path=MaxWidth}"
              Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
              ItemsSource="{Binding Items}"
              Keyboard.KeyDown="itemsControl_KeyDown" 
@@ -27,16 +27,16 @@
             </Style>
 
             <Style x:Key="FixedWidthStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
-                <!--Value="{x:Static models:ContentPageModel.PageWidth}"-->
-                <Setter Property="MaxWidth" >
+                <!--<Setter Property="MaxWidth" >
                     <Setter.Value>
-                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
-                            <Binding Source="{x:Static models:ContentPageModel.PageWidth}" />
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}" Path="BorderThickness.Left" />
-                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}" Path="BorderThickness.Right" />
+                        <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="x" >
+                            <Binding ElementName="pageControlReference" Path="MaxWidth" />
+                            <Binding Source="{Binding Source={x:Type ListBoxItem}, Path=}"
+                            <Binding Path="BorderThickness.Left" />
+                            <Binding Path="BorderThickness.Right" />
                         </MultiBinding>
                     </Setter.Value>
-                </Setter>
+                </Setter>-->
             </Style>
 
             <Style x:Key="UnselectableItemsStyle" TargetType="ListBoxItem" BasedOn="{StaticResource FixedWidthStyle}">
@@ -51,7 +51,7 @@
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
                        Color="Transparent" />
                 </Style.Resources>
-                <!--<Setter Property="FocusVisualStyle" Value="{x:Null}" />-->
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             </Style>
 
         </ListBox.Resources>
@@ -64,7 +64,6 @@
                         <DataTrigger.Setters>
                             <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
                         </DataTrigger.Setters>
-                        
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

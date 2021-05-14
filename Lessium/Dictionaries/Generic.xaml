@@ -10,6 +10,7 @@
 
     <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
     <converters:ThicknessConverter x:Key="ThicknessConverter" />
+    <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
 
     <!--#endregion-->
 

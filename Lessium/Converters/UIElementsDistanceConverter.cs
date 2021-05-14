@@ -23,7 +23,7 @@ namespace Lessium.Converters
             var second = (UIElement)values[1];
             var coordinate = (string)parameter;
 
-            if(values.Length > 2)
+            if (values.Length > 2)
             {
                 var warning = new WarningException("Values past first two were ignored.");
                 Console.WriteLine(warning.ToString());
@@ -34,9 +34,10 @@ namespace Lessium.Converters
             switch (coordinate.ToLower())
             {
                 case "x":
-                    return point.X;
+                    return Math.Abs(point.X);
                 case "y":
-                    return point.Y;
+                    return Math.Abs(point.Y);
+
                 default: throw new ArgumentException("Parameter should be either X or Y!");
             }
         }
