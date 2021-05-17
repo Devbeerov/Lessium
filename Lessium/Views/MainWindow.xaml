@@ -64,12 +64,12 @@
                 <!-- Edit -->
                 
                 <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}" 
-                          Visibility="{Binding ReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                          Visibility="{Binding IsEditable, Converter={StaticResource InverseVisiblityConverter}}" />
                 
                 <!-- Stop editing -->
                 
                 <MenuItem Header="{Binding StopEditingHeader}" Command="{Binding Lesson_StopEditing}" 
-                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" />
+                          Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 
                 <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
                 <MenuItem Header="{Binding RedoChangesHeader}" Command="{Binding Lesson_RedoChanges}" />
@@ -199,7 +199,7 @@
                 <Button x:Name="addSectionButton" Template="{StaticResource AddSectionButton}" Height="25" 
                             Command="{Binding AddSection}"
                             ToolTip="{Binding ReadOnlyToolTip}" 
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
                             Style="{StaticResource AddSectionButtonStyle}">
                 </Button>
             </VirtualizingStackPanel>
@@ -247,11 +247,11 @@
 
                         <!-- Column 0 -->
 
-                        <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}"
-                              Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
+                        <Menu IsEnabled="{Binding IsEditable}"
+                              Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
-                                      ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
+                                      ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
                                       Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
 
                                 <MenuItem.Header>
@@ -291,12 +291,12 @@
                         <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
                                 Command="{Binding RemovePage}"
                                 ToolTip="{Binding ReadOnlyToolTip}"
-                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
                                 Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <Button.IsEnabled>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                                    <Binding Path="ReadOnly" Converter="{StaticResource InverseBooleanConverter}" />
+                                    <Binding Path="IsEditable" />
                                     <Binding Path="CurrentPageIsNotFirst" />
                                 </MultiBinding>
                             </Button.IsEnabled>
@@ -311,7 +311,7 @@
 
                 <controls:ContentPageControl x:Name="contentPageControl" HorizontalAlignment="Left"
                                              MouseWheel="ContentPageControl_MouseWheel"
-                                             IsReadOnly="{Binding ElementName=section, Path=DataContext.ReadOnly}"
+                                             IsEditable="{Binding ElementName=section, Path=DataContext.IsEditable}"
                                              MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
                                              Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
                                              DataContext="{Binding CurrentPage}">

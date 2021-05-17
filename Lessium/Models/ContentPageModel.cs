@@ -30,6 +30,7 @@ namespace Lessium.Models
         private double maxHeight = PageHeight;
 
         private bool editable = false;
+
         private readonly IDispatcher dispatcher;
 
         // Serialization
@@ -37,6 +38,19 @@ namespace Lessium.Models
         private List<IContentControl> storedItems;
 
         #region CLR Properties
+
+        public bool IsEditable
+        {
+            get { return editable; }
+            set
+            {
+                if (editable == value) return;
+
+                editable = value;
+
+                UpdateItemsEditable();
+            }
+        }
 
         public double MaxWidth
         {
@@ -49,7 +63,9 @@ namespace Lessium.Models
 
                 foreach (var childControl in Items)
                 {
-                    childControl.SetMaxWidth(maxWidth);
+                    var controlElement = childControl as FrameworkElement;
+
+                    controlElement.MaxWidth = maxWidth;
                 }
             }
         }
@@ -65,7 +81,9 @@ namespace Lessium.Models
 
                 foreach (var childControl in Items)
                 {
-                    childControl.SetMaxHeight(maxHeight);
+                    var controlElement = childControl as FrameworkElement;
+
+                    controlElement.MaxHeight = maxHeight;
                 }
             }
         }
@@ -169,42 +187,32 @@ namespace Lessium.Models
             });
         }
 
-        public void Remove(IContentControl element, bool directly = false)
+        public void Remove(IContentControl control, bool directly = false)
         {
             // If there's no attached handler, we will have to do it directly.
 
             if (SendAction == null) directly = true;
 
-            element.RemoveControl -= OnRemove;
-            element.Resize -= OnContentResized;
+            var controlElement = control as FrameworkElement;
+
+            controlElement.SizeChanged -= OnContentResized;
+            control.RequestRemoveButton -= Control_RequestRemoveButton;
 
             if (directly)
             {
-                Items.Remove(element);
+                Items.Remove(control);
             }
 
             else
             {
-                var args = new SendActionEventArgs(element, SendActionEventArgs.ContentAction.Remove);
+                var args = new SendActionEventArgs(control, SendActionEventArgs.ContentAction.Remove);
                 SendAction?.Invoke(this, args);
             }
         }
 
-        public bool GetEditable()
-        {
-            return editable;
-        }
-
-        public void SetEditable(bool editable)
-        {
-            this.editable = editable;
-
-            UpdateItemsEditable();
-        }
-
         public bool IsContentFits(IContentControl content)
         {
-            return PageValidationHelperService.IsElementFits(this, content as FrameworkElement);
+            return ContentPageControlService.IsElementFits(this, content as FrameworkElement);
         }
 
         public void ValidatePage()
@@ -250,7 +258,7 @@ namespace Lessium.Models
             {
                 dispatcher.Invoke(() =>
                 {
-                    contentControl.IsReadOnly = !editable;
+                    contentControl.IsEditable = IsEditable;
                 });
             }
         }
@@ -288,11 +296,13 @@ namespace Lessium.Models
         {
             dispatcher.Invoke(() =>
             {
-                control.SetMaxWidth(MaxWidth);
-                control.SetMaxHeight(MaxHeight);
+                var controlElement = control as FrameworkElement;
 
-                control.Resize += OnContentResized;
-                control.RemoveControl += OnRemove;
+                controlElement.MaxWidth = MaxWidth;
+                controlElement.MaxHeight = MaxHeight;
+
+                controlElement.SizeChanged += OnContentResized;
+                control.RequestRemoveButton += Control_RequestRemoveButton;
 
                 UpdateItemEditable(control);
             });
@@ -353,11 +363,6 @@ namespace Lessium.Models
 
         public event ExceedingContentEventHandler AddedExceedingContent;
 
-        private void OnRemove(object sender, RoutedEventArgs e)
-        {
-            Remove(e.Source as IContentControl);
-        }
-
         private void OnContentResized(object sender, SizeChangedEventArgs e)
         {
             if (e.Handled) { return; }
@@ -383,6 +388,20 @@ namespace Lessium.Models
             }
 
             return false;
+        }
+
+        private void Control_RequestRemoveButton(object sender, RemoveButtonRequestEventArgs args)
+        {
+            var requestor = sender as IRemoveButtonRequestor;
+            var button = ContentPageControlService.RequestRemoveButtonCopy();
+
+            button.Click += OnControlRemoveButtonClick;
+            args.RemoveButtonPresenter.Content = button;
+        }
+
+        private void OnControlRemoveButtonClick(object sender, RoutedEventArgs e)
+        {
+            Remove(sender as IContentControl);
         }
 
         #endregion

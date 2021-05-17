@@ -20,7 +20,7 @@ namespace Lessium.Models
         #region Lesson Menu
 
         public bool HasChanges = false;
-        public bool ReadOnly = true;
+        public bool IsEditable = false;
 
         #endregion
 

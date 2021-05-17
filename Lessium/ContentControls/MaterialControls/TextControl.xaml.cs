@@ -3,14 +3,11 @@ using System;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interactivity;
-using System.Linq;
 using Lessium.Utility;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
-using System.Collections.Generic;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -21,7 +18,6 @@ namespace Lessium.ContentControls.MaterialControls
     public partial class TextControl : UserControl, IMaterialControl
     {
         private IDispatcher dispatcher;
-        private bool raiseResizeEvent = true;
 
         #region Constructors
 
@@ -61,24 +57,8 @@ namespace Lessium.ContentControls.MaterialControls
 
         public void Initialize()
         {
+            DataContext = this;
             InitializeComponent();
-            this.DataContext = this;
-        }
-
-        public void RemoveBehavior<T>() where T : Behavior
-        {
-            var behaviors = Interaction.GetBehaviors(textBox);
-            var behavior = GetBehavior<T>();
-            if (behavior != null)
-            {
-                behaviors.Remove(behavior);
-            }
-        }
-
-        public T GetBehavior<T>() where T : Behavior
-        {
-            var behaviors = Interaction.GetBehaviors(textBox);
-            return behaviors.OfType<T>().FirstOrDefault();
         }
 
         #endregion
@@ -87,40 +67,14 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region IContentControl
 
-        public void SetMaxWidth(double width)
+        public bool IsEditable
         {
-            var adjusted = width - removeButton.Width;
-
-            raiseResizeEvent = false;
-
-            this.MaxWidth = width;
-            textBox.MaxWidth = adjusted;
-            textBox.Width = adjusted;
-
-            raiseResizeEvent = true;
-        }
-
-        public void SetMaxHeight(double height)
-        {
-            // We do not calculate adjustedHeight here because of design. Not considering removeButton.Height here.
-
-            this.MaxHeight = height;
-            textBox.MaxHeight = height;
-        }
-
-        public event RoutedEventHandler RemoveControl;
-        public event SizeChangedEventHandler Resize;
-
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
+            get { return (bool)GetValue(IsEditableProperty); }
             set 
             { 
-                SetValue(IsReadOnlyProperty, value);
+                SetValue(IsEditableProperty, value);
 
-                // ReadOnly
-
-                textBox.IsReadOnly = value;
+                textBox.IsReadOnly = !value;
 
                 // Size 0 if not editable, size 1 if editable.
 
@@ -128,63 +82,40 @@ namespace Lessium.ContentControls.MaterialControls
 
                 if (value)
                 {
-                    thickness = new Thickness(0);
+                    thickness = new Thickness(1);
                 }
 
                 else
                 {
-                    thickness = new Thickness(1);
+                    thickness = new Thickness(0);
                 }
 
                 textBox.BorderThickness = thickness;
 
-                // Button
-
-                if (ShowRemoveButton)
-                {
-                    removeButton.IsEnabled = !value;
-                }
-
                 // Tooltip
 
-                ToolTipService.SetIsEnabled(textBox, !value);
+                ToolTipService.SetIsEnabled(textBox, value);
             }
         }
 
-        // Using a DependencyProperty as the backing store for IsReadOnly.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
+        // Using a DependencyProperty as the backing store for IsEditable.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(TextControl), new PropertyMetadata(false));
 
         #endregion
 
         #region Events
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Sets source to TextControl, not Button
-
-            e.Source = this;
-
-            // Invokes event
-
-            RemoveControl?.Invoke(sender, e);
-        }
-
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (!raiseResizeEvent)
-            {
-                e.Handled = true;
-                return;
-            }
-
             // Sets source to TextControl, not Border
 
             e.Source = this;
+        }
 
-            // Invokes event
-
-            Resize?.Invoke(sender, e);
+        private void RemoveButtonPresenter_Loaded(object sender, RoutedEventArgs e)
+        {
+            RequestRemoveButton?.Invoke(this, new RemoveButtonRequestEventArgs(sender as ContentPresenter));
         }
 
         #endregion
@@ -202,19 +133,6 @@ namespace Lessium.ContentControls.MaterialControls
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
-
-        #endregion
-
-        #region ShowRemoveButton
-
-        public bool ShowRemoveButton
-        {
-            get { return (bool)GetValue(ShowRemoveButtonProperty); }
-            set { SetValue(ShowRemoveButtonProperty, value); }
-        }
-
-        public static readonly DependencyProperty ShowRemoveButtonProperty =
-            DependencyProperty.Register("ShowRemoveButton", typeof(bool), typeof(TextControl), new PropertyMetadata(true));
 
         #endregion
 
@@ -267,6 +185,12 @@ namespace Lessium.ContentControls.MaterialControls
                 Text = await reader.ReadElementContentAsStringAsync();
             });
         }
+
+        #endregion
+
+        #region IRemoveButtonRequestor
+
+        public event RemoveButtonRequestEventHandler RequestRemoveButton;
 
         #endregion
     }

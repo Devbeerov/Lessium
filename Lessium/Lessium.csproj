@@ -83,6 +83,7 @@
     <Compile Include="Interfaces\IActionSender.cs" />
     <Compile Include="Interfaces\IDispatcher.cs" />
     <Compile Include="Interfaces\ILsnSerializable.cs" />
+    <Compile Include="Interfaces\IRemoveButtonRequestor.cs" />
     <Compile Include="Interfaces\IUndoableAction.cs" />
     <Compile Include="Models\LessonModel.cs" />
     <Compile Include="Models\SettingsModel.cs" />
@@ -97,13 +98,15 @@
     <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\PageValidationHelperService.cs" />
+    <Compile Include="Services\MathHelper.cs" />
+    <Compile Include="Services\ContentPageControlService.cs" />
     <Compile Include="Services\UndoableActionsServiceLocator.cs" />
     <Compile Include="UndoableActions\InsertContentAction.cs" />
     <Compile Include="UndoableActions\RemoveContentAction.cs" />
     <Compile Include="UndoableActions\AddContentAction.cs" />
     <Compile Include="UndoableActions\Generic\RemoveFromCollectionAction.cs" />
     <Compile Include="UndoableActions\Generic\AddToCollectionAction.cs" />
+    <Compile Include="Utility\BehaviorUtility.cs" />
     <Compile Include="Utility\DispatcherUtility.cs" />
     <Compile Include="Services\HotkeysService.cs" />
     <Compile Include="Utility\EqualsHelper.cs" />

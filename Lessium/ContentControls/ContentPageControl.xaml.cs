@@ -67,9 +67,57 @@ namespace Lessium.ContentControls
             return ReferenceEquals(contentPage, modelToCheck);
         }
 
+        public Button RequestRemoveButtonCopy()
+        {
+            var button = FindResource("removeButtonTemplate") as Button;
+
+            return CloneRemoveButton(button);
+        }
+
         #endregion
 
         #region Private
+
+        private void CloneBindings(Button newButton, Button template)
+        {
+            var isEnabledBindingExpression = template.GetBindingExpression(IsEnabledProperty);
+            newButton.SetBinding(IsEnabledProperty, isEnabledBindingExpression.ParentBinding);
+
+            var visibilityBindingExpression = template.GetBindingExpression(VisibilityProperty);
+            newButton.SetBinding(VisibilityProperty, visibilityBindingExpression.ParentBinding);
+        }
+
+        private void CloneContent(Button newButton, Button template)
+        {
+            var templateImage = template.Content as Image;
+
+            newButton.Content = new Image()
+            {
+                Source = templateImage.Source,
+            };
+        }
+
+        private void CloneVisual(Button newButton, Button template)
+        {
+            newButton.Width = template.Width;
+            newButton.Height = template.Height;
+
+            newButton.HorizontalAlignment = template.HorizontalAlignment;
+            newButton.VerticalAlignment = template.VerticalAlignment;
+        }
+
+        private Button CloneRemoveButton(Button template)
+        {
+            // EventHandlers will be attached in ContentPageModel.
+
+            var newButton = new Button();
+
+            CloneVisual(newButton, template);
+            CloneContent(newButton, template);
+            CloneBindings(newButton, template);
+
+            return newButton;
+        }
 
         private void UpdateModelMaxWidth(double newMaxWidth)
         {
@@ -109,6 +157,13 @@ namespace Lessium.ContentControls
             if (newPage != null) newPage.SendAction += this.SendAction;
         }
 
+        private void UpdateModelEditable()
+        {
+            if (contentPage == null) return;
+
+            contentPage.IsEditable = IsEditable;
+        }
+
         #endregion
 
         #endregion
@@ -119,10 +174,18 @@ namespace Lessium.ContentControls
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             contentPage = e.NewValue as ContentPageModel;
+            var oldPage = e.OldValue as ContentPageModel;
+
+            if (oldPage != null)
+            {
+                // If page is not selected, it's not editable.
+
+                oldPage.IsEditable = false;
+            }
 
             // Even if contentPage is null, will unregister (if not null) old page, that's why we should call it here.
 
-            ValidateSendActionRegistration(e.OldValue as ContentPageModel, contentPage);
+            ValidateSendActionRegistration(oldPage, contentPage);
 
             if (contentPage == null) // Wrong DataContext (probably MainWindowViewModel) or empty page
             { 
@@ -130,6 +193,7 @@ namespace Lessium.ContentControls
                 return; 
             }
 
+            UpdateModelEditable();
             UpdateModelMaxSize();
 
             // Items
@@ -183,7 +247,7 @@ namespace Lessium.ContentControls
 
             if (Keyboard.IsKeyDown(Key.V))
             {
-                if (IsReadOnly) return;
+                if (!IsEditable) return;
 
                 var copiedContent = ClipboardService.GetStoredSerializable() as IContentControl;
 
@@ -222,6 +286,23 @@ namespace Lessium.ContentControls
             listBoxItem.IsSelected = false;
         }
 
+        /// <summary>
+        /// Performs all necessary setup once ListBoxItem is loaded.
+        /// </summary>
+        private void ListBoxItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            var listBoxItem = sender as ListBoxItem;
+            var contentControl = listBoxItem.Content as FrameworkElement;
+
+            var totalPadding = listBoxItem.Padding.Left + listBoxItem.Padding.Right;
+            var newWidth = listBoxItem.ActualWidth - totalPadding;
+
+            contentControl.MaxWidth = newWidth;
+
+            var distance = MathHelper.DistanceBetweenElements(itemsControl, listBoxItem, Coordinate.Y);
+            contentControl.MaxHeight = itemsControl.MaxHeight - distance;
+        }
+
         #endregion
 
         #region Dependency Properties
@@ -232,18 +313,23 @@ namespace Lessium.ContentControls
             set { SetValue(ItemsProperty, value); }
         }
 
-        public bool IsReadOnly
+        public bool IsEditable
         {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
+            get { return (bool)GetValue(IsEditableProperty); }
+            set { SetValue(IsEditableProperty, value); }
         }
 
         public static readonly DependencyProperty ItemsProperty =
             DependencyProperty.Register("Items", typeof(ObservableCollection<IContentControl>),
             typeof(ContentPageControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(ContentPageControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(ContentPageControl), new PropertyMetadata(true, (sender, e) => 
+            {
+                var pageControl = sender as ContentPageControl;
+
+                pageControl.UpdateModelEditable();
+            }));
 
         #endregion
 

@@ -15,29 +15,22 @@
     
     <!--#region Custom -->
     
-    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     <converters:NotNullConverter x:Key="NotNullConverter" />
     <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
 
     <!--#endregion-->
 
-    <!--#region Built-in -->
-    
-    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-    
-    <!--#endregion-->
-
     <!--#region Converter Chains -->
 
     <converters:ConverterChain x:Key="InverseVisiblityConverter">
-        <converters:InverseBooleanConverter />
-        <BooleanToVisibilityConverter />
+        <StaticResource ResourceKey="InverseBooleanConverter" />
+        <StaticResource ResourceKey="BooleanToVisibilityConverter" />
     </converters:ConverterChain>
 
     <converters:ConverterChain x:Key="NotNullToVisbilityConverter">
-        <converters:NotNullConverter />
-        <BooleanToVisibilityConverter />
+        <StaticResource ResourceKey="NotNullConverter" />
+        <StaticResource ResourceKey="BooleanToVisibilityConverter" />
     </converters:ConverterChain>
 
     <!--#endregion-->
@@ -161,7 +154,7 @@
             <TextBox x:Name="Title" Text="{Binding Path=Title}"
                      HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
                      TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
-                     IsReadOnly="{Binding DataContext.ReadOnly, ElementName=MainWindowReference}"
+                     IsReadOnly="{Binding DataContext.IsEditable, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
                      Padding="{Binding ElementName=removeSectionButton, Path=ActualWidth, Converter={StaticResource ThicknessConverter}, ConverterParameter=Right}">
 
                 <i:Interaction.Behaviors>
@@ -175,8 +168,8 @@
                     VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" 
                     Width="16" Height="16"
                     Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
-                    IsEnabled="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
-                    Visibility="{Binding DataContext.ReadOnly, ElementName=MainWindowReference, Converter={StaticResource InverseVisiblityConverter}}" >
+                    IsEnabled="{Binding DataContext.IsEditable, ElementName=MainWindowReference}"
+                    Visibility="{Binding DataContext.IsEditable, ElementName=MainWindowReference, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                 <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
 

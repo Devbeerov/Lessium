@@ -9,12 +9,34 @@
              mc:Ignorable="d"
              x:Name="pageControlReference" >
 
+    <UserControl.Resources>
+
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dictionaries/Generic.xaml" />
+                
+                <ResourceDictionary>
+                    <Button x:Key="removeButtonTemplate" Width="16" Height="16"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            IsEnabled="{Binding IsEditable}"
+                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                        <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+                    </Button>
+                </ResourceDictionary>
+                
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+       
+    </UserControl.Resources>
+
     <ListBox x:Name="itemsControl"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              ScrollViewer.CanContentScroll="False" 
              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
              ScrollViewer.VerticalScrollBarVisibility="Disabled"
              MaxWidth="{Binding ElementName=pageControlReference, Path=MaxWidth}"
+             MaxHeight="{Binding ElementName=pageControlReference, Path=MaxHeight}"
              Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
              ItemsSource="{Binding Items}"
              Keyboard.KeyDown="itemsControl_KeyDown" 
@@ -27,6 +49,7 @@
             </Style>
 
             <Style x:Key="FixedWidthStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
+                <EventSetter Event="Loaded" Handler="ListBoxItem_Loaded" />
                 <!--<Setter Property="MaxWidth" >
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="x" >
@@ -60,7 +83,7 @@
             <Style TargetType="{x:Type ListBox}">
                 <Setter Property="ItemContainerStyle" Value="{StaticResource UnselectableItemsStyle}" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsReadOnly}" Value="False">
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsEditable}" Value="True">
                         <DataTrigger.Setters>
                             <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
                         </DataTrigger.Setters>

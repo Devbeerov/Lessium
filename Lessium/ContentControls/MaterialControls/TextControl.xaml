@@ -18,16 +18,11 @@
         <converters:ThicknessConverter x:Key="ThicknessConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
-    
-    <Border x:Name="border" SizeChanged="Border_SizeChanged" >
-        <Grid x:Name="grid" VerticalAlignment="Top" HorizontalAlignment="Left">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            
-            <TextBox x:Name="textBox"
+    <Border x:Name="border" SizeChanged="Border_SizeChanged" >
+
+        <StackPanel Orientation="Horizontal">
+            <TextBox x:Name="textBox" VerticalAlignment="Top" HorizontalAlignment="Left"
                      TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
                      ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                      Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -53,16 +48,8 @@
 
             </TextBox>
 
-            <Button x:Name="removeButton" Click="RemoveButton_Click"
-                    HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1"
-                    Width="16" Height="16" 
-                    IsEnabled="{Binding ShowRemoveButton}" 
-                    Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                <Image x:Name="removeContentIcon" Source="{StaticResource RemoveContentIcon}" />
-            </Button>
-                
-        </Grid>
+            <ContentPresenter x:Name="RemoveButtonPresenter" Loaded="RemoveButtonPresenter_Loaded"/>
+        </StackPanel>
     </Border>
     
 </UserControl>

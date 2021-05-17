@@ -152,8 +152,6 @@ namespace Lessium.ContentControls.TestControls
 
             if (textBox.LineCount <= maxLineCount) return;
 
-            raiseResizeEvent = false;
-
             var prevCaret = textBox.CaretIndex; // Caret before removing everything past MaxLine
             var lastPositionInMaxLine = CalculateLastPositionInMaxLine(textBox, maxLineCount);
 
@@ -230,12 +228,11 @@ namespace Lessium.ContentControls.TestControls
             if (!lineHeight.HasValue) { lineHeight = testQuestion.textBox.CalculateLineHeight(); }
 
             testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
-            testQuestion.SetMaxHeight(maxHeight);
         }
 
         private DynamicCheckBoxType GetActualCheckBoxType()
         {
-            if (!IsReadOnly) { return DynamicCheckBoxType.CheckBox; }
+            if (!IsEditable) { return DynamicCheckBoxType.CheckBox; }
 
             if (TrueAnswers.Count < 2) return DynamicCheckBoxType.RadioSingle;
 
@@ -253,45 +250,24 @@ namespace Lessium.ContentControls.TestControls
 
         #region IContentControl
 
-        public void SetMaxWidth(double width)
+        public bool IsEditable
         {
-            var adjustedWidth = width - removeButton.Width;
-
-            border.MaxHeight = adjustedWidth;
-            testQuestion.SetMaxWidth(width);
-            AnswersItemControl.MaxWidth = adjustedWidth;
-        }
-
-        public void SetMaxHeight(double height)
-        {
-            // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
-
-            border.MaxHeight = height;
-            testQuestion.SetMaxHeight(height);
-            AnswersItemControl.MaxHeight = height;
-        }
-
-        public event RoutedEventHandler RemoveControl;
-        public event SizeChangedEventHandler Resize;
-
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set 
-            { 
-                SetValue(IsReadOnlyProperty, value);
+            get { return (bool)GetValue(IsEditableProperty); }
+            set
+            {
+                SetValue(IsEditableProperty, value);
                 ValidateAnswersSelectionMode();
 
                 // Text Editable
 
-                testQuestion.IsReadOnly = value;
+                testQuestion.IsEditable = value;
 
-                addAnswerButton.IsEnabled = !IsReadOnly;
+                addAnswerButton.IsEnabled = !IsEditable;
                 addAnswerButton.Visibility = value ? Visibility.Collapsed : Visibility.Visible;
 
                 // Answers Controls
 
-                for(int i = 0; i < AnswersItemControl.Items.Count; i++)
+                for (int i = 0; i < AnswersItemControl.Items.Count; i++)
                 {
                     // Should be used ContainerFromIndex instead of ContainerFromItem,
                     // Because it will return same ContentPresenter for each element due to overriden AnswerMode.Equals (perhaps GetHashCode involved too)
@@ -300,14 +276,14 @@ namespace Lessium.ContentControls.TestControls
                     {
                         DataTemplate dataTemplate = contentPresenter.ContentTemplate;
                         TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
-                        textContainer.IsReadOnly = IsReadOnly;
+                        textContainer.IsEditable = IsEditable;
                     }
                 }
             }
         }
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(SimpleTest), new PropertyMetadata(true));
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(SimpleTest), new PropertyMetadata(false));
 
         #endregion
 
@@ -325,15 +301,9 @@ namespace Lessium.ContentControls.TestControls
 
         #region Events
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        private void RemoveButtonPresenter_Loaded(object sender, RoutedEventArgs e)
         {
-            // Sets source to SimpleTest Control, not Button
-
-            e.Source = this;
-
-            // Invokes event
-
-            RemoveControl?.Invoke(sender, e);
+            RequestRemoveButton?.Invoke(this, new RemoveButtonRequestEventArgs(sender as ContentPresenter));
         }
 
         private void Question_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -359,10 +329,6 @@ namespace Lessium.ContentControls.TestControls
             // Sets source to SimpleTest Control, not Border
 
             e.Source = this;
-
-            // Invokes event
-
-            Resize?.Invoke(sender, e);
 
             raiseResizeEvent = true;
         }
@@ -411,14 +377,14 @@ namespace Lessium.ContentControls.TestControls
             var control = e.Source as TextControl; // TextContainer
 
             control.RemoveBehavior<TextBoxCutBehavior>();
-            control.IsReadOnly = IsReadOnly;
+            control.IsEditable = IsEditable;
         }
 
         private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
         {
             var control = e.Source as TextControl;
 
-            control.IsReadOnly = IsReadOnly;
+            control.IsEditable = IsEditable;
         }
 
         private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
@@ -538,7 +504,7 @@ namespace Lessium.ContentControls.TestControls
             // Reads attributes
 
             Question = reader.GetAttribute(nameof(Question));
-            
+
             // Reads Answers
 
             while (await reader.ReadToFollowingAsync("Answer"))
@@ -558,7 +524,11 @@ namespace Lessium.ContentControls.TestControls
 
         #endregion
 
+        #region IRemoveButtonRequestor
 
+        public event RemoveButtonRequestEventHandler RequestRemoveButton;
+
+        #endregion
     }
 
     [Serializable]

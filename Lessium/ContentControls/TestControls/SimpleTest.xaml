@@ -24,29 +24,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border x:Name="border" MinWidth="16" MinHeight="16" SizeChanged="Border_SizeChanged">
+    <Border x:Name="border" SizeChanged="Border_SizeChanged">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
 
             <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
-                <StackPanel.MaxWidth>
-                    <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
-                        <Binding ElementName="control" Path="ActualWidth" />
-                        <Binding ElementName="removeButton" Path="ActualWidth" />
-                    </MultiBinding>
-                </StackPanel.MaxWidth>
-
                 <materials:TextControl x:Name="testQuestion"
                                        ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                                        Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
-                                       ShowRemoveButton="False" 
                                        SizeChanged="Question_SizeChanged">
 
                 </materials:TextControl>
 
                 <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
-
-                    
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -67,15 +57,7 @@
                                 <materials:TextControl x:Name="TextContainer"
                                                        Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
                                                        Loaded="TextContainer_Loaded"
-                                                       Unloaded="TextContainer_Unloaded"
-                                                       RemoveControl="RemoveAnswer_Click" >
-
-                                    <materials:TextControl.MaxWidth>
-                                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
-                                            <Binding ElementName="contentPanel" Path="MaxWidth" />
-                                            <Binding ElementName="removeButton" Path="ActualWidth" />
-                                        </MultiBinding>
-                                    </materials:TextControl.MaxWidth>
+                                                       Unloaded="TextContainer_Unloaded">
 
                                 </materials:TextControl>
                             </StackPanel>
@@ -93,13 +75,7 @@
 
             </StackPanel>
 
-            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
-                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                    IsEnabled="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}}" 
-                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
-
-                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
-            </Button>
+            <ContentPresenter x:Name="RemoveButtonPresenter" Loaded="RemoveButtonPresenter_Loaded"/>
 
         </StackPanel>
     </Border>

@@ -1,17 +1,14 @@
 ﻿using Lessium.ContentControls;
-using Lessium.Interfaces;
 using Lessium.Models;
 using Lessium.Views;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Lessium.Services
 {
-   public static class PageValidationHelperService
+    public static class ContentPageControlService
    {
         private static ContentPageControl pageControl;
         private static ContentPageControl PageControl
@@ -41,6 +38,11 @@ namespace Lessium.Services
             if (!PageControl.IsControlsModel(model)) throw new ArgumentException("ContentPageControl does not control this model.");
 
             return PageControl.IsElementFits(contentElement);
+        }
+
+        public static Button RequestRemoveButtonCopy()
+        {
+            return PageControl.RequestRemoveButtonCopy();
         }
    }
 }

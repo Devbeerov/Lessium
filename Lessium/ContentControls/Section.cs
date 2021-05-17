@@ -26,7 +26,6 @@ namespace Lessium.ContentControls
         public const double PageWidth = 795;
         public const double PageHeight = 637;
 
-        private bool editable = false;
         private bool setupDone = false;
         private IDispatcher dispatcher;
 
@@ -129,22 +128,6 @@ namespace Lessium.ContentControls
             setupDone = true;
         }
 
-        private void UpdatePageEditable(ContentPageModel page)
-        {
-            if (page != null)
-            {
-                page.SetEditable(editable);
-            }
-        }
-
-        private void UpdatePagesEditable()
-        {
-            foreach (var page in pages)
-            {
-                UpdatePageEditable(page);
-            }
-        }
-
         [OnDeserialized]
         private void OnDeserialized(StreamingContext c)
         {
@@ -200,8 +183,6 @@ namespace Lessium.ContentControls
 
             var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Add);
             PagesChanged?.Invoke(this, args);
-
-            UpdatePageEditable(page);
         }
 
         public void Remove(ContentPageModel page)
@@ -215,18 +196,6 @@ namespace Lessium.ContentControls
 
             var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Remove);
             PagesChanged?.Invoke(this, args);
-        }
-
-        public bool GetEditable()
-        {
-            return editable;
-        }
-
-        public void SetEditable(bool editable)
-        {
-            this.editable = editable;
-
-            UpdatePagesEditable();
         }
 
         

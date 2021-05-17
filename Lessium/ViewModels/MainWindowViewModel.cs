@@ -74,16 +74,10 @@ namespace Lessium.ViewModels
             get { return actionsService.ExecutedActionsCount > 0; }
         }
 
-        public bool ReadOnly
+        public bool IsEditable
         {
-            get { return model.ReadOnly; }
-            set
-            {
-                if(SetProperty(ref model.ReadOnly, value))
-                {
-                    UpdateSectionsEditable();
-                }
-            }
+            get { return model.IsEditable; }
+            set { SetProperty(ref model.IsEditable, value); }
         }
 
         #endregion
@@ -414,14 +408,14 @@ namespace Lessium.ViewModels
             RaisePropertyChanged(nameof(HasChanges));
         }
 
-        private void SwitchReadOnly(bool readOnly)
+        private void SwitchEditable(bool editable)
         {
-            ReadOnly = readOnly;
+            IsEditable = editable;
         }
 
-        private void SwitchReadOnly()
+        private void SwitchEditable()
         {
-            SwitchReadOnly(!ReadOnly);
+            SwitchEditable(!IsEditable);
         }
 
         private string BuildHeaderWithHotkey(string defaultHeader, Hotkey hotkey)
@@ -447,21 +441,21 @@ namespace Lessium.ViewModels
 
         private bool TryUndo()
         {
-            if (ReadOnly) return false;
+            if (!IsEditable) return false;
 
             return actionsService.TryUndo();
         }
 
         private bool TryRedo()
         {
-            if (ReadOnly) return false;
+            if (!IsEditable) return false;
 
             return actionsService.TryRedo();
         }
 
         private void RegisterEditHotkey()
         {
-            hotkeysService.RegisterHotkey(Hotkeys.Current.EditHotkey, () => SwitchReadOnly());
+            hotkeysService.RegisterHotkey(Hotkeys.Current.EditHotkey, () => SwitchEditable());
         }
 
         private void RegisterUndoHotkey()
@@ -502,22 +496,6 @@ namespace Lessium.ViewModels
             if (CurrentSection != null)
             {
                 CollapseSection(CurrentSection);
-            }
-        }
-
-        private void UpdateSectionsEditable()
-        {
-            var materialSections = SectionsByType[ContentType.Material];
-            var testSections = SectionsByType[ContentType.Test];
-
-            foreach (var section in materialSections)
-            {
-                section.SetEditable(!ReadOnly);
-            }
-
-            foreach (var section in testSections)
-            {
-                section.SetEditable(!ReadOnly);
             }
         }
 
@@ -704,17 +682,17 @@ namespace Lessium.ViewModels
         private DelegateCommand Lesson_EditCommand;
         public DelegateCommand Lesson_Edit =>
             Lesson_EditCommand ?? (Lesson_EditCommand = new DelegateCommand(ExecuteLesson_Edit, CanExecuteLesson_Edit)
-            .ObservesProperty(() => ReadOnly)
+            .ObservesProperty(() => IsEditable)
             );
 
         void ExecuteLesson_Edit()
         {
-            SwitchReadOnly(false);
+            SwitchEditable(false);
         }
 
         bool CanExecuteLesson_Edit()
         {
-            return ReadOnly;
+            return !IsEditable;
         }
 
         #endregion
@@ -724,17 +702,17 @@ namespace Lessium.ViewModels
         private DelegateCommand Lesson_StopEditingCommand;
         public DelegateCommand Lesson_StopEditing =>
             Lesson_StopEditingCommand ?? (Lesson_StopEditingCommand = new DelegateCommand(ExecuteLesson_StopEditing, CanExecuteLesson_StopEditing)
-            .ObservesProperty(() => ReadOnly)
+            .ObservesProperty(() => IsEditable)
             );
 
         void ExecuteLesson_StopEditing()
         {
-            SwitchReadOnly(true);
+            SwitchEditable(true);
         }
 
         bool CanExecuteLesson_StopEditing()
         {
-            return !ReadOnly;
+            return IsEditable;
         }
 
         #endregion
@@ -899,8 +877,6 @@ namespace Lessium.ViewModels
 
                     materialSections.AddRange(resultLessonModel.MaterialSections);
                     testSections.AddRange(resultLessonModel.TestSections);
-
-                    UpdateSectionsEditable();
                 }
 
                 else if (resultCode != IOResult.Cancelled)
@@ -945,7 +921,7 @@ namespace Lessium.ViewModels
         private DelegateCommand AddSectionCommand;
         public DelegateCommand AddSection =>
             AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection, CanExecuteAddSection)
-            .ObservesProperty(() => ReadOnly));
+            .ObservesProperty(() => IsEditable));
 
         void ExecuteAddSection()
         {
@@ -961,12 +937,10 @@ namespace Lessium.ViewModels
             }
 
 
-            var newSection = new Section(SelectedContentType);
-            newSection.Title = sectionTitle;
-
-            // Updates IsEditable state of Section
-
-            newSection.SetEditable(!ReadOnly);
+            var newSection = new Section(SelectedContentType)
+            {
+                Title = sectionTitle
+            };
 
             // Adds newSection to Sections dictionary.
 
@@ -984,7 +958,7 @@ namespace Lessium.ViewModels
 
         bool CanExecuteAddSection()
         {
-            return !ReadOnly;
+            return IsEditable;
         }
 
         #endregion
@@ -1006,9 +980,9 @@ namespace Lessium.ViewModels
             actionsService.ExecuteAction(new RemoveFromCollectionAction<Section>(Sections, section));
         }
 
-        bool CanExecuteRemoveSection(Section _) // Discard Section, because we don't check it, we check only ReadOnly state.
+        bool CanExecuteRemoveSection(Section _) // Discard Section, because we don't check it, we check only IsEditable state.
         {
-            return !ReadOnly;
+            return IsEditable;
         }
 
         #endregion
@@ -1049,17 +1023,15 @@ namespace Lessium.ViewModels
 
             if (Keyboard.IsKeyDown(Key.V))
             {
-                // We don't paste in ReadOnly
+                // We don't paste if not IsEditable
 
-                if (ReadOnly) { return; }
+                if (!IsEditable) { return; }
 
                 var section = ClipboardService.GetStoredSerializable() as Section;
 
                 // Checks if SelectedContentType is same as Section's ContentType
 
                 if (SelectedContentType != section.ContentType) return;
-
-                section.SetEditable(!ReadOnly);
 
                 // Adds to Sections
 

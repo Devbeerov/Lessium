@@ -87,7 +87,7 @@ namespace Lessium.Utility
 
                 // Binding
 
-                Binding binding = new Binding("IsReadOnly");
+                Binding binding = new Binding("IsEditable");
                 binding.Source = AssociatedObject;
                 binding.Converter = converter;
 

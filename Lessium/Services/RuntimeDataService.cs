@@ -33,7 +33,7 @@ namespace Lessium.Services
 
         public static bool IsLessonInReadOnly()
         {
-            return MainViewModel.ReadOnly;
+            return MainViewModel.IsEditable;
         }
 
         public static SendActionEventHandler GetSendActionEventHandler()

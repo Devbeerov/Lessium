@@ -8,9 +8,11 @@
     
     <!--#region Converters -->
 
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
     <converters:ThicknessConverter x:Key="ThicknessConverter" />
     <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
+    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
 
     <!--#endregion-->
 
