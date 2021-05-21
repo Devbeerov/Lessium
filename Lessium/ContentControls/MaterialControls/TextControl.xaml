@@ -19,16 +19,18 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
 
-    <Border x:Name="border" SizeChanged="Border_SizeChanged" >
+    <Border x:Name="border" SizeChanged="Border_SizeChanged">
 
         <StackPanel Orientation="Horizontal">
             <TextBox x:Name="textBox" VerticalAlignment="Top" HorizontalAlignment="Left"
                      TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
-                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      ScrollViewer.CanContentScroll="False"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                     MaxLines="38" 
+                     MaxLines="38"
+                     Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
+                     Height="{Binding RelativeSource={RelativeSource Self}, Path=MaxHeight}"
+                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                     Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
                      UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
 
@@ -45,6 +47,13 @@
                                 Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
                                 Command="ApplicationCommands.Redo" />
                 </TextBox.InputBindings>
+
+                <TextBox.MaxWidth>
+                    <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
+                        <Binding ElementName="control" Path="MaxWidth" />
+                        <Binding ElementName="RemoveButtonPresenter" Path="Width" />
+                    </MultiBinding>
+                </TextBox.MaxWidth>
 
             </TextBox>
 

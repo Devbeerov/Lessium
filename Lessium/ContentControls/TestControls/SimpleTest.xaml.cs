@@ -128,27 +128,28 @@ namespace Lessium.ContentControls.TestControls
             if (contentPresenter == null) return null;
 
             var dataTemplate = contentPresenter.ContentTemplate;
+
             return dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
         }
 
-        private int GetMaxLineCount(TextBox textBox, ContentPageControl pageControl, double? lineHeight)
+        private int GetMaxLineCount(TextBox textBox, double? lineHeight)
         {
-            lineHeight = textBox.CalculateLineHeight();
+            if (!lineHeight.HasValue) lineHeight = textBox.CalculateLineHeight();
 
-            var pos = textBox.TranslatePoint(default(Point), pageControl);
-            return Convert.ToInt32(Math.Floor((pageControl.MaxHeight - pos.Y) / lineHeight.Value));
+            var pos = ContentPageControlService.TranslatePoint(this);
+
+            return Convert.ToInt32(Math.Floor((ContentPageControlService.MaxHeight - pos.Y) / lineHeight.Value));
         }
 
         private void ValidateAnswersControl(double? lineHeight, SizeChangedEventArgs e)
         {
             var lastContainer = GetLastContainer();
             var textContainer = GetTextContainer(lastContainer);
-            var pageControl = this.FindParent<ContentPageControl>();
 
-            if (textContainer == null || pageControl.IsElementFits(textContainer)) return;
+            if (textContainer == null || ContentPageControlService.IsControlFits(this)) return;
 
             var textBox = textContainer.textBox;
-            var maxLineCount = GetMaxLineCount(textBox, pageControl, lineHeight);
+            var maxLineCount = GetMaxLineCount(textBox, lineHeight);
 
             if (textBox.LineCount <= maxLineCount) return;
 
@@ -218,14 +219,14 @@ namespace Lessium.ContentControls.TestControls
                 toSubstract += itemContainer.ActualHeight;
             }
 
-            return border.MaxHeight - toSubstract; // new maxHeight
+            return MaxHeight - toSubstract; // new maxHeight
         }
 
         private void UpdateAnswersControlMaxHeight(double? lineHeight)
         {
             var maxHeight = CalculateAnswersControlMaxHeight();
 
-            if (!lineHeight.HasValue) { lineHeight = testQuestion.textBox.CalculateLineHeight(); }
+            if (!lineHeight.HasValue) lineHeight = testQuestion.textBox.CalculateLineHeight();
 
             testQuestion.textBox.MaxLines = Convert.ToInt32(Math.Floor(maxHeight / lineHeight.Value));
         }
@@ -316,7 +317,7 @@ namespace Lessium.ContentControls.TestControls
         {
             if (!raiseResizeEvent) { return; }
 
-            double? lineHeight = new double?(); // Declares variable here to avoid double-calculating.
+            double? lineHeight = new double?();
 
             // Performs all validation and fixing, could also set e.Handled = true, to prevent multiple event calls.
 
@@ -335,13 +336,11 @@ namespace Lessium.ContentControls.TestControls
 
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var pageControl = this.FindParent<ContentPageControl>();
-
             bool show = false;
 
             if (addAnswerButton.Visibility != Visibility.Collapsed)
             {
-                show = pageControl.IsElementFits(addAnswerButton);
+                show = ContentPageControlService.IsControlFits(this);
             }
 
             addAnswerButton.IsEnabled = show;

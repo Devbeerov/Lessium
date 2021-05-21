@@ -1,4 +1,5 @@
 ﻿using Lessium.ContentControls;
+using Lessium.Interfaces;
 using Lessium.Models;
 using Lessium.Views;
 using System;
@@ -32,17 +33,32 @@ namespace Lessium.Services
             }
         }
 
-        public static bool IsElementFits(ContentPageModel model, FrameworkElement contentElement)
+        public static double MaxHeight
         {
-            if (contentElement == null) throw new ArgumentNullException(nameof(contentElement));
-            if (!PageControl.IsControlsModel(model)) throw new ArgumentException("ContentPageControl does not control this model.");
+            get { return PageControl.MaxHeight; }
+        }
 
-            return PageControl.IsElementFits(contentElement);
+        public static bool IsControlFits(IContentControl control)
+        {
+            if (control == null) throw new ArgumentNullException(nameof(control));
+            if (!PageControl.IsModelContainsControl(control)) throw new InvalidOperationException("ContentPage is not currently controlling control");
+
+            var element = control as FrameworkElement;
+
+            if (element == null) throw new InvalidOperationException($"{control} is not FrameworkElement");
+
+            return PageControl.IsElementFits(element);
         }
 
         public static Button RequestRemoveButtonCopy()
         {
             return PageControl.RequestRemoveButtonCopy();
+        }
+
+        // elementToTranslate.TranslatePoint(point, PageControl);
+        public static Point TranslatePoint(UIElement elementToTranslate, Point point = default)
+        {
+            return elementToTranslate.TranslatePoint(point, PageControl);
         }
    }
 }

@@ -59,19 +59,16 @@ namespace Lessium.ContentControls
             return fits;
         }
 
-        /// <summary>
-        /// Checks if ContentPageControl controls argument ContentPageModel.
-        /// </summary>
-        public bool IsControlsModel(ContentPageModel modelToCheck)
-        {
-            return ReferenceEquals(contentPage, modelToCheck);
-        }
-
         public Button RequestRemoveButtonCopy()
         {
             var button = FindResource("removeButtonTemplate") as Button;
 
             return CloneRemoveButton(button);
+        }
+
+        public bool IsModelContainsControl(IContentControl control)
+        {
+            return contentPage.Items.Contains(control);
         }
 
         #endregion

@@ -16,9 +16,6 @@
         Title="{Binding Title}" >
     
     <!--#region Resources -->
-    
-    <!-- Temp -->
-    <!-- diag:PresentationTraceSources.TraceLevel=High -->
 
     <Window.Resources>
         <ResourceDictionary>
@@ -199,7 +196,8 @@
                 <Button x:Name="addSectionButton" Template="{StaticResource AddSectionButton}" Height="25" 
                             Command="{Binding AddSection}"
                             ToolTip="{Binding ReadOnlyToolTip}" 
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
+                            ToolTipService.ShowOnDisabled="True"
+                            ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
                             Style="{StaticResource AddSectionButtonStyle}">
                 </Button>
             </VirtualizingStackPanel>
@@ -241,7 +239,6 @@
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" /> <!-- Edit-Only, left part -->
-                            <ColumnDefinition Width="Auto" /> <!-- Both, middle -->
                             <ColumnDefinition Width="*" /> <!-- Edit-Only, right part -->
                         </Grid.ColumnDefinitions>
 
@@ -251,7 +248,8 @@
                               Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
-                                      ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
+                                      ToolTipService.ShowOnDisabled="True" 
+                                      ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
                                       Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
 
                                 <MenuItem.Header>
@@ -263,7 +261,7 @@
 
                                 <!-- Materials -->
 
-                                <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
+                                <MenuItem Name="TextControl" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
 
                                 <!-- Tests -->
 
@@ -274,21 +272,7 @@
 
                         <!-- Column 1 -->
 
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" >
-
-                            <Button BorderThickness="0">
-                                <Image x:Name="sortIcon" Source="{StaticResource ResourceKey=SortIcon}" />
-                            </Button>
-
-                            <Button BorderThickness="0">
-                                <Image x:Name="searchIcon" Source="{StaticResource ResourceKey=SearchIcon}" />
-                            </Button>
-
-                        </StackPanel>
-
-                        <!-- Column 2 -->
-
-                        <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
+                        <Button Grid.Column="1" HorizontalAlignment="Right" Margin="2,2,2,2"
                                 Command="{Binding RemovePage}"
                                 ToolTip="{Binding ReadOnlyToolTip}"
                                 ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 

@@ -687,7 +687,7 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_Edit()
         {
-            SwitchEditable(false);
+            SwitchEditable(true);
         }
 
         bool CanExecuteLesson_Edit()
@@ -707,7 +707,7 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_StopEditing()
         {
-            SwitchEditable(true);
+            SwitchEditable(false);
         }
 
         bool CanExecuteLesson_StopEditing()
@@ -1057,10 +1057,9 @@ namespace Lessium.ViewModels
         {
             IContentControl control;
 
-            // Instantiation of ContentControl
             switch (MaterialName)
             {
-                case "Text":
+                case nameof(TextControl):
                     control = new TextControl();
                     break;
                 default:
@@ -1083,10 +1082,9 @@ namespace Lessium.ViewModels
         {
             IContentControl control;
 
-            // Instantiation of ContentControl
             switch (TestName)
             {
-                case "SimpleTest":
+                case nameof(SimpleTest):
                     control = new SimpleTest();
                     break;
                 default:

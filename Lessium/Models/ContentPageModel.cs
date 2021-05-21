@@ -212,15 +212,14 @@ namespace Lessium.Models
 
         public bool IsContentFits(IContentControl content)
         {
-            return ContentPageControlService.IsElementFits(this, content as FrameworkElement);
+            return ContentPageControlService.IsControlFits(content);
         }
 
         public void ValidatePage()
         {
-            if (Items.Count > 0)
-            {
-                ValidateAllForward(Items[0], true);
-            }
+            if (Items.Count == 0) return;
+
+            ValidateAllForward(Items[0], true);
         }
 
         public override bool Equals(object obj)

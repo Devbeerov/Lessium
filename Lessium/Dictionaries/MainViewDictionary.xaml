@@ -148,13 +148,14 @@
     <!--#region Item Templates -->
 
     <DataTemplate x:Key="SectionTemplate">
-        <Canvas x:Name="canvas" Height="{Binding ElementName=Title, Path=ActualHeight}"
+        <Canvas x:Name="canvas" Height="{Binding ElementName=SectionTitleBox, Path=ActualHeight}"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-            <TextBox x:Name="Title" Text="{Binding Path=Title}"
-                     HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
-                     TextWrapping="Wrap" MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
-                     IsReadOnly="{Binding DataContext.IsEditable, ElementName=MainWindowReference, Converter={StaticResource InverseBooleanConverter}}"
+            <TextBox x:Name="SectionTitleBox" HorizontalAlignment="Left" TextWrapping="Wrap"
+                     Background="Transparent" BorderThickness="0"
+                     Text="{Binding Path=Title}"
+                     MaxWidth="{Binding ElementName=canvas, Path=ActualWidth}"
+                     IsReadOnly="{Binding ElementName=MainWindowReference, Path=DataContext.IsEditable, Converter={StaticResource InverseBooleanConverter}}"
                      Padding="{Binding ElementName=removeSectionButton, Path=ActualWidth, Converter={StaticResource ThicknessConverter}, ConverterParameter=Right}">
 
                 <i:Interaction.Behaviors>
@@ -169,7 +170,7 @@
                     Width="16" Height="16"
                     Command="{Binding DataContext.RemoveSection, ElementName=MainWindowReference}" CommandParameter="{Binding}"
                     IsEnabled="{Binding DataContext.IsEditable, ElementName=MainWindowReference}"
-                    Visibility="{Binding DataContext.IsEditable, ElementName=MainWindowReference, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                    Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                 <Image x:Name="removeSectionIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
 

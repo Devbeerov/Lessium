@@ -17,7 +17,7 @@ namespace Lessium.ContentControls.MaterialControls
     [Serializable]
     public partial class TextControl : UserControl, IMaterialControl
     {
-        private IDispatcher dispatcher;
+        private readonly IDispatcher dispatcher;
 
         #region Constructors
 
