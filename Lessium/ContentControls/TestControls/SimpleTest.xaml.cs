@@ -5,6 +5,7 @@ using Lessium.Interfaces;
 using Lessium.Services;
 using Lessium.UndoableActions.Generic;
 using Lessium.Utility;
+using Lessium.Utility.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

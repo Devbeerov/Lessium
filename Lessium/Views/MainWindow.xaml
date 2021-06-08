@@ -5,7 +5,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
         xmlns:controls="clr-namespace:Lessium.ContentControls"
-        xmlns:utility="clr-namespace:Lessium.Utility"
+        xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
         xmlns:models="clr-namespace:Lessium.Models"
@@ -332,7 +332,7 @@
 
                     <!-- To handle enter press -->
                     <i:Interaction.Behaviors>
-                        <utility:TextBoxNewlineBehavior />
+                        <behaviors:TextBoxNewlineBehavior />
                     </i:Interaction.Behaviors>
 
                 </TextBox>

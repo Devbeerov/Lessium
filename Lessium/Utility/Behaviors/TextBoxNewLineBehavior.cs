@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using System.Windows.Interactivity;
 
-namespace Lessium.Utility
+namespace Lessium.Utility.Behaviors
 {
     public class TextBoxNewlineBehavior : Behavior<TextBox>
     {

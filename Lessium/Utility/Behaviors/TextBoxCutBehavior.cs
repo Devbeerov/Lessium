@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Interactivity;
 
-namespace Lessium.Utility
+namespace Lessium.Utility.Behaviors
 {
     /// <summary>
     /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts exceeding text.

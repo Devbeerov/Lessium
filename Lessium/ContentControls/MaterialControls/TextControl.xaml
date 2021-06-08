@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Lessium.ContentControls.MaterialControls"
              xmlns:properties="clr-namespace:Lessium.Properties"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:utility="clr-namespace:Lessium.Utility"
+             xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
              xmlns:converters="clr-namespace:Lessium.Converters"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              xmlns:prop="clr-namespace:Lessium.Properties"
@@ -35,8 +35,8 @@
                      UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
 
                 <i:Interaction.Behaviors>
-                    <utility:TextBoxNewlineBehavior />
-                    <utility:TextBoxCutBehavior />
+                    <behaviors:TextBoxNewlineBehavior />
+                    <behaviors:TextBoxCutBehavior />
                 </i:Interaction.Behaviors>
 
                 <TextBox.InputBindings>

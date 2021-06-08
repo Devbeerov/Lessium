@@ -4,7 +4,7 @@
                     xmlns:prism="http://prismlibrary.com/"
                     xmlns:prop="clr-namespace:Lessium.Properties"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
-                    xmlns:utility="clr-namespace:Lessium.Utility"
+                    xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
                     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
                     xmlns:controls="clr-namespace:Lessium.CustomControls" >
  
@@ -60,7 +60,7 @@
                          Text="{Binding UndoLimit, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" >
 
                     <i:Interaction.Behaviors>
-                        <utility:TextBoxCaretIndexLastBehavior />
+                        <behaviors:TextBoxCaretIndexLastBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>

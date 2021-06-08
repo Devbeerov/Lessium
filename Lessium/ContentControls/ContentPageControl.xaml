@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:Lessium.ContentControls"
              xmlns:models="clr-namespace:Lessium.Models"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
              mc:Ignorable="d"
              x:Name="pageControlReference" >
 
@@ -39,6 +41,7 @@
              MaxHeight="{Binding ElementName=pageControlReference, Path=MaxHeight}"
              Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
              ItemsSource="{Binding Items}"
+             ItemContainerStyle="{StaticResource ResourceKey=FixedWidthStyle}"
              Keyboard.KeyDown="itemsControl_KeyDown" 
              PreviewMouseWheel="itemsControl_PreviewMouseWheel">
 
@@ -50,47 +53,17 @@
 
             <Style x:Key="FixedWidthStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
                 <EventSetter Event="Loaded" Handler="ListBoxItem_Loaded" />
-                <!--<Setter Property="MaxWidth" >
-                    <Setter.Value>
-                        <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="x" >
-                            <Binding ElementName="pageControlReference" Path="MaxWidth" />
-                            <Binding Source="{Binding Source={x:Type ListBoxItem}, Path=}"
-                            <Binding Path="BorderThickness.Left" />
-                            <Binding Path="BorderThickness.Right" />
-                        </MultiBinding>
-                    </Setter.Value>
-                </Setter>-->
-            </Style>
-
-            <Style x:Key="UnselectableItemsStyle" TargetType="ListBoxItem" BasedOn="{StaticResource FixedWidthStyle}">
-                <Style.Resources>
-                    <!-- SelectedItem with focus -->
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
-                       Color="Transparent" />
-                    <!-- SelectedItem without focus -->
-                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"
-                       Color="Transparent" />
-                    <!-- SelectedItem text foreground -->
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
-                       Color="Transparent" />
-                </Style.Resources>
-                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             </Style>
 
         </ListBox.Resources>
 
-        <ListBox.Style>
-            <Style TargetType="{x:Type ListBox}">
-                <Setter Property="ItemContainerStyle" Value="{StaticResource UnselectableItemsStyle}" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsEditable}" Value="True">
-                        <DataTrigger.Setters>
-                            <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
-                        </DataTrigger.Setters>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </ListBox.Style>
+        <i:Interaction.Behaviors>
+            <behaviors:NoSelectionListBoxBehavior>
+                <behaviors:NoSelectionListBoxBehavior.Trigger>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsEditable}" Value="True" />
+                </behaviors:NoSelectionListBoxBehavior.Trigger>
+            </behaviors:NoSelectionListBoxBehavior>
+        </i:Interaction.Behaviors>
 
     </ListBox>
     
