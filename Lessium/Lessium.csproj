@@ -70,6 +70,7 @@
     <Compile Include="ContentControls\ContentPageControl.xaml.cs">
       <DependentUpon>ContentPageControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\ListBoxExtended.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
       <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
@@ -106,7 +107,6 @@
     <Compile Include="UndoableActions\AddContentAction.cs" />
     <Compile Include="UndoableActions\Generic\RemoveFromCollectionAction.cs" />
     <Compile Include="UndoableActions\Generic\AddToCollectionAction.cs" />
-    <Compile Include="Utility\Behaviors\NoSelectionListBoxBehavior.cs" />
     <Compile Include="Utility\Behaviors\TextBoxCaretIndexLastBehavior.cs" />
     <Compile Include="Utility\Behaviors\TextBoxCutBehavior.cs" />
     <Compile Include="Utility\Behaviors\TextBoxNewLineBehavior.cs" />
@@ -117,7 +117,6 @@
     <Compile Include="Utility\EqualsHelper.cs" />
     <Compile Include="Utility\IListExtensions.cs" />
     <Compile Include="Utility\ILsnSerializableExtensions.cs" />
-    <Compile Include="Utility\InvokerTriggerAction.cs" />
     <Compile Include="Utility\KeyExtensions.cs" />
     <Compile Include="Utility\IOTools.cs" />
     <Compile Include="Services\RuntimeDataService.cs" />
