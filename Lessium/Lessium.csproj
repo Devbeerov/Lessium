@@ -70,7 +70,7 @@
     <Compile Include="ContentControls\ContentPageControl.xaml.cs">
       <DependentUpon>ContentPageControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomControls\ListBoxExtended.cs" />
+    <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
       <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
@@ -122,6 +122,8 @@
     <Compile Include="Services\RuntimeDataService.cs" />
     <Compile Include="Services\UndoableActionsService.cs" />
     <Compile Include="Utility\LinkedListExtensions.cs" />
+    <Compile Include="Utility\ReflectionUtility.cs" />
+    <Compile Include="Utility\StoredTestAnswers.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />

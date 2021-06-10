@@ -21,6 +21,19 @@ namespace Lessium.Utility
             return FindParent<T>(parentObject);
         }
 
+        public static FrameworkElement FindParentOfName(this DependencyObject child, string parentName)
+        {
+            var parentObject = VisualTreeHelper.GetParent(child);
+
+            if (parentObject == null) return null;
+
+            var parent = parentObject as FrameworkElement;
+
+            if (parent != null && parent.Name == parentName) return parent;
+
+            return FindParentOfName(parentObject, parentName);
+        }
+
         #region TextBox
 
         public static double CalculateLineHeight(this TextBox textBox)

@@ -301,19 +301,6 @@ namespace Lessium.ContentControls
             contentControl.MaxHeight = itemsControl.MaxHeight - distance;
         }
 
-        private void ListBoxItem_LoadedForFixBorder(object sender, RoutedEventArgs e)
-        {
-            var listBoxItem = sender as ListBoxItem;
-            var template = listBoxItem.Template;
-
-            var border = template.FindName("Bd", listBoxItem) as Border;
-
-            if (border == null) throw new NullReferenceException("ListBoxItem border with name \"Bd\" is not found.");
-
-            border.BorderThickness = default; // 0,0,0,0
-            
-        }
-
         #endregion
 
         #region Dependency Properties

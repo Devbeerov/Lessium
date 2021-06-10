@@ -9,13 +9,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="16" d:DesignWidth="16"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <ContentControl utility:WpfExtensions.DynamicContentKey="{Binding DynamicCheckBoxTypeKey}"
+    <ContentControl x:Name="currentContentControl"
+                    utility:WpfExtensions.DynamicContentKey="{Binding DynamicCheckBoxTypeKey}"
                     utility:WpfExtensions.DynamicContentResourceDictionary="{Binding ElementName=dynamicControlsDictionary}" 
                     utility:WpfExtensions.DynamicContentChanged="OnDynamicContentChanged">
 
         <ContentControl.Resources>
             <ResourceDictionary x:Name="dynamicControlsDictionary">
-                
+
                 <ContentControl x:Key="CheckBox">
                     <CheckBox Checked="CheckBox_Checked"
                               Unchecked="CheckBox_Unchecked" />

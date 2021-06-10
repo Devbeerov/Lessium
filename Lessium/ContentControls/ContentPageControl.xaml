@@ -29,18 +29,17 @@
 
     </UserControl.Resources>
 
-    <ListBox
-        x:Name="itemsControl"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-        ScrollViewer.CanContentScroll="False" 
-        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-        MaxWidth="{Binding ElementName=pageControlReference, Path=MaxWidth}"
-        MaxHeight="{Binding ElementName=pageControlReference, Path=MaxHeight}"
-        Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
-        ItemsSource="{Binding Items}"
-        Keyboard.KeyDown="itemsControl_KeyDown" 
-        PreviewMouseWheel="itemsControl_PreviewMouseWheel">
+    <ListBox x:Name="itemsControl"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             ScrollViewer.CanContentScroll="False" 
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+             MaxWidth="{Binding ElementName=pageControlReference, Path=MaxWidth}"
+             MaxHeight="{Binding ElementName=pageControlReference, Path=MaxHeight}"
+             Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
+             ItemsSource="{Binding Items}"
+             Keyboard.KeyDown="itemsControl_KeyDown" 
+             PreviewMouseWheel="itemsControl_PreviewMouseWheel">
 
         <ListBox.Resources>
 
@@ -54,11 +53,6 @@
 
             <Style x:Key="NoSelectionItemStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource FixedWidthStyle}">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
-                <!-- Default Style found on web. I haven't found better way than just override it with changes such as removal Triggers. -->
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-                <Setter Property="Padding" Value="2,0,0,0"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ListBoxItem}">

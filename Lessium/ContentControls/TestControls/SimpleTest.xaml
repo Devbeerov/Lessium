@@ -32,6 +32,7 @@
                 <materials:TextControl x:Name="testQuestion"
                                        ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                                        Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                       IsEditable="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
                                        SizeChanged="Question_SizeChanged">
 
                 </materials:TextControl>
@@ -40,9 +41,10 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-
+                            <!-- "dataPanel" name is used in code-behind. -->
                             <StackPanel Orientation="Horizontal" x:Name="dataPanel">
 
+                                <!-- "checkBox" name is used in code-behind. -->
                                 <cc:DynamicCheckBox Grid.Column="1" x:Name="checkBox"
                                                     Width="16" Height="16"
                                                     HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -67,8 +69,9 @@
                 </ItemsControl>
 
                 <!-- Using code-behind instead of bindings, because there will be direct value changes and it will break bindings. -->
-                <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
-                        HorizontalAlignment="Left" > <!-- Have additional properties changes in code-behind (Border_SizeChanged) -->
+                <Button x:Name="addAnswerButton" HorizontalAlignment="Left"
+                        Width="16" Height="16"
+                        Click="AddAnswer_Click" > <!-- Have additional properties changes in code-behind (Border_SizeChanged) -->
 
                     <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
                 </Button>

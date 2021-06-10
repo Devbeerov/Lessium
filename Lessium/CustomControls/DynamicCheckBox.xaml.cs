@@ -8,12 +8,28 @@ namespace Lessium.CustomControls
 {
     public partial class DynamicCheckBox : UserControl
     {
+        private bool fireEvents = true;
+
         public DynamicCheckBox()
         {
             InitializeComponent();
         }
 
         #region Methods
+
+        /// <summary>
+        /// Updates current CheckBox IsChecked state, will not fire Checked event.
+        /// </summary>
+        public void UpdateCurrentChecked(bool isChecked)
+        {
+            var toggle = currentContentControl as ToggleButton;
+
+            fireEvents = false;
+
+            toggle.IsChecked = isChecked;
+
+            fireEvents = true;
+        }
 
         private void SynchronizeContent(ContentControl oldControl, ContentControl newControl)
         {
@@ -41,21 +57,45 @@ namespace Lessium.CustomControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            if (!fireEvents)
+            {
+                e.Handled = true;
+                return;
+            }
+
             CheckBoxChecked?.Invoke(sender, e);
         }
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!fireEvents)
+            {
+                e.Handled = true;
+                return;
+            }
+
             CheckBoxUnchecked?.Invoke(sender, e);
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
+            if (!fireEvents)
+            {
+                e.Handled = true;
+                return;
+            }
+
             RadioButtonChecked?.Invoke(sender, e);
         }
 
         private void RadioButton_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!fireEvents)
+            {
+                e.Handled = true;
+                return;
+            }
+
             RadioButtonUnchecked?.Invoke(sender, e);
         }
 

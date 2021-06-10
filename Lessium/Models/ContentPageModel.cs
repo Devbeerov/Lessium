@@ -13,6 +13,7 @@ using Lessium.Utility;
 using Lessium.Classes.IO;
 using Lessium.ContentControls;
 using Lessium.Services;
+using System.Reflection;
 
 namespace Lessium.Models
 {
@@ -273,17 +274,21 @@ namespace Lessium.Models
         private bool IsContentControlTypeValid(IContentControl control)
         {
             bool isValid;
+
             switch (ContentType)
             {
                 case ContentType.Material:
                     isValid = control is IMaterialControl;
                     break;
+
                 case ContentType.Test:
-                    isValid = control is ITestControl;
+                    isValid = ReflectionUtility.IsGenericsOf(control.GetType(), typeof(ITestControl<>));
                     break;
+
                 default:
                     throw new InvalidCastException("Invalid control type detected.");
             }
+
             return isValid;
         }
 

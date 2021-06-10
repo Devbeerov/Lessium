@@ -1,6 +1,7 @@
 ﻿using Lessium.ContentControls;
 using Lessium.ContentControls.MaterialControls;
 using Lessium.ContentControls.TestControls;
+using Lessium.ContentControls.TestControls.AnswerModels;
 using Lessium.Interfaces;
 using Lessium.Models;
 using System;
@@ -99,7 +100,7 @@ namespace Lessium.Utility
                 first.TrueAnswers.SequenceEqual(second.TrueAnswers);
         }
 
-        public static bool AreEqual(IList<AnswerModel> first, IList<AnswerModel> second)
+        public static bool AreEqual(IList<SimpleAnswerModel> first, IList<SimpleAnswerModel> second)
         {
             if (first.Count != second.Count) return false;
 

@@ -1,5 +1,6 @@
 ﻿using Lessium.Classes.IO;
 using Lessium.ContentControls.MaterialControls;
+using Lessium.ContentControls.TestControls.AnswerModels;
 using Lessium.CustomControls;
 using Lessium.Interfaces;
 using Lessium.Services;
@@ -15,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
@@ -23,7 +25,7 @@ namespace Lessium.ContentControls.TestControls
     /// Simple test with multiple answers.
     /// </summary>
     [Serializable]
-    public partial class SimpleTest : UserControl, ITestControl
+    public partial class SimpleTest : UserControl, ITestControl<SimpleAnswerModel>
     {
         private Guid id;
         private readonly IDispatcher dispatcher;
@@ -32,11 +34,9 @@ namespace Lessium.ContentControls.TestControls
 
         // Serialization
 
-        private List<AnswerModel> storedAnswers; // Store Answers, because AnswersControl won't be loaded at time of deserialization.
+        private StoredTestAnswers<SimpleAnswerModel> storedAnswers;
 
         #region CLR Properties
-
-        public ObservableCollection<AnswerModel> Answers { get; set; } = new ObservableCollection<AnswerModel>();
 
         public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
 
@@ -80,15 +80,7 @@ namespace Lessium.ContentControls.TestControls
             // Serializes properties
 
             Question = info.GetString(nameof(Question));
-            storedAnswers = (List<AnswerModel>)info.GetValue(nameof(Answers), typeof(List<AnswerModel>));
-
-            // ITestControl
-
-            var storedTrueAnswers = (List<object>)info.GetValue(nameof(TrueAnswers), typeof(List<object>));
-            TrueAnswers.AddRange(storedTrueAnswers);
-
-            var storedSelectedAnswers = (List<object>)info.GetValue(nameof(SelectedAnswers), typeof(List<object>));
-            SelectedAnswers.AddRange(storedSelectedAnswers);
+            storedAnswers = new StoredTestAnswers<SimpleAnswerModel>(info, nameof(Answers), nameof(TrueAnswers), nameof(SelectedAnswers));
         }
 
         #endregion
@@ -234,7 +226,7 @@ namespace Lessium.ContentControls.TestControls
 
         private DynamicCheckBoxType GetActualCheckBoxType()
         {
-            if (!IsEditable) { return DynamicCheckBoxType.CheckBox; }
+            if (IsEditable) { return DynamicCheckBoxType.CheckBox; }
 
             if (TrueAnswers.Count < 2) return DynamicCheckBoxType.RadioSingle;
 
@@ -244,6 +236,35 @@ namespace Lessium.ContentControls.TestControls
         private void ValidateAnswersSelectionMode()
         {
             CheckBoxType = GetActualCheckBoxType();
+        }
+
+        private SimpleAnswerModel FindAnswerModelFromSenderControl(object sender)
+        {
+            var senderControl = sender as Control;
+            var answerControlContainer = senderControl.FindParentOfName("dataPanel");
+
+            // if dataPanel not found it means either it was because DynamicCheckBoxType was changed
+            if (answerControlContainer == null) throw new NullReferenceException("Failed to find parent with name \"dataPanel\".");
+
+            return answerControlContainer.DataContext as SimpleAnswerModel;
+        }
+
+        /// <summary>
+        /// Selects all DynamicCheckBoxes that bound to SelectedAnswers.
+        /// </summary>
+        private void UpdateCheckboxes()
+        {
+            foreach (var item in SelectedAnswers)
+            {
+                var containerPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
+                var dataPanel = VisualTreeHelper.GetParent(containerPresenter) as StackPanel;
+
+                //if (containerElement == null || containerElement.Name != "dataPanel") throw new NullReferenceException("dataPanel is not found.");
+
+                var checkBox = dataPanel.FindName("checkBox") as DynamicCheckBox;
+
+                checkBox.UpdateCurrentChecked(true);
+            } 
         }
 
         #endregion
@@ -262,10 +283,8 @@ namespace Lessium.ContentControls.TestControls
 
                 // Text Editable
 
-                testQuestion.IsEditable = value;
-
-                addAnswerButton.IsEnabled = !IsEditable;
-                addAnswerButton.Visibility = value ? Visibility.Collapsed : Visibility.Visible;
+                addAnswerButton.IsEnabled = IsEditable;
+                addAnswerButton.Visibility = IsEditable ? Visibility.Visible : Visibility.Collapsed;
 
                 // Answers Controls
 
@@ -291,8 +310,9 @@ namespace Lessium.ContentControls.TestControls
 
         #region ITestControl
 
-        public IList<object> SelectedAnswers { get; set; } = new List<object>();
-        public IList<object> TrueAnswers { get; set; } = new List<object>();
+        public IList<SimpleAnswerModel> Answers { get; set; } = new ObservableCollection<SimpleAnswerModel>();
+        public IList<SimpleAnswerModel> TrueAnswers { get; set; } = new List<SimpleAnswerModel>();
+        public IList<SimpleAnswerModel> SelectedAnswers { get; set; } = new List<SimpleAnswerModel>();
 
         public bool CheckAnswers()
         {
@@ -350,9 +370,9 @@ namespace Lessium.ContentControls.TestControls
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            var answer = new AnswerModel();
+            var answer = new SimpleAnswerModel();
 
-            ActionsService.ExecuteAction(new AddToCollectionAction<AnswerModel>(Answers, answer));
+            ActionsService.ExecuteAction(new AddToCollectionAction<SimpleAnswerModel>(Answers, answer));
         }
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
@@ -365,7 +385,7 @@ namespace Lessium.ContentControls.TestControls
 
                 if (ReferenceEquals(answer.Text, text)) // Checks for string reference equality, not value!
                 {
-                    ActionsService.ExecuteAction(new RemoveFromCollectionAction<AnswerModel>(Answers, answer));
+                    ActionsService.ExecuteAction(new RemoveFromCollectionAction<SimpleAnswerModel>(Answers, answer));
 
                     return;
                 }
@@ -389,8 +409,7 @@ namespace Lessium.ContentControls.TestControls
 
         private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
         {
-            var checkBox = sender as CheckBox;
-            var answerModel = checkBox.DataContext as AnswerModel;
+            var answerModel = FindAnswerModelFromSenderControl(sender);
 
             TrueAnswers.Add(answerModel);
 
@@ -399,8 +418,7 @@ namespace Lessium.ContentControls.TestControls
 
         private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
         {
-            var checkBox = sender as CheckBox;
-            var answerModel = checkBox.DataContext as AnswerModel;
+            var answerModel = FindAnswerModelFromSenderControl(sender);
 
             TrueAnswers.Remove(answerModel);
 
@@ -409,16 +427,14 @@ namespace Lessium.ContentControls.TestControls
 
         private void AnswerSelected(object sender, RoutedEventArgs e)
         {
-            var control = sender as Control;
-            var answerModel = control.DataContext as AnswerModel;
+            var answerModel = FindAnswerModelFromSenderControl(sender);
 
             SelectedAnswers.Add(answerModel);
         }
 
         private void AnswerUnselected(object sender, RoutedEventArgs e)
         {
-            var control = sender as Control;
-            var answerModel = control.DataContext as AnswerModel;
+            var answerModel = FindAnswerModelFromSenderControl(sender);
 
             SelectedAnswers.Remove(answerModel);
         }
@@ -450,10 +466,10 @@ namespace Lessium.ContentControls.TestControls
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue(nameof(Question), Question);
-            info.AddValue(nameof(Answers), Answers.ToList());
 
             // ITestControl
 
+            info.AddValue(nameof(Answers), Answers.ToList());
             info.AddValue(nameof(TrueAnswers), TrueAnswers.ToList());
             info.AddValue(nameof(SelectedAnswers), SelectedAnswers.ToList());
         }
@@ -461,9 +477,13 @@ namespace Lessium.ContentControls.TestControls
         [OnDeserialized]
         private void OnDeserialized(StreamingContext c)
         {
-            Answers.AddRange(storedAnswers);
+            storedAnswers.AddStoredListsTo(Answers, TrueAnswers, SelectedAnswers);
 
-            // Clears and sets to null, so GC will collect List instance.
+            // Will update CheckBoxes once ItemControl will be loaded completly.
+            AnswersItemControl.Loaded += (s, a) =>
+            {
+                UpdateCheckboxes();
+            };
 
             storedAnswers.Clear();
             storedAnswers = null;
@@ -512,7 +532,7 @@ namespace Lessium.ContentControls.TestControls
                 if (token.HasValue && token.Value.IsCancellationRequested) break;
                 if (reader.NodeType != XmlNodeType.Element) continue;
 
-                var answer = new AnswerModel();
+                var answer = new SimpleAnswerModel();
                 await answer.ReadXmlAsync(reader, progress, token);
 
                 dispatcher.Invoke(() =>
@@ -531,73 +551,5 @@ namespace Lessium.ContentControls.TestControls
         #endregion
     }
 
-    [Serializable]
-    public class AnswerModel : ILsnSerializable
-    {
-        private IDispatcher dispatcher;
-
-        public string Text { get; set; } = string.Copy(Properties.Resources.DefaultAnswerHeader);
-
-        public AnswerModel(IDispatcher dispatcher = null)
-        {
-            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
-        }
-
-        public AnswerModel(string text, IDispatcher dispatcher = null)
-        {
-            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
-
-            Text = text;
-        }
-
-        // For serialization
-        protected AnswerModel(SerializationInfo info, StreamingContext context)
-        {
-            Text = info.GetString(nameof(Text));
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            dispatcher.Invoke(() =>
-            {
-                info.AddValue(nameof(Text), Text);
-            });
-        }
-
-        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
-        {
-            #region Answer
-
-            await writer.WriteStartElementAsync("Answer");
-
-            await dispatcher.InvokeAsync(async () =>
-            {
-                await writer.WriteStringAsync(Text);
-            });
-
-            await writer.WriteEndElementAsync();
-
-            #endregion
-        }
-
-        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
-        {
-            await dispatcher.InvokeAsync(async () =>
-            {
-                Text = await reader.ReadElementContentAsStringAsync();
-            });
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is AnswerModel model &&
-                   Text == model.Text;
-        }
-
-        // Autogenerated
-        public override int GetHashCode()
-        {
-            return 1249999374 + EqualityComparer<string>.Default.GetHashCode(Text);
-        }
-    }
+    
 }
