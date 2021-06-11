@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lessium.ContentControls"
              xmlns:controls="clr-namespace:Lessium.CustomControls"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              mc:Ignorable="d"
              x:Name="pageControlReference" >
 
@@ -47,11 +48,13 @@
                 <EventSetter Event="LostFocus" Handler="ListBoxItem_LostFocus" />
             </Style>
 
-            <Style x:Key="FixedWidthStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
+            <Style x:Key="FixedMaxSizeStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
+                <!-- MaxHeight is calculated in code-behind (see handler) -->
                 <EventSetter Event="Loaded" Handler="ListBoxItem_Loaded" />
+                <Setter Property="MaxWidth" Value="{Binding RelativeSource={RelativeSource AncestorType=ListBox}, Path=MaxWidth}" />
             </Style>
 
-            <Style x:Key="NoSelectionItemStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource FixedWidthStyle}">
+            <Style x:Key="NoSelectionItemStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource FixedMaxSizeStyle}">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
@@ -72,7 +75,7 @@
                 <Setter Property="ItemContainerStyle" Value="{StaticResource NoSelectionItemStyle}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsEditable}" Value="True">
-                        <Setter Property="ItemContainerStyle" Value="{StaticResource FixedWidthStyle}" />
+                        <Setter Property="ItemContainerStyle" Value="{StaticResource FixedMaxSizeStyle}" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

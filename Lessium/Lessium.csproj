@@ -71,6 +71,7 @@
       <DependentUpon>ContentPageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
+    <Compile Include="Converters\ValidDoubleConverter.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
       <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
@@ -82,6 +83,7 @@
       <DependentUpon>TitledProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IActionSender.cs" />
+    <Compile Include="Interfaces\IAnswerModel.cs" />
     <Compile Include="Interfaces\IDispatcher.cs" />
     <Compile Include="Interfaces\ILsnSerializable.cs" />
     <Compile Include="Interfaces\IRemoveButtonRequestor.cs" />
@@ -95,6 +97,7 @@
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
     <Compile Include="Services\ActionSenderRegistratorService.cs" />
+    <Compile Include="Services\AnswersMappingHelper.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
       <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>

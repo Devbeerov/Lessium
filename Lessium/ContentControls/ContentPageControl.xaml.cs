@@ -290,12 +290,6 @@ namespace Lessium.ContentControls
         {
             var listBoxItem = sender as ListBoxItem;
             var contentControl = listBoxItem.Content as FrameworkElement;
-
-            var totalPadding = listBoxItem.Padding.Left + listBoxItem.Padding.Right;
-            var newWidth = listBoxItem.ActualWidth - totalPadding;
-
-            contentControl.MaxWidth = newWidth;
-
             var distance = MathHelper.DistanceBetweenElements(itemsControl, listBoxItem, Coordinate.Y);
 
             contentControl.MaxHeight = itemsControl.MaxHeight - distance;

@@ -33,6 +33,7 @@
                                        ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
                                        Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
                                        IsEditable="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                       MaxWidth="{Binding ElementName=control, Path=MaxWidth}"
                                        SizeChanged="Question_SizeChanged">
 
                 </materials:TextControl>

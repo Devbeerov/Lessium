@@ -13,6 +13,7 @@
     <converters:ThicknessConverter x:Key="ThicknessConverter" />
     <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
     <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <converters:ValidDoubleConverter x:Key="ValidDoubleConverter" />
 
     <!--#endregion-->
 

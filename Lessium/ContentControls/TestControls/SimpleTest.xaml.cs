@@ -29,6 +29,7 @@ namespace Lessium.ContentControls.TestControls
     {
         private Guid id;
         private readonly IDispatcher dispatcher;
+        private AnswersMappingHelper<SimpleAnswerModel> mappingHelper;
 
         private bool raiseResizeEvent = true;
 
@@ -91,6 +92,8 @@ namespace Lessium.ContentControls.TestControls
 
         public void Initialize()
         {
+            mappingHelper = new AnswersMappingHelper<SimpleAnswerModel>(TrueAnswers, SelectedAnswers);
+
             // Custom control initialization
 
             id = Guid.NewGuid();
@@ -249,22 +252,42 @@ namespace Lessium.ContentControls.TestControls
             return answerControlContainer.DataContext as SimpleAnswerModel;
         }
 
-        /// <summary>
-        /// Selects all DynamicCheckBoxes that bound to SelectedAnswers.
-        /// </summary>
         private void UpdateCheckboxes()
         {
-            foreach (var item in SelectedAnswers)
+            UpdateCheckboxes(TrueAnswers, mappingHelper.GetCheckBoxTypes(TrueAnswers));
+            UpdateCheckboxes(SelectedAnswers, mappingHelper.GetCheckBoxTypes(SelectedAnswers));
+        }
+
+        private void UpdateCheckboxes(IList<SimpleAnswerModel> answers, List<DynamicCheckBoxType> checkBoxTypes)
+        {
+            foreach (var item in answers)
             {
                 var containerPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
-                var dataPanel = VisualTreeHelper.GetParent(containerPresenter) as StackPanel;
+                var contentTemplate = containerPresenter.ContentTemplate;
+                var checkBox = contentTemplate.FindName("checkBox", containerPresenter) as DynamicCheckBox;
 
-                //if (containerElement == null || containerElement.Name != "dataPanel") throw new NullReferenceException("dataPanel is not found.");
+                foreach (var checkBoxType in checkBoxTypes)
+                {
+                    checkBox.UpdateIsChecked(true, checkBoxType);
+                }
+            }
+        }
 
-                var checkBox = dataPanel.FindName("checkBox") as DynamicCheckBox;
+        private void UpdateCheckboxesOnceAtLoad()
+        {
+            RoutedEventHandler updateAction = null;
+            Action unsubscribeAction = delegate ()
+            {
+                AnswersItemControl.Loaded -= updateAction;
+            };
 
-                checkBox.UpdateCurrentChecked(true);
-            } 
+            updateAction = new RoutedEventHandler((s, e) =>
+            {
+                UpdateCheckboxes();
+                unsubscribeAction.Invoke();
+            });
+
+            AnswersItemControl.Loaded += updateAction;
         }
 
         #endregion
@@ -478,15 +501,10 @@ namespace Lessium.ContentControls.TestControls
         private void OnDeserialized(StreamingContext c)
         {
             storedAnswers.AddStoredListsTo(Answers, TrueAnswers, SelectedAnswers);
-
-            // Will update CheckBoxes once ItemControl will be loaded completly.
-            AnswersItemControl.Loaded += (s, a) =>
-            {
-                UpdateCheckboxes();
-            };
-
             storedAnswers.Clear();
             storedAnswers = null;
+
+            UpdateCheckboxesOnceAtLoad();
         }
 
         #endregion

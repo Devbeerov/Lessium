@@ -1,5 +1,6 @@
 ﻿using Lessium.Utility;
 using System;
+using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -18,12 +19,27 @@ namespace Lessium.CustomControls
         #region Methods
 
         /// <summary>
-        /// Updates current CheckBox IsChecked state, will not fire Checked event.
+        /// Updates specified CheckBox.IsChecked state, will not fire Checked events.
         /// </summary>
-        public void UpdateCurrentChecked(bool isChecked)
+        public void UpdateIsChecked(bool isChecked, DynamicCheckBoxType checkBoxType)
         {
-            var toggle = currentContentControl as ToggleButton;
+            var typeString = checkBoxType.ToString();
 
+            foreach (DictionaryEntry entry in currentContentControl.Resources)
+            {
+                if ((string)entry.Key != typeString) continue;
+
+                var toggleContainer = entry.Value as ContentControl;
+                var toggle = toggleContainer.Content as ToggleButton;
+
+                UpdateIsCheckedWithoutEvent(toggle, isChecked);
+
+                return;
+            }
+        }
+
+        private void UpdateIsCheckedWithoutEvent(ToggleButton toggle, bool isChecked)
+        {
             fireEvents = false;
 
             toggle.IsChecked = isChecked;
