@@ -28,32 +28,16 @@ namespace Lessium.Utility.Behaviors
             {
                 base.OnAttached();
 
-                Settings.Default.PropertyChanged += OnFontSizeChanged;
-                AssociatedObject.Loaded += AssociatedObject_Loaded;
                 AssociatedObject.TextChanged += AssociatedObject_TextChanged;
-                
             }
-        }
-
-        private void OnFontSizeChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != nameof(Settings.FontSize)) return;
-
-            UpdateMaxLineCount();
-        }
-
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
-        {
-            UpdateMaxLineCount();
         }
 
         protected override void OnDetaching()
         {
             if (AssociatedObject != null)
             {
-                Settings.Default.PropertyChanged -= OnFontSizeChanged;
-                AssociatedObject.Loaded -= AssociatedObject_Loaded;
                 AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+
                 base.OnDetaching();
             }
         }
@@ -67,7 +51,7 @@ namespace Lessium.Utility.Behaviors
 
         private double FindProperMaxHeight()
         {
-            if (double.IsInfinity(AssociatedObject.MaxHeight) || double.IsNaN(AssociatedObject.MaxHeight)) return ContentPageModel.PageHeight;
+            if (double.IsInfinity(AssociatedObject.MaxHeight) || double.IsNaN(AssociatedObject.MaxHeight)) throw new NotSupportedException("Behavior can only work with specified MaxHeight.");
 
             return AssociatedObject.MaxHeight;
         }
@@ -81,49 +65,52 @@ namespace Lessium.Utility.Behaviors
             return maxHeight - offset * 2; // For fixing border we substract two offsets
         }
 
-        private void UpdateMaxLineCount()
+        private bool IsFitMaxHeight()
         {
             var maxHeight = CalculateMaxHeight();
             var lineHeight = AssociatedObject.CalculateLineHeight();
 
-            AssociatedObject.MaxLines = (int)Math.Floor(maxHeight / lineHeight);
+            return lineHeight * AssociatedObject.LineCount <= maxHeight;
+        }
+
+        private int CalculateMaxValidLineCount()
+        {
+            var maxHeight = CalculateMaxHeight();
+            var lineHeight = AssociatedObject.CalculateLineHeight();
+
+            return (int) Math.Floor(maxHeight / lineHeight);
         }
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!raiseEvent) { return; }
+            if (!raiseEvent) return;
+            if (AssociatedObject == null) return;
+            if (IsFitMaxHeight()) return;
+            
+            e.Handled = true;
 
-            if (AssociatedObject == null) { return; }
+            int prevCaret = AssociatedObject.CaretIndex; // Caret before removing everything past MaxLine
 
-            if (AssociatedObject.LineCount > AssociatedObject.MaxLines)
+            // Calculates values of MaxLine
+
+            int MaxLineIndex = CalculateMaxValidLineCount() - 1;
+            int firstPositionInMaxLine = AssociatedObject.GetCharacterIndexFromLineIndex(MaxLineIndex);
+            int lengthOfMaxLine = AssociatedObject.GetLineLength(MaxLineIndex);
+            int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
+
+            // Removes everything past MaxLine
+
+            var newText = AssociatedObject.Text.Remove(lastPositionInMaxLine);
+            UpdateTextWithoutFiring(newText);
+
+            // Restores caret
+
+            if (prevCaret > newText.Length)
             {
-                e.Handled = true;
-
-                int prevCaret = AssociatedObject.CaretIndex; // Caret before removing everything past MaxLine
-
-                // Calculates values of MaxLine
-
-                int MaxLineIndex = AssociatedObject.MaxLines - 1;
-                int firstPositionInMaxLine = AssociatedObject.GetCharacterIndexFromLineIndex(MaxLineIndex);
-                int lengthOfMaxLine = AssociatedObject.GetLineLength(MaxLineIndex);
-                int lastPositionInMaxLine = firstPositionInMaxLine + lengthOfMaxLine;
-
-                // Removes everything past MaxLine
-
-                var newText = AssociatedObject.Text.Remove(lastPositionInMaxLine);
-                UpdateTextWithoutFiring(newText);
-
-                // Restores caret
-
-                if (prevCaret > newText.Length)
-                {
-                    prevCaret = newText.Length;
-                }
-
-                AssociatedObject.CaretIndex = prevCaret;
-
+                prevCaret = newText.Length;
             }
 
+            AssociatedObject.CaretIndex = prevCaret;
         }
 
         private void UpdateTextWithoutFiring(string newText)

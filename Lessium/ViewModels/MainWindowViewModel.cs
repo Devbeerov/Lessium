@@ -144,6 +144,7 @@ namespace Lessium.ViewModels
             {
                 return model.CurrentSectionID[SelectedContentType];
             }
+
             set
             {
                 if (SetDictionaryProperty(ref model.CurrentSectionID, SelectedContentType, value))
@@ -564,7 +565,12 @@ namespace Lessium.ViewModels
         private void OnExceedingContent(object sender, ExceedingContentEventArgs e)
         {
             var content = e.ExceedingItem;
+
             var oldPage = sender as ContentPageModel;
+
+            // Intented to be handled by behavior. TODO: ExceedingContentService, optimize VM.
+            if (oldPage.Items.Count == 1 && content is TextControl) return;
+
             var oldPageIndex = Pages.IndexOf(oldPage);
             
             oldPage.Remove(content);

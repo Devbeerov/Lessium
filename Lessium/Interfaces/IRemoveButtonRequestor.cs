@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace Lessium.Interfaces
@@ -19,5 +18,5 @@ namespace Lessium.Interfaces
         }
     }
 
-    public delegate void RemoveButtonRequestEventHandler(object sender, RemoveButtonRequestEventArgs args);
+    public delegate void RemoveButtonRequestEventHandler(RemoveButtonRequestEventArgs args);
 }

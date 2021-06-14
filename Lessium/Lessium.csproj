@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
     <Compile Include="Converters\ValidDoubleConverter.cs" />
+    <Compile Include="CustomControls\RemoveButtonPresenter.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
       <DependentUpon>DynamicCheckBox.xaml</DependentUpon>

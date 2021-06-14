@@ -8,9 +8,10 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
              xmlns:converters="clr-namespace:Lessium.Converters"
-             xmlns:prop="clr-namespace:Lessium.Properties"
-             mc:Ignorable="d" 
+             xmlns:prop="clr-namespace:Lessium.Properties" 
+             xmlns:controls="clr-namespace:Lessium.CustomControls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="200" 
              x:Name="control">
 
@@ -19,11 +20,21 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
 
-    <Border x:Name="border" SizeChanged="Border_SizeChanged"
-            MaxWidth="{Binding ElementName=control, Path=MaxWidth}">
+    <Border x:Name="border" SizeChanged="Border_SizeChanged">
+        <Grid x:Name="grid">
 
-        <Grid x:Name="grid" Width="{Binding ElementName=border, Path=MaxWidth}">
-            
+            <Grid.Style>
+                <Style TargetType="{x:Type Grid}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=control, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
+                            <DataTrigger.Setters>
+                                <Setter Property="Width" Value="{Binding ElementName=control, Path=MaxWidth}" />
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -34,6 +45,7 @@
                      ScrollViewer.CanContentScroll="False"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" 
                      ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                     MaxHeight="{Binding ElementName=control, Path=MaxHeight}"
                      IsReadOnly="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
                      Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
@@ -55,103 +67,8 @@
 
             </TextBox>
 
-            <ContentPresenter x:Name="RemoveButtonPresenter" Grid.Column="1" MinWidth="16"
-                              Loaded="RemoveButtonPresenter_Loaded"/>
+            <controls:RemoveButtonPresenter Grid.Column="1" RequestRemoveButton="{Binding RequestRemoveButton, diag:PresentationTraceSources.TraceLevel=High}" />
         </Grid>
-        
-        <!--<StackPanel Orientation="Horizontal" x:Name="panel" HorizontalAlignment="Stretch"
-                    Width="{Binding ElementName=control, Path=MaxWidth}">
-
-            --><!--<StackPanel.Style>
-                <Style TargetType="{x:Type StackPanel}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ElementName=control, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
-                            <DataTrigger.Setters>
-                                <Setter Property="MaxWidth">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
-                                            <Binding ElementName="control" Path="MaxWidth" />
-                                            <Binding ElementName="RemoveButtonPresenter" Path="ActualWidth" />
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger.Setters>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>--><!--
-
-            <TextBox x:Name="textBox" VerticalAlignment="Top" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                     TextWrapping="Wrap" Background="Transparent"
-                     ScrollViewer.CanContentScroll="False"
-                     ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                     MaxLines="38"
-                     
-                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     IsReadOnly="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
-                     Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
-                     UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
-
-                <i:Interaction.Behaviors>
-                    <behaviors:TextBoxNewlineBehavior />
-                    <behaviors:TextBoxCutBehavior />
-                </i:Interaction.Behaviors>
-
-                <TextBox.InputBindings>
-                    <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Key}" 
-                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Modifier}"
-                                Command="ApplicationCommands.Undo" />
-                    <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Key}" 
-                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
-                                Command="ApplicationCommands.Redo" />
-                </TextBox.InputBindings>
-
-                
-
-            </TextBox>
-
-            <ContentPresenter x:Name="RemoveButtonPresenter" MinWidth="16" MinHeight="16"
-                              Loaded="RemoveButtonPresenter_Loaded"/>
-        </StackPanel>-->
-        <!--<StackPanel Orientation="Horizontal">
-            <TextBox x:Name="textBox" VerticalAlignment="Top" HorizontalAlignment="Left"
-                     TextWrapping="Wrap" Background="Transparent" IsReadOnly="True"
-                     ScrollViewer.CanContentScroll="False"
-                     ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                     MaxLines="38"
-                     Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
-                     Height="{Binding RelativeSource={RelativeSource Self}, Path=MaxHeight}"
-                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{Binding ElementName=control, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
-                     UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
-
-                <i:Interaction.Behaviors>
-                    <behaviors:TextBoxNewlineBehavior />
-                    <behaviors:TextBoxCutBehavior />
-                </i:Interaction.Behaviors>
-
-                <TextBox.InputBindings>
-                    <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Key}" 
-                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Modifier}"
-                                Command="ApplicationCommands.Undo" />
-                    <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Key}" 
-                                Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
-                                Command="ApplicationCommands.Redo" />
-                </TextBox.InputBindings>
-
-                <TextBox.MaxWidth>
-                    <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
-                        <Binding ElementName="control" Path="MaxWidth" />
-                        <Binding ElementName="RemoveButtonPresenter" Path="Width" />
-                    </MultiBinding>
-                </TextBox.MaxWidth>
-
-            </TextBox>
-
-            <ContentPresenter x:Name="RemoveButtonPresenter" Loaded="RemoveButtonPresenter_Loaded"/>
-        </StackPanel>-->
     </Border>
     
 </UserControl>

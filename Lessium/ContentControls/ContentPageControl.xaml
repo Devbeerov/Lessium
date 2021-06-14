@@ -16,7 +16,7 @@
                 <ResourceDictionary Source="../Dictionaries/Generic.xaml" />
 
                 <ResourceDictionary>
-                    <Button x:Key="removeButtonTemplate" Width="16" Height="16"
+                    <Button x:Key="removeButtonTemplate" MinWidth="16" MinHeight="16"
                             HorizontalAlignment="Left" VerticalAlignment="Top"
                             IsEnabled="{Binding IsEditable}"
                             Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >

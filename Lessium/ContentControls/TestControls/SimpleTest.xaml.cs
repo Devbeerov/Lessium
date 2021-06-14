@@ -346,11 +346,6 @@ namespace Lessium.ContentControls.TestControls
 
         #region Events
 
-        private void RemoveButtonPresenter_Loaded(object sender, RoutedEventArgs e)
-        {
-            RequestRemoveButton?.Invoke(this, new RemoveButtonRequestEventArgs(sender as ContentPresenter));
-        }
-
         private void Question_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             // Sets ItemControl MaxHeight to parent border (holder of Question and ItemsControl) MaxHeight minus NewSize.

@@ -248,6 +248,8 @@ namespace Lessium.ContentControls
 
                 var copiedContent = ClipboardService.GetStoredSerializable() as IContentControl;
 
+                if (copiedContent == null) return;
+
                 contentPage.Add(copiedContent);
             }
         }

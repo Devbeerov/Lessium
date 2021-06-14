@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
-using Settings = Lessium.Properties.Settings;
+using Lessium.CustomControls;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -112,11 +112,6 @@ namespace Lessium.ContentControls.MaterialControls
             // Sets source to TextControl, not Border
 
             e.Source = this;
-        }
-
-        private void RemoveButtonPresenter_Loaded(object sender, RoutedEventArgs e)
-        {
-            RequestRemoveButton?.Invoke(this, new RemoveButtonRequestEventArgs(sender as ContentPresenter));
         }
 
         #endregion
