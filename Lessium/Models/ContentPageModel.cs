@@ -394,9 +394,8 @@ namespace Lessium.Models
             return false;
         }
 
-        private void Control_RequestRemoveButton(object sender, RemoveButtonRequestEventArgs args)
+        private void Control_RequestRemoveButton(RemoveButtonRequestEventArgs args)
         {
-            var requestor = sender as IRemoveButtonRequestor;
             var button = ContentPageControlService.RequestRemoveButtonCopy();
 
             button.Click += OnControlRemoveButtonClick;
@@ -405,7 +404,10 @@ namespace Lessium.Models
 
         private void OnControlRemoveButtonClick(object sender, RoutedEventArgs e)
         {
-            Remove(sender as IContentControl);
+            var element = sender as UIElement;
+            var parentContentControl = element.FindParent<IContentControl>();
+
+            Remove(parentContentControl);
         }
 
         #endregion

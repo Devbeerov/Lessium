@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
+using Lessium.CustomControls;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -113,11 +114,6 @@ namespace Lessium.ContentControls.MaterialControls
             e.Source = this;
         }
 
-        private void RemoveButtonPresenter_Loaded(object sender, RoutedEventArgs e)
-        {
-            RequestRemoveButton?.Invoke(this, new RemoveButtonRequestEventArgs(sender as ContentPresenter));
-        }
-
         #endregion
 
         #region Dependency Properties
@@ -133,6 +129,20 @@ namespace Lessium.ContentControls.MaterialControls
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
+
+        #endregion
+
+        #region DefaultMaxLineCount
+
+        public int DefaultMaxLineCount
+        {
+            get { return (int)GetValue(DefaultMaxLineCountProperty); }
+            set { SetValue(DefaultMaxLineCountProperty, value); }
+        }
+
+        // 38 for FontSize = 12
+        public static readonly DependencyProperty DefaultMaxLineCountProperty =
+            DependencyProperty.Register("DefaultMaxLineCount", typeof(int), typeof(TextControl), new PropertyMetadata(38));
 
         #endregion
 
