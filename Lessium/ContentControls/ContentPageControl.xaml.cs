@@ -290,9 +290,16 @@ namespace Lessium.ContentControls
         {
             var listBoxItem = sender as ListBoxItem;
             var contentControl = listBoxItem.Content as FrameworkElement;
-            var distance = MathHelper.DistanceBetweenElements(itemsControl, listBoxItem, Coordinate.Y);
 
-            contentControl.MaxHeight = itemsControl.MaxHeight - distance;
+            var totalBorderWidth = listBoxItem.BorderThickness.Left + listBoxItem.BorderThickness.Right;
+            var totalPadding = listBoxItem.Padding.Left + listBoxItem.Padding.Right;
+            var totalOffset = totalBorderWidth + totalPadding;
+
+            var distanceWidth = MathHelper.DistanceBetweenElements(itemsControl, listBoxItem, Coordinate.X);
+            var distanceHeight = MathHelper.DistanceBetweenElements(itemsControl, listBoxItem, Coordinate.Y);
+
+            contentControl.MaxWidth = itemsControl.MaxWidth - totalOffset - distanceWidth * 2; // multiply by 2 to count both Left and Right space out.
+            contentControl.MaxHeight = itemsControl.MaxHeight - distanceHeight;
         }
 
         #endregion

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
+using Settings = Lessium.Properties.Settings;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -133,6 +134,20 @@ namespace Lessium.ContentControls.MaterialControls
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
+
+        #endregion
+
+        #region DefaultMaxLineCount
+
+        public int DefaultMaxLineCount
+        {
+            get { return (int)GetValue(DefaultMaxLineCountProperty); }
+            set { SetValue(DefaultMaxLineCountProperty, value); }
+        }
+
+        // 38 for FontSize = 12
+        public static readonly DependencyProperty DefaultMaxLineCountProperty =
+            DependencyProperty.Register("DefaultMaxLineCount", typeof(int), typeof(TextControl), new PropertyMetadata(38));
 
         #endregion
 

@@ -1,32 +1,92 @@
-﻿using System.Windows.Controls;
+﻿using Lessium.ContentControls;
+using Lessium.Converters;
+using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Services;
+using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interactivity;
 
 namespace Lessium.Utility.Behaviors
 {
     /// <summary>
     /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts exceeding text.
+    /// Will change MaxLines property automatically on demand.
     /// </summary>
     public class TextBoxCutBehavior : Behavior<TextBox>
     {
         private bool raiseEvent = true;
+        private static readonly UIElementsDistanceConverter distanceConverter = new UIElementsDistanceConverter();
+        private double offset = 0d;
 
         protected override void OnAttached()
         {
             if (AssociatedObject != null)
             {
                 base.OnAttached();
+
+                Settings.Default.PropertyChanged += OnFontSizeChanged;
+                AssociatedObject.Loaded += AssociatedObject_Loaded;
                 AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+                
             }
         }
 
+        private void OnFontSizeChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(Settings.FontSize)) return;
+
+            UpdateMaxLineCount();
+        }
+
+        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateMaxLineCount();
+        }
 
         protected override void OnDetaching()
         {
             if (AssociatedObject != null)
             {
+                Settings.Default.PropertyChanged -= OnFontSizeChanged;
+                AssociatedObject.Loaded -= AssociatedObject_Loaded;
                 AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
                 base.OnDetaching();
             }
+        }
+
+        private void CalculateOffset()
+        {
+            var inputElements = new object[] { AssociatedObject.FindParent<ContentPageControl>(), AssociatedObject };
+
+            offset = (double)distanceConverter.Convert(inputElements, AssociatedType, Coordinate.Y.ToString(), CultureInfo.InvariantCulture);
+        }
+
+        private double FindProperMaxHeight()
+        {
+            if (double.IsInfinity(AssociatedObject.MaxHeight) || double.IsNaN(AssociatedObject.MaxHeight)) return ContentPageModel.PageHeight;
+
+            return AssociatedObject.MaxHeight;
+        }
+
+        private double CalculateMaxHeight()
+        {
+            var maxHeight = FindProperMaxHeight();
+
+            if (offset == 0d) CalculateOffset();
+
+            return maxHeight - offset * 2; // For fixing border we substract two offsets
+        }
+
+        private void UpdateMaxLineCount()
+        {
+            var maxHeight = CalculateMaxHeight();
+            var lineHeight = AssociatedObject.CalculateLineHeight();
+
+            AssociatedObject.MaxLines = (int)Math.Floor(maxHeight / lineHeight);
         }
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
