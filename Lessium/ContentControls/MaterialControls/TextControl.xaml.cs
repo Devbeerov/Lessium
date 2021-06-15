@@ -132,20 +132,6 @@ namespace Lessium.ContentControls.MaterialControls
 
         #endregion
 
-        #region DefaultMaxLineCount
-
-        public int DefaultMaxLineCount
-        {
-            get { return (int)GetValue(DefaultMaxLineCountProperty); }
-            set { SetValue(DefaultMaxLineCountProperty, value); }
-        }
-
-        // 38 for FontSize = 12
-        public static readonly DependencyProperty DefaultMaxLineCountProperty =
-            DependencyProperty.Register("DefaultMaxLineCount", typeof(int), typeof(TextControl), new PropertyMetadata(38));
-
-        #endregion
-
         #endregion
 
         #region ISerializable
@@ -195,12 +181,6 @@ namespace Lessium.ContentControls.MaterialControls
                 Text = await reader.ReadElementContentAsStringAsync();
             });
         }
-
-        #endregion
-
-        #region IRemoveButtonRequestor
-
-        public event RemoveButtonRequestEventHandler RequestRemoveButton;
 
         #endregion
     }

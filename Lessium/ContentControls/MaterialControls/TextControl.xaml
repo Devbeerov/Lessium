@@ -21,19 +21,7 @@
     </UserControl.Resources>
 
     <Border x:Name="border" SizeChanged="Border_SizeChanged">
-        <Grid x:Name="grid">
-
-            <Grid.Style>
-                <Style TargetType="{x:Type Grid}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ElementName=control, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
-                            <DataTrigger.Setters>
-                                <Setter Property="Width" Value="{Binding ElementName=control, Path=MaxWidth}" />
-                            </DataTrigger.Setters>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
+        <Grid x:Name="grid" Style="{StaticResource ContentControlGridFixedWidthStyle}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -67,7 +55,7 @@
 
             </TextBox>
 
-            <controls:RemoveButtonPresenter Grid.Column="1" RequestRemoveButton="{Binding RequestRemoveButton, diag:PresentationTraceSources.TraceLevel=High}" />
+            <controls:RemoveButtonPresenter Grid.Column="1" />
         </Grid>
     </Border>
     

@@ -25,6 +25,7 @@ using Lessium.UndoableActions;
 using System.Configuration;
 using Lessium.Services;
 using Lessium.UndoableActions.Generic;
+using Lessium.Utility.Behaviors;
 
 namespace Lessium.ViewModels
 {
@@ -565,10 +566,9 @@ namespace Lessium.ViewModels
         private void OnExceedingContent(object sender, ExceedingContentEventArgs e)
         {
             var content = e.ExceedingItem;
-
             var oldPage = sender as ContentPageModel;
 
-            // Intented to be handled by behavior. TODO: ExceedingContentService, optimize VM.
+            // In that case, TextControl's TextBoxCutBehavior will handle it.
             if (oldPage.Items.Count == 1 && content is TextControl) return;
 
             var oldPageIndex = Pages.IndexOf(oldPage);
@@ -613,7 +613,7 @@ namespace Lessium.ViewModels
         {
             if (e.Action == CollectionChangeAction.Add)
             {
-                foreach(var page in e.Pages)
+                foreach (var page in e.Pages)
                 {
                     page.AddedExceedingContent += OnExceedingContent;
                 }

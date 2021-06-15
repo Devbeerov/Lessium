@@ -62,8 +62,11 @@ namespace Lessium.ContentControls
         public Button RequestRemoveButtonCopy()
         {
             var button = FindResource("removeButtonTemplate") as Button;
+            var newButton = CloneRemoveButton(button);
 
-            return CloneRemoveButton(button);
+            contentPage.BindRemoveButtonToPage(newButton);
+
+            return newButton;
         }
 
         public bool IsModelContainsControl(IContentControl control)
@@ -96,6 +99,12 @@ namespace Lessium.ContentControls
 
         private void CloneVisual(Button newButton, Button template)
         {
+            newButton.MinWidth = template.MinWidth;
+            newButton.MinHeight = template.MinHeight;
+
+            newButton.MaxWidth = template.MaxWidth;
+            newButton.MaxHeight = template.MaxHeight;
+
             newButton.Width = template.Width;
             newButton.Height = template.Height;
 
@@ -173,12 +182,7 @@ namespace Lessium.ContentControls
             contentPage = e.NewValue as ContentPageModel;
             var oldPage = e.OldValue as ContentPageModel;
 
-            if (oldPage != null)
-            {
-                // If page is not selected, it's not editable.
-
-                oldPage.IsEditable = false;
-            }
+            if (oldPage != null) oldPage.Enabled = false;
 
             // Even if contentPage is null, will unregister (if not null) old page, that's why we should call it here.
 
@@ -189,6 +193,8 @@ namespace Lessium.ContentControls
                 Items = null;
                 return; 
             }
+
+            contentPage.Enabled = true;
 
             UpdateModelEditable();
             UpdateModelMaxSize();

@@ -13,7 +13,7 @@ using Lessium.Utility;
 using Lessium.Classes.IO;
 using Lessium.ContentControls;
 using Lessium.Services;
-using System.Reflection;
+using System.Windows.Controls;
 
 namespace Lessium.Models
 {
@@ -31,6 +31,7 @@ namespace Lessium.Models
         private double maxHeight = PageHeight;
 
         private bool editable = false;
+        private bool enabled = false;
 
         private readonly IDispatcher dispatcher;
 
@@ -50,6 +51,19 @@ namespace Lessium.Models
                 editable = value;
 
                 UpdateItemsEditable();
+            }
+        }
+
+        public bool Enabled
+        {
+            get { return enabled; }
+            set
+            {
+                if (enabled == value) return;
+
+                enabled = value;
+
+                UpdateItemsEnabled();
             }
         }
 
@@ -197,7 +211,6 @@ namespace Lessium.Models
             var controlElement = control as FrameworkElement;
 
             controlElement.SizeChanged -= OnContentResized;
-            control.RequestRemoveButton -= Control_RequestRemoveButton;
 
             if (directly)
             {
@@ -223,34 +236,50 @@ namespace Lessium.Models
             ValidateAllForward(Items[0], true);
         }
 
+        public void BindRemoveButtonToPage(Button removeButton)
+        {
+            removeButton.Click += OnControlRemoveButtonClick;
+        }
+
         public override bool Equals(object obj)
         {
-            var other = obj as ContentPageModel;
+            // Yes, it should be ReferenceEquals.
+            // Because ContentPageModel is used in ObservableCollection and should be treat as unique, even if it same as other.
 
-            if (other == null) return false;
-
-            return EqualsHelper.AreEqual(Items, other.Items);
+            return ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            int hash = 3;
-
-            if (Items == null) return hash;
-           
-            hash = hash * 7 + Items.Count;
-
-            for (int i = 0; i > Items.Count; i++)
-            {
-                hash = hash * 7 + Items[i].GetHashCode();
-            }
-
-            return hash;
+            int hashCode = -1345600231;
+            hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<IContentControl>>.Default.GetHashCode(Items);
+            hashCode = hashCode * -1521134295 + ContentType.GetHashCode();
+            hashCode = hashCode * -1521134295 + Enabled.GetHashCode();
+            return hashCode;
         }
 
         #endregion
 
         #region Private
+
+        private void UpdateItemEnabled(IContentControl contentControl)
+        {
+            if (contentControl != null)
+            {
+                dispatcher.Invoke(() =>
+                {
+                    (contentControl as FrameworkElement).IsEnabled = Enabled;
+                });
+            }
+        }
+
+        private void UpdateItemsEnabled()
+        {
+            foreach (var childControl in Items)
+            {
+                UpdateItemEnabled(childControl);
+            }
+        }
 
         private void UpdateItemEditable(IContentControl contentControl)
         {
@@ -306,7 +335,6 @@ namespace Lessium.Models
                 controlElement.MaxHeight = MaxHeight;
 
                 controlElement.SizeChanged += OnContentResized;
-                control.RequestRemoveButton += Control_RequestRemoveButton;
 
                 UpdateItemEditable(control);
             });
@@ -369,7 +397,11 @@ namespace Lessium.Models
 
         private void OnContentResized(object sender, SizeChangedEventArgs e)
         {
-            if (e.Handled) { return; }
+            if (e.Handled) return;
+
+            var control = e.Source as IContentControl;
+
+            if (!ContentPageControlService.IsManagingControl(control)) return;
 
             ValidateAllForward(e.Source as IContentControl);
 
@@ -392,14 +424,6 @@ namespace Lessium.Models
             }
 
             return false;
-        }
-
-        private void Control_RequestRemoveButton(RemoveButtonRequestEventArgs args)
-        {
-            var button = ContentPageControlService.RequestRemoveButtonCopy();
-
-            button.Click += OnControlRemoveButtonClick;
-            args.RemoveButtonPresenter.Content = button;
         }
 
         private void OnControlRemoveButtonClick(object sender, RoutedEventArgs e)

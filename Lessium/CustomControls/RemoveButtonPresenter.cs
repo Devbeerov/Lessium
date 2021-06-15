@@ -1,5 +1,4 @@
-﻿using Lessium.Interfaces;
-using System;
+﻿using Lessium.Services;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -7,22 +6,22 @@ namespace Lessium.CustomControls
 {
     public class RemoveButtonPresenter : ContentPresenter
     {
-        private static void OnRequestRemoveButtonChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public RemoveButtonPresenter() : base()
         {
-            var presenter = sender as RemoveButtonPresenter;
-
-            //if (presenter.RequestRemoveButton == null) return;
-
-            presenter.RequestRemoveButton?.Invoke(new RemoveButtonRequestEventArgs(presenter));
+            WeakEventManager<RemoveButtonPresenter, RoutedEventArgs>.AddHandler(this, nameof(Loaded), OnLoaded);
         }
 
-        public RemoveButtonRequestEventHandler RequestRemoveButton
+        private void OnLoaded(object sender, RoutedEventArgs args)
         {
-            get { return (RemoveButtonRequestEventHandler)GetValue(RequestRemoveButtonProperty); }
-            set { SetValue(RequestRemoveButtonProperty, value); }
-        }
+            var button = ContentPageControlService.RequestRemoveButtonCopy();
 
-        public static readonly DependencyProperty RequestRemoveButtonProperty =
-            DependencyProperty.Register("RequestRemoveButton", typeof(RemoveButtonRequestEventHandler), typeof(RemoveButtonPresenter), new PropertyMetadata(null, new PropertyChangedCallback(OnRequestRemoveButtonChanged)));
+            HorizontalAlignment = button.HorizontalAlignment;
+            VerticalAlignment = button.VerticalAlignment;
+
+            button.Width = ActualWidth;
+            button.Height = ActualHeight;
+
+            Content = button;
+        }
     }
 }

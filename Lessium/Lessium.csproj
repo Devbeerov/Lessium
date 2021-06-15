@@ -87,7 +87,6 @@
     <Compile Include="Interfaces\IAnswerModel.cs" />
     <Compile Include="Interfaces\IDispatcher.cs" />
     <Compile Include="Interfaces\ILsnSerializable.cs" />
-    <Compile Include="Interfaces\IRemoveButtonRequestor.cs" />
     <Compile Include="Interfaces\IUndoableAction.cs" />
     <Compile Include="Models\LessonModel.cs" />
     <Compile Include="Models\SettingsModel.cs" />

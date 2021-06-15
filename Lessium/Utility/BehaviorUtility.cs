@@ -10,6 +10,7 @@ namespace Lessium.Utility
         {
             var behaviors = Interaction.GetBehaviors(obj);
             var behavior = GetBehavior<T>(obj);
+
             if (behavior != null)
             {
                 behaviors.Remove(behavior);

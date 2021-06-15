@@ -28,5 +28,19 @@
     </Style>
     
     <!--#endregion-->
+    
+    <!--#region Styles -->
+
+    <Style x:Key="ContentControlGridFixedWidthStyle" TargetType="{x:Type Grid}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
+                <DataTrigger.Setters>
+                    <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=MaxWidth}" />
+                </DataTrigger.Setters>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--#endregion-->
 
 </ResourceDictionary>

@@ -16,7 +16,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
@@ -556,13 +555,5 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
-
-        #region IRemoveButtonRequestor
-
-        public event RemoveButtonRequestEventHandler RequestRemoveButton;
-
-        #endregion
-    }
-
-    
+    } 
 }

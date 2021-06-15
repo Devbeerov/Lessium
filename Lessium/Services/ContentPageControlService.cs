@@ -1,4 +1,5 @@
 ﻿using Lessium.ContentControls;
+using Lessium.CustomControls;
 using Lessium.Interfaces;
 using Lessium.Models;
 using Lessium.Views;
@@ -53,6 +54,11 @@ namespace Lessium.Services
         public static Button RequestRemoveButtonCopy()
         {
             return PageControl.RequestRemoveButtonCopy();
+        }
+
+        public static bool IsManagingControl(IContentControl control)
+        {
+            return PageControl.IsModelContainsControl(control);
         }
 
         // elementToTranslate.TranslatePoint(point, PageControl);
