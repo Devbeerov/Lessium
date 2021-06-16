@@ -1,12 +1,5 @@
-﻿using Lessium.ContentControls;
-using Lessium.Converters;
-using Lessium.Models;
-using Lessium.Properties;
-using Lessium.Services;
+﻿using Lessium.Services;
 using System;
-using System.ComponentModel;
-using System.Globalization;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
 
@@ -14,12 +7,11 @@ namespace Lessium.Utility.Behaviors
 {
     /// <summary>
     /// Prevents TextBox from growing beyond MaxHeight. Behavior cuts exceeding text.
-    /// Will change MaxLines property automatically on demand.
+    /// Requires MaxHeight specified to work.
     /// </summary>
     public class TextBoxCutBehavior : Behavior<TextBox>
     {
         private bool raiseEvent = true;
-        private static readonly UIElementsDistanceConverter distanceConverter = new UIElementsDistanceConverter();
         private double offset = 0d;
 
         protected override void OnAttached()
@@ -44,9 +36,7 @@ namespace Lessium.Utility.Behaviors
 
         private void CalculateOffset()
         {
-            var inputElements = new object[] { AssociatedObject.FindParent<ContentPageControl>(), AssociatedObject };
-
-            offset = (double)distanceConverter.Convert(inputElements, AssociatedType, Coordinate.Y.ToString(), CultureInfo.InvariantCulture);
+            offset = ContentPageControlService.CalculateDistanceToElement(AssociatedObject, Coordinate.Y);
         }
 
         private double FindProperMaxHeight()
@@ -85,6 +75,12 @@ namespace Lessium.Utility.Behaviors
         {
             if (!raiseEvent) return;
             if (AssociatedObject == null) return;
+            if (!AssociatedObject.IsLoaded)
+            {
+                // Possibly issue, because will always return on Loaded, and could be trouble with different font sizes.
+                // TODO: must be investigated.
+                return;
+            }
             if (IsFitMaxHeight()) return;
             
             e.Handled = true;

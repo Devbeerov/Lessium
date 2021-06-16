@@ -114,6 +114,7 @@ namespace Lessium.ContentControls.TestControls
 
             var lastIndex = AnswersItemControl.Items.Count - 1;
             var last = AnswersItemControl.Items.GetItemAt(lastIndex);
+
             return AnswersItemControl.ItemContainerGenerator.ContainerFromItem(last) as ContentPresenter;
         }
 
@@ -301,32 +302,42 @@ namespace Lessium.ContentControls.TestControls
             set
             {
                 SetValue(IsEditableProperty, value);
-                ValidateAnswersSelectionMode();
-
-                // Text Editable
-
-                addAnswerButton.IsEnabled = IsEditable;
-                addAnswerButton.Visibility = IsEditable ? Visibility.Visible : Visibility.Collapsed;
-
-                // Answers Controls
-
-                for (int i = 0; i < AnswersItemControl.Items.Count; i++)
-                {
-                    // Should be used ContainerFromIndex instead of ContainerFromItem,
-                    // Because it will return same ContentPresenter for each element due to overriden AnswerMode.Equals (perhaps GetHashCode involved too)
-                    var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromIndex(i) as ContentPresenter;
-                    if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
-                    {
-                        DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-                        TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
-                        textContainer.IsEditable = IsEditable;
-                    }
-                }
             }
         }
 
         public static readonly DependencyProperty IsEditableProperty =
-            DependencyProperty.Register("IsEditable", typeof(bool), typeof(SimpleTest), new PropertyMetadata(false));
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(SimpleTest), new PropertyMetadata(false,
+                new PropertyChangedCallback(OnEditableChanged)));
+
+        private static void OnEditableChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var control = sender as SimpleTest;
+            var addAnswerButton = control.addAnswerButton;
+            var AnswersItemControl = control.AnswersItemControl;
+            var IsEditable = (bool)args.NewValue;
+
+            control.ValidateAnswersSelectionMode();
+
+            // Text Editable
+
+            addAnswerButton.IsEnabled = IsEditable;
+            addAnswerButton.Visibility = IsEditable ? Visibility.Visible : Visibility.Collapsed;
+
+            // Answers Controls
+
+            for (int i = 0; i < AnswersItemControl.Items.Count; i++)
+            {
+                // Should be used ContainerFromIndex instead of ContainerFromItem,
+                // Because it will return same ContentPresenter for each element due to overriden AnswerMode.Equals (perhaps GetHashCode involved too)
+                var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromIndex(i) as ContentPresenter;
+                if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
+                {
+                    DataTemplate dataTemplate = contentPresenter.ContentTemplate;
+                    TextControl textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
+                    textContainer.IsEditable = IsEditable;
+                }
+            }
+        }
 
         #endregion
 
@@ -357,32 +368,35 @@ namespace Lessium.ContentControls.TestControls
 
             double? lineHeight = new double?();
 
+            if (addAnswerButton.Visibility != Visibility.Collapsed)
+            {
+                var buttonPos = addAnswerButton.TranslatePoint(default, AnswersItemControl);
+                lineHeight = testQuestion.textBox.CalculateLineHeight();
+                var maximumValidPosY = buttonPos.Y + addAnswerButton.ActualHeight + lineHeight;
+
+                var show = buttonPos.Y <= maximumValidPosY;
+
+                addAnswerButton.IsEnabled = show;
+                addAnswerButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+
+                // Returns this entry and wait for next SizeChanged event, which will be triggered because of collapsed button.
+
+                if (!show) return; 
+            }
+
             // Performs all validation and fixing, could also set e.Handled = true, to prevent multiple event calls.
 
             ValidateAnswersControl(lineHeight, e);
 
             // Updates AnswersControl.MaxHeight properly with calculations.
 
-            UpdateAnswersControlMaxHeight(lineHeight);
+            //UpdateAnswersControlMaxHeight(lineHeight);
 
             // Sets source to SimpleTest Control, not Border
 
             e.Source = this;
 
             raiseResizeEvent = true;
-        }
-
-        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            bool show = false;
-
-            if (addAnswerButton.Visibility != Visibility.Collapsed)
-            {
-                show = ContentPageControlService.IsControlFits(this);
-            }
-
-            addAnswerButton.IsEnabled = show;
-            addAnswerButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
@@ -411,9 +425,8 @@ namespace Lessium.ContentControls.TestControls
 
         private void TextContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as TextControl; // TextContainer
+            var control = e.Source as TextControl;
 
-            control.RemoveBehavior<TextBoxCutBehavior>();
             control.IsEditable = IsEditable;
         }
 

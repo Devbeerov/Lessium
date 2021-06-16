@@ -1,9 +1,11 @@
 ﻿using Lessium.ContentControls;
+using Lessium.Converters;
 using Lessium.CustomControls;
 using Lessium.Interfaces;
 using Lessium.Models;
 using Lessium.Views;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +14,7 @@ namespace Lessium.Services
 {
     public static class ContentPageControlService
    {
+        private static readonly UIElementsDistanceConverter distanceConverter = new UIElementsDistanceConverter();
         private static ContentPageControl pageControl;
         private static ContentPageControl PageControl
         {
@@ -61,10 +64,20 @@ namespace Lessium.Services
             return PageControl.IsModelContainsControl(control);
         }
 
-        // elementToTranslate.TranslatePoint(point, PageControl);
+
+        /// <summary>
+        /// Translates UIElement with Point to PageControl.
+        /// </summary>
         public static Point TranslatePoint(UIElement elementToTranslate, Point point = default)
         {
             return elementToTranslate.TranslatePoint(point, PageControl);
+        }
+
+        public static double CalculateDistanceToElement(UIElement element, Coordinate coordinate)
+        {
+            var inputElements = new object[] { PageControl, element };
+
+            return (double)distanceConverter.Convert(inputElements, null, Coordinate.Y.ToString(), CultureInfo.InvariantCulture);
         }
    }
 }

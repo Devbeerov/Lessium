@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
-using Lessium.CustomControls;
+using Lessium.Utility.Behaviors;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -74,34 +74,41 @@ namespace Lessium.ContentControls.MaterialControls
             set 
             { 
                 SetValue(IsEditableProperty, value);
-
-                textBox.IsReadOnly = !value;
-
-                // Size 0 if not editable, size 1 if editable.
-
-                Thickness thickness;
-
-                if (value)
-                {
-                    thickness = new Thickness(1);
-                }
-
-                else
-                {
-                    thickness = new Thickness(0);
-                }
-
-                textBox.BorderThickness = thickness;
-
-                // Tooltip
-
-                ToolTipService.SetIsEnabled(textBox, value);
             }
         }
 
         // Using a DependencyProperty as the backing store for IsEditable.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsEditableProperty =
-            DependencyProperty.Register("IsEditable", typeof(bool), typeof(TextControl), new PropertyMetadata(false));
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(TextControl), new PropertyMetadata(false, new PropertyChangedCallback(OnEditableChanged)));
+
+        private static void OnEditableChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var textControl = sender as TextControl;
+            var textBox = textControl.textBox;
+            var value = (bool)args.NewValue;
+
+            textBox.IsReadOnly = !value;
+
+            // Size 0 if not editable, size 1 if editable.
+
+            Thickness thickness;
+
+            if (value)
+            {
+                thickness = new Thickness(1);
+            }
+
+            else
+            {
+                thickness = new Thickness(0);
+            }
+
+            textBox.BorderThickness = thickness;
+
+            // Tooltip
+
+            ToolTipService.SetIsEnabled(textBox, value);
+        }
 
         #endregion
 
@@ -118,19 +125,38 @@ namespace Lessium.ContentControls.MaterialControls
 
         #region Dependency Properties
 
-        #region Text
-
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
 
+        public bool UsesCutBehavior
+        {
+            get { return (bool)GetValue(UsesCutBehaviorProperty); }
+            set { SetValue(UsesCutBehaviorProperty, value); }
+        }
+
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
+        
+        public static readonly DependencyProperty UsesCutBehaviorProperty =
+            DependencyProperty.Register("UsesCutBehavior", typeof(bool), typeof(TextControl), new PropertyMetadata(true,
+                new PropertyChangedCallback(OnCutBehaviorUseChanged)));
 
-        #endregion
+        private static void OnCutBehaviorUseChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var control = sender as TextControl;
+
+            if (control.UsesCutBehavior)
+            {
+                control.textBox.AddBehavior(new TextBoxCutBehavior());
+                return;
+            }
+
+            control.textBox.RemoveBehavior<TextBoxCutBehavior>();
+        }
 
         #endregion
 

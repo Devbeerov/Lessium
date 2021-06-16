@@ -8,6 +8,7 @@
              xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
              xmlns:cc="clr-namespace:Lessium.CustomControls"
              xmlns:controls="clr-namespace:Lessium.CustomControls"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" 
              x:Name="control" >
@@ -20,14 +21,14 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border x:Name="border" SizeChanged="Border_SizeChanged">
+    <Border x:Name="border">
         <Grid x:Name="grid" Style="{StaticResource ContentControlGridFixedWidthStyle}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
+
             <StackPanel x:Name="contentPanel" Orientation="Vertical">
 
                 <materials:TextControl x:Name="testQuestion"
@@ -38,7 +39,17 @@
                                        MaxHeight="{Binding ElementName=control, Path=MaxHeight}"
                                        SizeChanged="Question_SizeChanged" />
 
-                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" SizeChanged="AnswersItemControl_SizeChanged" >
+                <ItemsControl x:Name="AnswersItemControl" 
+                              MaxHeight="{Binding ElementName=control, Path=MaxHeight}"
+                              ItemsSource="{Binding Answers}" 
+                              SizeChanged="AnswersItemControl_SizeChanged" >
+
+                    <ItemsControl.MaxWidth>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                            <Binding ElementName="control" Path="MaxWidth" />
+                            <Binding ElementName="controlRemoveButtonPresenter" Path="ActualWidth" />
+                        </MultiBinding>
+                    </ItemsControl.MaxWidth>
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -58,10 +69,40 @@
 
                                 <!-- TextControl. It's have it's own DataContext, so we bind to dataPanel.DataContext -->
                                 <materials:TextControl x:Name="TextContainer"
+                                                       IsEditable="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                                       MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=MaxWidth}"
                                                        Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
                                                        Loaded="TextContainer_Loaded"
-                                                       Unloaded="TextContainer_Unloaded">
+                                                       Unloaded="TextContainer_Unloaded" >
 
+                                    <materials:TextControl.Style>
+                                        <Style TargetType="{x:Type materials:TextControl}">
+                                            <Setter Property="UsesCutBehavior" Value="False" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=MaxHeight, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
+                                                    <DataTrigger.Setters>
+                                                        <Setter Property="UsesCutBehavior" Value="True" />
+                                                    </DataTrigger.Setters>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </materials:TextControl.Style>
+                                    
+                                    <!-- Tag is not used anyway, therefore it seem to be acceptable implementation without spending much time -->
+                                    <materials:TextControl.Tag>
+                                        <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="Y">
+                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                            <Binding RelativeSource="{RelativeSource Self}" />
+                                        </MultiBinding>
+                                    </materials:TextControl.Tag>
+                                    
+                                    <materials:TextControl.MaxHeight>
+                                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                            <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxHeight" />
+                                            <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                        </MultiBinding>
+                                    </materials:TextControl.MaxHeight>
+                                    
                                 </materials:TextControl>
                             </StackPanel>
                         </DataTemplate>
@@ -79,7 +120,7 @@
 
             </StackPanel>
 
-            <controls:RemoveButtonPresenter Grid.Column="1" />
+            <controls:RemoveButtonPresenter x:Name="controlRemoveButtonPresenter" Grid.Column="1" VerticalAlignment="Top" />
 
         </Grid>
     </Border>

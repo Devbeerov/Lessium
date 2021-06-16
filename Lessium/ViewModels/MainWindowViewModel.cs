@@ -568,8 +568,8 @@ namespace Lessium.ViewModels
             var content = e.ExceedingItem;
             var oldPage = sender as ContentPageModel;
 
-            // In that case, TextControl's TextBoxCutBehavior will handle it.
-            if (oldPage.Items.Count == 1 && content is TextControl) return;
+            // If there is just only one item, will not move it to next Page.
+            if (oldPage.Items.Count == 1) return;
 
             var oldPageIndex = Pages.IndexOf(oldPage);
             
