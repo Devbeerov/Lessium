@@ -72,6 +72,9 @@
     </Compile>
     <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
     <Compile Include="Converters\ValidDoubleConverter.cs" />
+    <Compile Include="CustomControls\PageItemsControl.xaml.cs">
+      <DependentUpon>PageItemsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\RemoveButtonPresenter.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
     <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
@@ -149,6 +152,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\DynamicCheckBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\PageItemsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
