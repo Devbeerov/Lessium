@@ -54,9 +54,9 @@ namespace Lessium.Services
             return PageControl.IsElementFits(element);
         }
 
-        public static Button RequestRemoveButtonCopy()
+        public static Button RequestRemoveButtonCopy(bool shouldRemoveControlOnClick)
         {
-            return PageControl.RequestRemoveButtonCopy();
+            return PageControl.RequestRemoveButtonCopy(shouldRemoveControlOnClick);
         }
 
         public static bool IsManagingControl(IContentControl control)

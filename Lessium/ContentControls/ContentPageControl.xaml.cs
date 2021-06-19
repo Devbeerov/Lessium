@@ -59,14 +59,19 @@ namespace Lessium.ContentControls
             return fits;
         }
 
-        public Button RequestRemoveButtonCopy()
+        public Button RequestRemoveButtonCopy(bool bindToPage = true)
         {
             var button = FindResource("removeButtonTemplate") as Button;
             var newButton = CloneRemoveButton(button);
 
-            contentPage.BindRemoveButtonToPage(newButton);
+            if (bindToPage) BindRemoveButtonToPage(newButton);
 
             return newButton;
+        }
+
+        public void BindRemoveButtonToPage(Button button)
+        {
+            contentPage.BindRemoveButtonToPage(button);
         }
 
         public bool IsModelContainsControl(IContentControl control)
@@ -94,6 +99,7 @@ namespace Lessium.ContentControls
             newButton.Content = new Image()
             {
                 Source = templateImage.Source,
+                Name = templateImage.Name
             };
         }
 
@@ -116,7 +122,10 @@ namespace Lessium.ContentControls
         {
             // EventHandlers will be attached in ContentPageModel.
 
-            var newButton = new Button();
+            var newButton = new Button
+            {
+                Name = template.Name
+            };
 
             CloneVisual(newButton, template);
             CloneContent(newButton, template);

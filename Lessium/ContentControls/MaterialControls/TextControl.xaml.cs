@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Lessium.Classes.IO;
 using Lessium.Utility.Behaviors;
+using System.Windows.Media;
 
 namespace Lessium.ContentControls.MaterialControls
 {
@@ -60,6 +61,15 @@ namespace Lessium.ContentControls.MaterialControls
         {
             DataContext = this;
             InitializeComponent();
+        }
+
+        #endregion
+
+        #region Private
+
+        private void RemovePresenter()
+        {
+            grid.Children.Remove(removeButtonPresenter);
         }
 
         #endregion
@@ -137,6 +147,12 @@ namespace Lessium.ContentControls.MaterialControls
             set { SetValue(UsesCutBehaviorProperty, value); }
         }
 
+        public bool UseRemoveButtonPresenter
+        {
+            get { return (bool)GetValue(UseRemoveButtonPresenterProperty); }
+            set { SetValue(UseRemoveButtonPresenterProperty, value); }
+        }
+
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
@@ -144,6 +160,10 @@ namespace Lessium.ContentControls.MaterialControls
         public static readonly DependencyProperty UsesCutBehaviorProperty =
             DependencyProperty.Register("UsesCutBehavior", typeof(bool), typeof(TextControl), new PropertyMetadata(true,
                 new PropertyChangedCallback(OnCutBehaviorUseChanged)));
+
+        public static readonly DependencyProperty UseRemoveButtonPresenterProperty =
+            DependencyProperty.Register("UseRemoveButtonPresenter", typeof(bool), typeof(TextControl), new PropertyMetadata(true,
+                new PropertyChangedCallback(OnUseRemoveButtonPresenterChanged)));
 
         private static void OnCutBehaviorUseChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
@@ -156,6 +176,18 @@ namespace Lessium.ContentControls.MaterialControls
             }
 
             control.textBox.RemoveBehavior<TextBoxCutBehavior>();
+        }
+
+        private static void OnUseRemoveButtonPresenterChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var control = sender as TextControl;
+
+            if (control.IsLoaded) throw new NotSupportedException("Should be setup before TextControl is loaded!");
+            if (control.removeButtonPresenter == null) throw new NotSupportedException("RemoveButtonPresenter is already removed.");
+
+            var usesRemovePresenter = (bool)args.NewValue;
+
+            if (!usesRemovePresenter) control.RemovePresenter();
         }
 
         #endregion

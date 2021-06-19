@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Lessium.Classes.Wrappers;
 using System.Windows.Threading;
 using System.Diagnostics;
+using Lessium.ContentControls.TestControls.AnswerModels;
 
 namespace LessiumTests
 {
@@ -356,7 +357,7 @@ namespace LessiumTests
                             new SimpleTest()
                             {
                                 Question = "Ввеzдите вопрос здесь.",
-                                Answers = { new AnswerModel("zОтвет"), new AnswerModel("zОтвет") }
+                                Answers = { new SimpleAnswerModel("zОтвет"), new SimpleAnswerModel("zОтвет") }
                             }
                         );
 

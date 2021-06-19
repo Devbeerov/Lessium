@@ -72,8 +72,8 @@
     </Compile>
     <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
     <Compile Include="Converters\ValidDoubleConverter.cs" />
-    <Compile Include="CustomControls\PageItemsControl.xaml.cs">
-      <DependentUpon>PageItemsControl.xaml</DependentUpon>
+    <Compile Include="CustomControls\TextItemsControl.xaml.cs">
+      <DependentUpon>TextItemsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\RemoveButtonPresenter.cs" />
     <Compile Include="CustomControls\UnselectableRadioButton.cs" />
@@ -155,7 +155,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\PageItemsControl.xaml">
+    <Page Include="CustomControls\TextItemsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

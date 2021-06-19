@@ -39,6 +39,24 @@
                      FontSize="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize}"
                      UndoLimit="{Binding Source={x:Static prop:Settings.Default}, Path=UndoLimit}" >
 
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=control, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
+                                <Setter Property="MaxWidth">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                            <Binding ElementName="control" Path="MaxWidth" />
+                                            <Binding ElementName="removeButtonPresenter" Path="ActualWidth" />
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+                
+
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxNewlineBehavior />
                     <behaviors:TextBoxCutBehavior />
@@ -55,7 +73,7 @@
 
             </TextBox>
 
-            <controls:RemoveButtonPresenter Grid.Column="1" />
+            <controls:RemoveButtonPresenter x:Name="removeButtonPresenter" Grid.Column="1" />
         </Grid>
     </Border>
     
