@@ -1,9 +1,11 @@
 ﻿using Lessium.ContentControls.MaterialControls;
+using Lessium.Utility;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace Lessium.CustomControls
 {
@@ -15,9 +17,19 @@ namespace Lessium.CustomControls
     /// </summary>
     public partial class TextItemsControl : UserControl
     {
+        private bool raiseTextChanged = true;
+
         public TextItemsControl()
         {
             InitializeComponent();
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            WeakEventManager<ItemContainerGenerator, EventArgs>.AddHandler(
+                innerItemsControl.ItemContainerGenerator, nameof(ItemContainerGenerator.StatusChanged), OnGeneratorStatusChanged);
         }
 
         #region Methods
@@ -45,13 +57,69 @@ namespace Lessium.CustomControls
 
         #region Private
 
-        private void UpdateTextChangedHandlers(object oldSource, object newSource)
+        private TextControl FindTextContainer(ContentPresenter presenter)
         {
-            var newEnumerable = newSource as IEnumerable;
-            var oldEnumerable = oldSource as IEnumerable;
+            var dataTemplate = presenter.ContentTemplate;
+            var textContainer = dataTemplate.FindName("TextContainer", presenter);
 
-            if (newEnumerable != null) SubscribeItemsTextChanged(newEnumerable);
-            if (oldEnumerable != null) SubscribeItemsTextChanged(oldEnumerable, false);
+            if (textContainer == null) throw new KeyNotFoundException("\"TextContainer\" name has not been found in template.");
+
+            return textContainer as TextControl;
+        }
+
+        private double FindTotalHeightOfLastItem()
+        {
+            var generator = innerItemsControl.ItemContainerGenerator;
+            var lastIndex = innerItemsControl.Items.Count - 1;
+
+            var lastTextControlPresenter = generator.ContainerFromIndex(lastIndex) as ContentPresenter;
+            var lastTextControl = FindTextContainer(lastTextControlPresenter);
+            var lastItemPoint = lastTextControl.TranslatePoint(default, this);
+
+            return lastItemPoint.Y + lastTextControl.ActualHeight;
+        }
+
+        private void UpdateTextWithoutRaise(TextBox textBox, string newText)
+        {
+            raiseTextChanged = false;
+
+            textBox.Text = newText;
+
+            raiseTextChanged = true;
+        }
+
+        private void ValidateItemsPlacement(TextBox textBox)
+        {
+            innerItemsControl.UpdateLayout();
+
+            var totalHeight = FindTotalHeightOfLastItem();
+
+            if (totalHeight <= MaxHeight) return;
+
+            var difference = totalHeight - MaxHeight;
+            var lineHeight = textBox.CalculateLineHeight();
+
+            var exceedingLineCount = (int)Math.Ceiling(difference / lineHeight);
+            var newLastLineIndex = textBox.LineCount - exceedingLineCount - 1;
+
+            int firstPositionInLastValidLine = textBox.GetCharacterIndexFromLineIndex(newLastLineIndex);
+            int lengthOfLastValidLine = textBox.GetLineLength(newLastLineIndex);
+            int lastValidPosition = firstPositionInLastValidLine + lengthOfLastValidLine;
+
+            var newText = textBox.Text.Remove(lastValidPosition);
+
+            int prevCaret = textBox.CaretIndex;
+
+            UpdateTextWithoutRaise(textBox, newText);
+
+            // Restores caret
+
+            if (prevCaret > newText.Length)
+            {
+                prevCaret = newText.Length;
+            }
+
+            textBox.CaretIndex = prevCaret;
         }
 
         #endregion
@@ -62,29 +130,35 @@ namespace Lessium.CustomControls
 
         private void OnTextChanged(object sender, TextChangedEventArgs args)
         {
+            if (!raiseTextChanged) return;
 
+            ValidateItemsPlacement(sender as TextBox);
         }
 
-        private void OnItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        private void OnGeneratorStatusChanged(object sender, EventArgs args)
         {
-            UpdateTextChangedHandlers(args.OldItems, args.NewItems);
+            if (innerItemsControl.ItemContainerGenerator.Status != GeneratorStatus.ContainersGenerated) return;
+
+            SubscribeItemsTextChanged(innerItemsControl.Items);
         }
 
-        private void SubscribeItemsTextChanged(IEnumerable enumerable, bool subscribe = true)
+        private void SubscribeItemsTextChanged(IEnumerable enumerable)
         {
             foreach (var item in enumerable)
             {
-                var textControl = item as TextControl;
+                var presenter = innerItemsControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
 
-                // Uses break instead of continue, because if first item is not TextControl, other will not as well.
+                // Template might be not applied yet, thats why this method should be executed before FindName.
 
-                if (textControl == null) break;
+                presenter.ApplyTemplate();
 
-                if (subscribe) 
-                    WeakEventManager<TextBox, TextChangedEventArgs>.AddHandler(textControl.textBox, nameof(TextBox.TextChanged), OnTextChanged);
+                var textControl = FindTextContainer(presenter);
+                var textBox = textControl.textBox;
 
-                else
-                    WeakEventManager<TextBox, TextChangedEventArgs>.RemoveHandler(textControl.textBox, nameof(TextBox.TextChanged), OnTextChanged);
+                // Another advantage of WeakEventManager.
+                // Does not require try-catch block to check if handler already attached, and if so - remove it.
+                WeakEventManager<TextBox, TextChangedEventArgs>.RemoveHandler(textBox, nameof(TextBox.TextChanged), OnTextChanged);
+                WeakEventManager<TextBox, TextChangedEventArgs>.AddHandler(textBox, nameof(TextBox.TextChanged), OnTextChanged);
             }
         }
 
@@ -115,8 +189,7 @@ namespace Lessium.CustomControls
                 new PropertyChangedCallback(OnEditableChanged)));
 
         public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(TextItemsControl), new PropertyMetadata(null,
-                new PropertyChangedCallback(OnItemsSourceChanged)));
+            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(TextItemsControl), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ItemTemplateProperty =
             DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(TextItemsControl), new PropertyMetadata(null));
@@ -133,32 +206,11 @@ namespace Lessium.CustomControls
                 var contentPresenter = innerItemsControl.ItemContainerGenerator.ContainerFromIndex(i) as ContentPresenter;
                 if (contentPresenter != null) // If container is already loaded, otherwise we wait for TextContainer_Loaded method
                 {
-                    var dataTemplate = contentPresenter.ContentTemplate;
-                    var textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as TextControl;
+                    var textContainer = pageItemControl.FindTextContainer(contentPresenter);
 
                     // Support for TextContainer
                     if (textContainer != null) textContainer.IsEditable = pageItemControl.IsEditable;
                 }
-            }
-        }
-
-        private static void OnItemsSourceChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            var control = sender as TextItemsControl;
-
-            var oldNotifyCollection = args.OldValue as INotifyCollectionChanged;
-            var newNotifyCollection = args.NewValue as INotifyCollectionChanged;
-
-            control.UpdateTextChangedHandlers(args.OldValue, args.NewValue);
-
-            if (oldNotifyCollection != null)
-            {
-                CollectionChangedEventManager.RemoveHandler(oldNotifyCollection, control.OnItemsCollectionChanged);
-            }
-
-            if (newNotifyCollection != null)
-            {
-                CollectionChangedEventManager.AddHandler(newNotifyCollection, control.OnItemsCollectionChanged);
             }
         }
 

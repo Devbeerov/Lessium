@@ -58,7 +58,8 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            <ContentPresenter Margin="5, 2, 5, 2"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
 

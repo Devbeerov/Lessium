@@ -100,6 +100,8 @@
                             <Binding ElementName="control" Path="MaxHeight" />
                             <Binding ElementName="testQuestion" Path="ActualHeight" />
                             <Binding ElementName="addAnswerButton" Path="Height" />
+                            <Binding ElementName="addAnswerButton" Path="BorderThickness.Top" />
+                            <Binding ElementName="addAnswerButton" Path="BorderThickness.Bottom" />
                         </MultiBinding>
                     </controls:TextItemsControl.MaxHeight>
 

@@ -1,4 +1,6 @@
-﻿using Lessium.Services;
+﻿using Lessium.Interfaces;
+using Lessium.Services;
+using Lessium.Utility;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +21,8 @@ namespace Lessium.CustomControls
 
         private void OnLoaded(object sender, RoutedEventArgs args)
         {
-            var bind = !GetUsesCustomRemoveOnClick(Parent);
+            var contentControlParent = this.FindParent<IContentControl>();
+            var bind = !GetUsesCustomRemoveOnClick(contentControlParent as DependencyObject);
             var button = ContentPageControlService.RequestRemoveButtonCopy(bind);
 
             HorizontalAlignment = button.HorizontalAlignment;
@@ -88,7 +91,7 @@ namespace Lessium.CustomControls
         }
 
         /// <summary>
-        /// If set to true, will not bind Button to use default hanlder, which will just remove Control entirely.
+        /// If set to true, will not bind Button to use default hanlder.
         /// </summary>
         public static readonly DependencyProperty UsesCustomRemoveOnClickProperty =
             DependencyProperty.RegisterAttached("UsesCustomRemoveOnClick", typeof(bool), typeof(RemoveButtonPresenter), new PropertyMetadata(false,
@@ -100,16 +103,6 @@ namespace Lessium.CustomControls
 
             if (element == null) throw new NotSupportedException("Sender should be FrameworkElement.");
             if (element.IsLoaded) throw new NotSupportedException("Should be setup before loaded!");
-
-            var parentPanel = element.Parent as Panel;
-            foreach (var child in parentPanel)
-            {
-                if (child is RemoveButtonPresenter presenter)
-                {
-                    presenter.SetValue(UsesCustomRemoveOnClickProperty, args.NewValue);
-                    break;
-                }
-            }
         }
 
         #endregion

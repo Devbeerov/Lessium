@@ -6,7 +6,6 @@ using Lessium.Interfaces;
 using Lessium.Services;
 using Lessium.UndoableActions.Generic;
 using Lessium.Utility;
-using Lessium.Utility.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -244,7 +243,7 @@ namespace Lessium.ContentControls.TestControls
             {
                 var text = textControl.Text;
 
-                if (ReferenceEquals(answer.Text, text)) // Checks for string reference equality, not value!
+                if (ReferenceEquals(answer.Text, text)) // Checks for reference equality, not value!
                 {
                     ActionsService.ExecuteAction(new RemoveFromCollectionAction<SimpleAnswerModel>(Answers, answer));
 
