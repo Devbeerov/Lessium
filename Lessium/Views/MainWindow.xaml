@@ -71,15 +71,11 @@
                 <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
                 <MenuItem Header="{Binding RedoChangesHeader}" Command="{Binding Lesson_RedoChanges}" />
                 <Separator />
-                <MenuItem Header="{Binding RecentHeader}" />
-                <Separator />
                 <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
                 <!-- There's no need to do checks for IsEnabled, because Command already handles it. -->
                 <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" CommandParameter="{Binding ElementName=MainWindowReference}" />
                 <MenuItem Header="{Binding LoadLessonHeader}" Command="{Binding Lesson_Load}" CommandParameter="{Binding ElementName=MainWindowReference}" />
                 <MenuItem Header="{Binding CloseLessonHeader}" />
-                <Separator />
-                <MenuItem Header="{Binding PrintLessonHeader}" />
                 <Separator />
                 <MenuItem Header="{Binding ExitHeader}" />
             </MenuItem>
@@ -242,7 +238,7 @@
                             <ColumnDefinition Width="*" /> <!-- Edit-Only, right part -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Column 0 -->
+                        <!-- Column 0 (Editing) -->
 
                         <Menu IsEnabled="{Binding IsEditable}"
                               Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" >
@@ -269,8 +265,26 @@
                                 <!--#endregion-->
                             </MenuItem>
                         </Menu>
+                        
+                        <!-- ReadOnly -->
 
-                        <!-- Column 1 -->
+                        <StackPanel Orientation="Horizontal">
+
+                            <Button Background="{Binding ElementName=toolbar, Path=Background}"
+                                    ToolTip="{Binding CheckAnswersToolTip}"
+                                    Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Command="{Binding CheckPageTests}">
+
+                                <Image Source="{StaticResource CheckIcon}" />
+                            </Button>
+                            
+                            <TextBlock Text="{Binding CorrectTestsCount}" Foreground="Green" />
+                            <TextBlock Text=" / " />
+                            <TextBlock Text="{Binding TotalTestsCount}" />
+
+                        </StackPanel>
+
+                        <!-- Column 1 (Editing) -->
 
                         <Button Grid.Column="1" HorizontalAlignment="Right" Margin="2,2,2,2"
                                 Command="{Binding RemovePage}"

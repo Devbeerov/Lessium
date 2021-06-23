@@ -144,10 +144,6 @@ namespace Lessium.Views
             viewModel.CurrentPageNumber = page;
         }
 
-
-
-
-
         #endregion
 
         #region ContentPageControl
@@ -171,7 +167,5 @@ namespace Lessium.Views
         #endregion
 
         #endregion
-
-
     }
 }

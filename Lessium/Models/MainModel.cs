@@ -77,12 +77,10 @@ namespace Lessium.Models
         public string StopEditingHeader = Resources.StopEditingHeader;
         public string UndoChangesHeader = Resources.UndoChangesHeader;
         public string RedoChangesHeader = Resources.RedoChangesHeader;
-        public string RecentHeader = Resources.RecentHeader;
         public string NewLessonHeader = Resources.NewLessonHeader;
         public string SaveLessonHeader = Resources.SaveLessonHeader;
         public string LoadLessonHeader = Resources.LoadLessonHeader;
         public string CloseLessonHeader = Resources.CloseLessonHeader;
-        public string PrintLessonHeader = Resources.PrintLessonHeader;
         public string ExitHeader = Resources.ExitHeader;
 
         #endregion
@@ -107,22 +105,13 @@ namespace Lessium.Models
 
         #region MaterialControls
 
-        public string AudioHeader = Resources.AudioHeader;
-        public string ImageHeader = Resources.ImageHeader;
-        public string JokeHeader = Resources.JokeHeader;
         public string TextHeader = Resources.TextHeader;
-        public string VideoHeader = Resources.VideoHeader;
 
         #endregion
 
         #region TestControls
 
-        public string LinkTogetherHeader = Resources.LinkTogetherHeader; // 1 = A, 2 = B, 3 = C, 4 = D
-        public string PrioritiesHeader = Resources.PrioritiesHeader; // A > B, B > C, C > D
         public string SimpleTestHeader = Resources.SimpleTestHeader;
-        public string TrickyQuestionHeader = Resources.TrickyQuestionHeader;
-        public string TrueFalseHeader = Resources.TrueFalseHeader;
-        public string DifferencesHeader = Resources.DifferencesHeader;
 
         #endregion
 
@@ -141,11 +130,18 @@ namespace Lessium.Models
         #region ToolTips
 
         public string ReadOnlyToolTip = Resources.ReadOnlyToolTip;
+        public string CheckAnswersToolTip = Resources.CheckAnswersToolTip;
 
         #endregion
 
         #endregion
 
+        #region Misc
+
+        public int TotalTestsCount;
+        public int CorrectTestsCount;
+
+        #endregion
     }
 }
 

@@ -311,7 +311,7 @@ namespace Lessium.Models
                     break;
 
                 case ContentType.Test:
-                    isValid = ReflectionUtility.IsGenericsOf(control.GetType(), typeof(ITestControl<>));
+                    isValid = control is ITestControl;
                     break;
 
                 default:

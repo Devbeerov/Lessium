@@ -120,9 +120,6 @@
   <data name="AddSectionText" xml:space="preserve">
     <value>Add Section</value>
   </data>
-  <data name="AudioHeader" xml:space="preserve">
-    <value>Audio</value>
-  </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Add</value>
   </data>
@@ -132,26 +129,14 @@
   <data name="CloseLessonHeader" xml:space="preserve">
     <value>Close</value>
   </data>
-  <data name="DifferencesHeader" xml:space="preserve">
-    <value>Differences</value>
-  </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Edit</value>
   </data>
   <data name="ExitHeader" xml:space="preserve">
     <value>Exit</value>
   </data>
-  <data name="ImageHeader" xml:space="preserve">
-    <value>Image</value>
-  </data>
-  <data name="JokeHeader" xml:space="preserve">
-    <value>Joke</value>
-  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Lesson</value>
-  </data>
-  <data name="LinkTogetherHeader" xml:space="preserve">
-    <value>Link-Together Test</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Load</value>
@@ -162,15 +147,6 @@
   <data name="NewSection" xml:space="preserve">
     <value>Section</value>
   </data>
-  <data name="PrintLessonHeader" xml:space="preserve">
-    <value>Print</value>
-  </data>
-  <data name="PrioritiesHeader" xml:space="preserve">
-    <value>Priorities</value>
-  </data>
-  <data name="RecentHeader" xml:space="preserve">
-    <value>Recent</value>
-  </data>
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Save</value>
   </data>
@@ -180,17 +156,8 @@
   <data name="TextHeader" xml:space="preserve">
     <value>Text</value>
   </data>
-  <data name="TrickyQuestionHeader" xml:space="preserve">
-    <value>Tricky Question</value>
-  </data>
-  <data name="TrueFalseHeader" xml:space="preserve">
-    <value>True/False</value>
-  </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Undo</value>
-  </data>
-  <data name="VideoHeader" xml:space="preserve">
-    <value>Video</value>
   </data>
   <data name="AddContentHeader" xml:space="preserve">
     <value>Add</value>
@@ -282,5 +249,8 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="HotkeyExistError" xml:space="preserve">
     <value>This shortcut is already being used.</value>
+  </data>
+  <data name="CheckAnswersToolTip" xml:space="preserve">
+    <value>Check Answers</value>
   </data>
 </root>

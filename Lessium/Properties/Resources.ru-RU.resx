@@ -120,9 +120,6 @@
   <data name="AddSectionText" xml:space="preserve">
     <value>Добавить раздел</value>
   </data>
-  <data name="AudioHeader" xml:space="preserve">
-    <value>Аудио</value>
-  </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Добавить</value>
   </data>
@@ -132,26 +129,14 @@
   <data name="CloseLessonHeader" xml:space="preserve">
     <value>Закрыть</value>
   </data>
-  <data name="DifferencesHeader" xml:space="preserve">
-    <value>Различия</value>
-  </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Редактировать</value>
   </data>
   <data name="ExitHeader" xml:space="preserve">
     <value>Выход</value>
   </data>
-  <data name="ImageHeader" xml:space="preserve">
-    <value>Изображение</value>
-  </data>
-  <data name="JokeHeader" xml:space="preserve">
-    <value>Шутка</value>
-  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Урок</value>
-  </data>
-  <data name="LinkTogetherHeader" xml:space="preserve">
-    <value>Соответствия</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Загрузить</value>
@@ -162,15 +147,6 @@
   <data name="NewSection" xml:space="preserve">
     <value>Раздел</value>
   </data>
-  <data name="PrintLessonHeader" xml:space="preserve">
-    <value>Печать</value>
-  </data>
-  <data name="PrioritiesHeader" xml:space="preserve">
-    <value>Расстановка приоритетов</value>
-  </data>
-  <data name="RecentHeader" xml:space="preserve">
-    <value>Недавнее</value>
-  </data>
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Сохранить</value>
   </data>
@@ -179,12 +155,6 @@
   </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Текст</value>
-  </data>
-  <data name="TrickyQuestionHeader" xml:space="preserve">
-    <value>Вопрос с подвохом</value>
-  </data>
-  <data name="TrueFalseHeader" xml:space="preserve">
-    <value>Правда/ложь</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Отменить</value>
@@ -282,5 +252,8 @@
   </data>
   <data name="HotkeyExistError" xml:space="preserve">
     <value>Это сочетание клавиш уже используется.</value>
+  </data>
+  <data name="CheckAnswersToolTip" xml:space="preserve">
+    <value>Проверить ответы</value>
   </data>
 </root>

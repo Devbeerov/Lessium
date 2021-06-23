@@ -97,15 +97,6 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Audio.
-        /// </summary>
-        public static string AudioHeader {
-            get {
-                return ResourceManager.GetString("AudioHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Add.
         /// </summary>
         public static string ButtonAddHeader {
@@ -120,6 +111,15 @@ namespace Lessium.Properties {
         public static string ButtonRemoveHeader {
             get {
                 return ResourceManager.GetString("ButtonRemoveHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Check Answers.
+        /// </summary>
+        public static string CheckAnswersToolTip {
+            get {
+                return ResourceManager.GetString("CheckAnswersToolTip", resourceCulture);
             }
         }
         
@@ -156,15 +156,6 @@ namespace Lessium.Properties {
         public static string DefaultAnswerHeader {
             get {
                 return ResourceManager.GetString("DefaultAnswerHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Differences.
-        /// </summary>
-        public static string DifferencesHeader {
-            get {
-                return ResourceManager.GetString("DifferencesHeader", resourceCulture);
             }
         }
         
@@ -232,24 +223,6 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Image.
-        /// </summary>
-        public static string ImageHeader {
-            get {
-                return ResourceManager.GetString("ImageHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Joke.
-        /// </summary>
-        public static string JokeHeader {
-            get {
-                return ResourceManager.GetString("JokeHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Lesson (*.lsn)|*.lsn.
         /// </summary>
         public static string LessonFilter {
@@ -264,15 +237,6 @@ namespace Lessium.Properties {
         public static string LessonHeader {
             get {
                 return ResourceManager.GetString("LessonHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Link-Together Test.
-        /// </summary>
-        public static string LinkTogetherHeader {
-            get {
-                return ResourceManager.GetString("LinkTogetherHeader", resourceCulture);
             }
         }
         
@@ -349,39 +313,12 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Print.
-        /// </summary>
-        public static string PrintLessonHeader {
-            get {
-                return ResourceManager.GetString("PrintLessonHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Priorities.
-        /// </summary>
-        public static string PrioritiesHeader {
-            get {
-                return ResourceManager.GetString("PrioritiesHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Disabled in Read-Only.
         ///To edit lesson, select &quot;Lesson&quot; at top-left and press &quot;Edit&quot;..
         /// </summary>
         public static string ReadOnlyToolTip {
             get {
                 return ResourceManager.GetString("ReadOnlyToolTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Recent.
-        /// </summary>
-        public static string RecentHeader {
-            get {
-                return ResourceManager.GetString("RecentHeader", resourceCulture);
             }
         }
         
@@ -503,24 +440,6 @@ namespace Lessium.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Tricky Question.
-        /// </summary>
-        public static string TrickyQuestionHeader {
-            get {
-                return ResourceManager.GetString("TrickyQuestionHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на True/False.
-        /// </summary>
-        public static string TrueFalseHeader {
-            get {
-                return ResourceManager.GetString("TrueFalseHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Undo.
         /// </summary>
         public static string UndoChangesHeader {
@@ -544,15 +463,6 @@ namespace Lessium.Properties {
         public static string Version {
             get {
                 return ResourceManager.GetString("Version", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Video.
-        /// </summary>
-        public static string VideoHeader {
-            get {
-                return ResourceManager.GetString("VideoHeader", resourceCulture);
             }
         }
     }

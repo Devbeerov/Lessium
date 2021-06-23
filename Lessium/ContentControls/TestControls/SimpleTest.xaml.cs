@@ -7,8 +7,10 @@ using Lessium.Services;
 using Lessium.UndoableActions.Generic;
 using Lessium.Utility;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -174,15 +176,8 @@ namespace Lessium.ContentControls.TestControls
         private static void OnEditableChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             var control = sender as SimpleTest;
-            var addAnswerButton = control.addAnswerButton;
-            var IsEditable = (bool)args.NewValue;
 
             control.ValidateAnswersSelectionMode();
-
-            // Text Editable
-
-            addAnswerButton.IsEnabled = IsEditable;
-            addAnswerButton.Visibility = IsEditable ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -193,9 +188,38 @@ namespace Lessium.ContentControls.TestControls
         public IList<SimpleAnswerModel> TrueAnswers { get; set; } = new List<SimpleAnswerModel>();
         public IList<SimpleAnswerModel> SelectedAnswers { get; set; } = new List<SimpleAnswerModel>();
 
+        public event NotifyCollectionChangedEventHandler AnswersChanged;
+
+        IList ITestControl.Answers
+        {
+            get
+            {
+                return Answers.ToList();
+            }
+            set { throw new NotSupportedException(); }
+        }
+
+        IList ITestControl.TrueAnswers
+        {
+            get
+            {
+                return TrueAnswers.ToList();
+            }
+            set { throw new NotSupportedException(); }
+        }
+
+        IList ITestControl.SelectedAnswers
+        {
+            get
+            {
+                return SelectedAnswers.ToList();
+            }
+            set { throw new NotSupportedException(); }
+        }
+
         public bool CheckAnswers()
         {
-            return SelectedAnswers.SequenceEqual(TrueAnswers);
+            return TrueAnswers.SequenceEqual(SelectedAnswers);
         }
 
         #endregion
@@ -206,21 +230,14 @@ namespace Lessium.ContentControls.TestControls
         {
             if (!raiseResizeEvent) { return; }
 
-            if (addAnswerButton.Visibility != Visibility.Collapsed)
-            {
-                var buttonPos = addAnswerButton.TranslatePoint(default, AnswersItemControl);
-                var lineHeight = testQuestion.textBox.CalculateLineHeight();
-                var maximumValidPosY = buttonPos.Y + addAnswerButton.ActualHeight + lineHeight;
+            if (addAnswerButton.Visibility == Visibility.Collapsed) return;
+            
+            var buttonPos = addAnswerButton.TranslatePoint(default, AnswersItemControl);
+            var lineHeight = testQuestion.textBox.CalculateLineHeight();
+            var maximumValidPosY = MaxHeight - addAnswerButton.ActualHeight - lineHeight;
+            var fits = buttonPos.Y + addAnswerButton.ActualHeight <= maximumValidPosY;
 
-                var show = buttonPos.Y <= maximumValidPosY;
-
-                addAnswerButton.IsEnabled = show;
-                addAnswerButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-
-                // Returns this entry and wait for next SizeChanged event, which will be triggered because of collapsed button.
-
-                if (!show) return; 
-            }
+            addAnswerButton.IsEnabled = fits;
 
             // Sets source to SimpleTest Control, not Border
 
@@ -271,6 +288,7 @@ namespace Lessium.ContentControls.TestControls
             var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
 
             TrueAnswers.Add(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
 
             ValidateAnswersSelectionMode();
         }
@@ -280,6 +298,7 @@ namespace Lessium.ContentControls.TestControls
             var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
 
             TrueAnswers.Remove(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
 
             ValidateAnswersSelectionMode();
         }
@@ -289,6 +308,7 @@ namespace Lessium.ContentControls.TestControls
             var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
 
             SelectedAnswers.Add(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
         }
 
         private void AnswerUnselected(object sender, RoutedEventArgs e)
@@ -296,6 +316,7 @@ namespace Lessium.ContentControls.TestControls
             var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
 
             SelectedAnswers.Remove(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
         }
 
         #endregion
@@ -340,6 +361,7 @@ namespace Lessium.ContentControls.TestControls
             storedAnswers.Clear();
             storedAnswers = null;
 
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
             UpdateCheckboxesOnceAtLoad();
         }
 
@@ -392,6 +414,7 @@ namespace Lessium.ContentControls.TestControls
                 dispatcher.Invoke(() =>
                 {
                     Answers.Add(answer);
+                    AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
                 });
             }
         }

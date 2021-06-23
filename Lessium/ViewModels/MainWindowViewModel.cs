@@ -25,7 +25,6 @@ using Lessium.UndoableActions;
 using System.Configuration;
 using Lessium.Services;
 using Lessium.UndoableActions.Generic;
-using Lessium.Utility.Behaviors;
 
 namespace Lessium.ViewModels
 {
@@ -78,7 +77,11 @@ namespace Lessium.ViewModels
         public bool IsEditable
         {
             get { return model.IsEditable; }
-            set { SetProperty(ref model.IsEditable, value); }
+            set 
+            {
+                if (SetProperty(ref model.IsEditable, value))
+                    CheckPageTests.RaiseCanExecuteChanged();
+            }
         }
 
         #endregion
@@ -135,7 +138,6 @@ namespace Lessium.ViewModels
         public Section CurrentSection
         {
             get { return model.CurrentSection[SelectedContentType]; }
-
         }
 
         // Should be used exclusively for binding!
@@ -250,6 +252,18 @@ namespace Lessium.ViewModels
         {
             get { return currentPageIsNotFirst; }
             set { SetProperty(ref currentPageIsNotFirst, value); }
+        }
+
+        public int TotalTestsCount
+        {
+            get { return model.TotalTestsCount; }
+            set { SetProperty(ref model.TotalTestsCount, value); }
+        }
+
+        public int CorrectTestsCount
+        {
+            get { return model.CorrectTestsCount; }
+            set { SetProperty(ref model.CorrectTestsCount, value); }
         }
 
         #endregion
@@ -522,11 +536,15 @@ namespace Lessium.ViewModels
 
             RaisePropertyCurrentSectionChanged();
 
-            if (previousSection != null) { previousSection.PagesChanged -= OnPagesChanged; }
+            if (previousSection != null) 
+                previousSection.PagesChanged -= OnPagesChanged;
 
-            if (section == null) return;
+            if (section == null) 
+                return;
 
             section.PagesChanged += OnPagesChanged;
+
+            CheckPageTests.RaiseCanExecuteChanged();
 
             ShowSection(section);
 
@@ -1068,6 +1086,7 @@ namespace Lessium.ViewModels
                 case nameof(TextControl):
                     control = new TextControl();
                     break;
+
                 default:
                     throw new NotImplementedException($"{MaterialName} not supported!");
             }
@@ -1121,6 +1140,35 @@ namespace Lessium.ViewModels
                     CurrentPageIndex--;
                 },
             });
+        }
+
+        #endregion
+
+        #region CheckPageTests
+
+        private DelegateCommand CheckPageTestsCommand;
+        public DelegateCommand CheckPageTests =>
+            CheckPageTestsCommand ?? (CheckPageTestsCommand = new DelegateCommand(ExecuteCheckPageTests, CanExecuteCheckPageTests));
+
+        void ExecuteCheckPageTests()
+        {
+            int correctTests = 0;
+
+            foreach (var item in CurrentPage.Items)
+            {
+                var testControl = item as ITestControl;
+                var correct = testControl.CheckAnswers();
+
+                if (correct)
+                    correctTests++;
+            }
+        }
+
+        bool CanExecuteCheckPageTests()
+        {
+            return !IsEditable &&
+                CurrentPage != null &&
+                CurrentPage.ContentType == ContentType.Test;
         }
 
         #endregion
@@ -1266,11 +1314,6 @@ namespace Lessium.ViewModels
             get { return BuildHeaderWithHotkey(model.RedoChangesHeader, Hotkeys.Current.RedoHotkey); }
         }
 
-        public string RecentHeader
-        {
-            get { return model.RecentHeader; }
-        }
-
         public string NewLessonHeader
         {
             get { return model.NewLessonHeader; }
@@ -1289,11 +1332,6 @@ namespace Lessium.ViewModels
         public string CloseLessonHeader
         {
             get { return model.CloseLessonHeader; }
-        }
-
-        public string PrintLessonHeader
-        {
-            get { return model.PrintLessonHeader; }
         }
 
         public string ExitHeader
@@ -1340,61 +1378,18 @@ namespace Lessium.ViewModels
 
         #region MaterialControls
 
-        public string AudioHeader
-        {
-            get { return model.AudioHeader; }
-        }
-
-        public string ImageHeader
-        {
-            get { return model.ImageHeader; }
-        }
-
-        public string JokeHeader
-        {
-            get { return model.JokeHeader; }
-        }
-
         public string TextHeader
         {
             get { return model.TextHeader; }
-        }
-        public string VideoHeader
-        {
-            get { return model.VideoHeader; }
         }
 
         #endregion
 
         #region TestControls
 
-        public string DifferencesHeader
-        {
-            get { return model.DifferencesHeader; }
-        }
-        public string LinkTogetherHeader
-        {
-            get { return model.LinkTogetherHeader; }
-        }
-
-        public string PrioritiesHeader
-        {
-            get { return model.PrioritiesHeader; }
-        }
-
         public string SimpleTestHeader
         {
             get { return model.SimpleTestHeader; }
-        }
-
-        public string TrickyQuestionHeader
-        {
-            get { return model.TrickyQuestionHeader; }
-        }
-
-        public string TrueFalseHeader
-        {
-            get { return model.TrueFalseHeader; }
         }
 
         #endregion
@@ -1408,10 +1403,15 @@ namespace Lessium.ViewModels
             get { return model.ReadOnlyToolTip; }
         }
 
-        #endregion
+        public string CheckAnswersToolTip
+        {
+            get { return model.CheckAnswersToolTip; }
+        }
 
         #endregion
 
-        
+        #endregion
+
+
     }
 }

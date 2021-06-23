@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="Services\MathHelper.cs" />
     <Compile Include="Services\ContentPageControlService.cs" />
+    <Compile Include="Services\PageTestsInfoService.cs" />
     <Compile Include="Services\UndoableActionsServiceLocator.cs" />
     <Compile Include="UndoableActions\InsertContentAction.cs" />
     <Compile Include="UndoableActions\RemoveContentAction.cs" />
@@ -128,7 +129,6 @@
     <Compile Include="Services\RuntimeDataService.cs" />
     <Compile Include="Services\UndoableActionsService.cs" />
     <Compile Include="Utility\LinkedListExtensions.cs" />
-    <Compile Include="Utility\ReflectionUtility.cs" />
     <Compile Include="Utility\StoredTestAnswers.cs" />
     <Compile Include="Utility\Validator.cs" />
     <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
@@ -313,15 +313,14 @@
     <Resource Include="Resources\green plus.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\search.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\sort.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\question.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\outdatedmark.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>; Move all assemblies and related files to lib folder

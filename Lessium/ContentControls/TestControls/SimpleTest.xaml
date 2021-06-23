@@ -114,10 +114,11 @@
 
                 </controls:TextItemsControl>
 
-                <!-- Using code-behind instead of bindings, because there will be direct value changes and it will break bindings. -->
+                <!-- Using code-behind for IsEnabled property, because it's calculated based on if button fits. -->
                 <Button x:Name="addAnswerButton" HorizontalAlignment="Left"
                         Width="16" Height="16"
-                        Click="AddAnswer_Click" > <!-- Have additional properties changes in code-behind (Border_SizeChanged) -->
+                        Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Click="AddAnswer_Click" >
 
                     <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
                 </Button>

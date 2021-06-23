@@ -1,15 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Lessium.Interfaces
 {
-    public interface ITestControl<AnswerType> : IContentControl
+    public interface ITestControl<AnswerType> : ITestControl
     {
-        IList<AnswerType> Answers { get; set; }
+        new IList<AnswerType> Answers { get; set; }
 
-        IList<AnswerType> TrueAnswers { get; set; }
+        new IList<AnswerType> TrueAnswers { get; set; }
 
-        IList<AnswerType> SelectedAnswers { get; set; }
+        new IList<AnswerType> SelectedAnswers { get; set; }
+    }
+
+    public interface ITestControl : IContentControl
+    {
+        IList Answers { get; set; }
+
+        IList TrueAnswers { get; set; }
+
+        IList SelectedAnswers { get; set; }
 
         bool CheckAnswers();
+        event NotifyCollectionChangedEventHandler AnswersChanged;
     }
 }
