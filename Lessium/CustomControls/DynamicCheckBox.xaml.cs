@@ -58,6 +58,7 @@ namespace Lessium.CustomControls
             if (oldToggle as RadioButton != null && newToggle as RadioButton != null)
             {
                 newToggle.IsChecked = oldToggle.IsChecked;
+                // TODO: find place where  DynamicCheckBoxTypeKey changes
             }
         }
 

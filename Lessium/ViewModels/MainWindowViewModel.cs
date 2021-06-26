@@ -40,6 +40,7 @@ namespace Lessium.ViewModels
 
         private readonly UndoableActionsService actionsService;
         private readonly HotkeysService hotkeysService;
+        private readonly SectionTestsInfoService testsInfoService;
 
         // Logical variables
 
@@ -80,7 +81,7 @@ namespace Lessium.ViewModels
             set 
             {
                 if (SetProperty(ref model.IsEditable, value))
-                    CheckPageTests.RaiseCanExecuteChanged();
+                    CheckSectionTests.RaiseCanExecuteChanged();
             }
         }
 
@@ -300,6 +301,7 @@ namespace Lessium.ViewModels
 
             actionsService = new UndoableActionsService(mainWindow, () => RaiseHasChanges());
             hotkeysService = new HotkeysService(mainWindow);
+            testsInfoService = new SectionTestsInfoService();
 
             // Setup hotkeys
 
@@ -544,8 +546,8 @@ namespace Lessium.ViewModels
 
             section.PagesChanged += OnPagesChanged;
 
-            CheckPageTests.RaiseCanExecuteChanged();
-
+            CheckSectionTests.RaiseCanExecuteChanged();
+            testsInfoService.UpdateSection(section);
             ShowSection(section);
 
             currentSectionUpdating = false;
@@ -693,6 +695,16 @@ namespace Lessium.ViewModels
 
             var hotkey = (Hotkey)Hotkeys.Current[e.SettingName];
             hotkeysService.UnregisterHotkey(hotkey);
+        }
+
+        private void OnSettingsClosed(object sender, EventArgs e)
+        {
+            settingsWindow = null;
+        }
+
+        private void OnAboutClosed(object sender, EventArgs e)
+        {
+            aboutWindow = null;
         }
 
         #endregion
@@ -1144,27 +1156,21 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region CheckPageTests
+        #region CheckSectionTests
 
-        private DelegateCommand CheckPageTestsCommand;
-        public DelegateCommand CheckPageTests =>
-            CheckPageTestsCommand ?? (CheckPageTestsCommand = new DelegateCommand(ExecuteCheckPageTests, CanExecuteCheckPageTests));
+        private DelegateCommand CheckSectionTestsCommand;
+        public DelegateCommand CheckSectionTests =>
+            CheckSectionTestsCommand ?? (CheckSectionTestsCommand = new DelegateCommand(ExecuteCheckSectionTests, CanExecuteCheckSectionTests));
 
-        void ExecuteCheckPageTests()
+        void ExecuteCheckSectionTests()
         {
-            int correctTests = 0;
+            testsInfoService.CalculateTests();
 
-            foreach (var item in CurrentPage.Items)
-            {
-                var testControl = item as ITestControl;
-                var correct = testControl.CheckAnswers();
-
-                if (correct)
-                    correctTests++;
-            }
+            TotalTestsCount = testsInfoService.TotalTests;
+            CorrectTestsCount = testsInfoService.CorrectTests;
         }
 
-        bool CanExecuteCheckPageTests()
+        bool CanExecuteCheckSectionTests()
         {
             return !IsEditable &&
                 CurrentPage != null &&
@@ -1259,24 +1265,6 @@ namespace Lessium.ViewModels
             // SelectSection should be used here, see implementation for details.
 
             SelectSection(model.CurrentSection[SelectedContentType], previousSection, true);
-        }
-
-        #endregion
-
-        #region OnSettingsClosed
-
-        private void OnSettingsClosed(object sender, EventArgs e)
-        {
-            settingsWindow = null;
-        }
-
-        #endregion
-
-        #region OnAboutClosed
-
-        private void OnAboutClosed(object sender, EventArgs e)
-        {
-            aboutWindow = null;
         }
 
         #endregion
@@ -1411,7 +1399,5 @@ namespace Lessium.ViewModels
         #endregion
 
         #endregion
-
-
     }
 }

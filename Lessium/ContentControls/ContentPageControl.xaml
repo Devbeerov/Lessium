@@ -42,6 +42,12 @@
              Keyboard.KeyDown="itemsControl_KeyDown" 
              PreviewMouseWheel="itemsControl_PreviewMouseWheel">
 
+        <!--<ListBox.ItemTemplate>
+            <DataTemplate>
+                <ContentPresenter />
+            </DataTemplate>
+        </ListBox.ItemTemplate>-->
+
         <ListBox.Resources>
 
             <Style x:Key="DeselectListBoxItemStyle" TargetType="{x:Type ListBoxItem}">

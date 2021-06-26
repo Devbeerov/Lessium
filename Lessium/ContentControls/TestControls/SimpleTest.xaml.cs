@@ -219,7 +219,19 @@ namespace Lessium.ContentControls.TestControls
 
         public bool CheckAnswers()
         {
-            return TrueAnswers.SequenceEqual(SelectedAnswers);
+            if (TrueAnswers.Count != SelectedAnswers.Count) 
+                return false;
+
+            for (int i = 0; i < TrueAnswers.Count; i++)
+            {
+                var answerTrue = TrueAnswers[i];
+                var answerSelected = SelectedAnswers[i];
+
+                if (!answerTrue.Equals(answerSelected))
+                    return false;
+            }
+
+            return true;
         }
 
         #endregion

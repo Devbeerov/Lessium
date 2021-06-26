@@ -270,17 +270,24 @@
 
                         <StackPanel Orientation="Horizontal">
 
-                            <Button Background="{Binding ElementName=toolbar, Path=Background}"
+                            <Button x:Name="checkAnswersButton"
+                                    Background="{Binding ElementName=toolbar, Path=Background}"
                                     ToolTip="{Binding CheckAnswersToolTip}"
                                     Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    Command="{Binding CheckPageTests}">
+                                    Command="{Binding CheckSectionTests}">
 
                                 <Image Source="{StaticResource CheckIcon}" />
                             </Button>
-                            
-                            <TextBlock Text="{Binding CorrectTestsCount}" Foreground="Green" />
-                            <TextBlock Text=" / " />
-                            <TextBlock Text="{Binding TotalTestsCount}" />
+
+                            <!-- Checked Tests info -->
+                            <StackPanel Orientation="Horizontal"
+                                        IsEnabled="{Binding ElementName=checkAnswersButton, Path=IsEnabled}"
+                                        Visibility="{Binding ElementName=checkAnswersButton, Path=Visibility}">
+
+                                <TextBlock Text="{Binding CorrectTestsCount}" Foreground="Green" />
+                                <TextBlock Text=" / " />
+                                <TextBlock Text="{Binding TotalTestsCount}" />
+                            </StackPanel>
 
                         </StackPanel>
 
