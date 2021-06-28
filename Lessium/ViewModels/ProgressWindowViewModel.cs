@@ -108,7 +108,7 @@ namespace Lessium.ViewModels
                 case ProgressType.Content:
                     ContentIndex++;
                     break;
-                default: throw new NotSupportedException($"{type.ToString()} not supported (case insensitive).");
+                default: throw new NotSupportedException($"{type} not supported (case insensitive).");
             }
         }
 
@@ -186,6 +186,13 @@ namespace Lessium.ViewModels
 
         private void UpdatePageAndContentCount()
         {
+            if (SectionCount == 0)
+            {
+                PageCount = 0;
+                ContentCount = 0;
+                return;
+            }
+
             PageCount = storedData[dataType].GetPagesCount(SectionIndex);
             UpdateContentCount();
         }

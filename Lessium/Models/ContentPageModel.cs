@@ -1,19 +1,19 @@
-﻿using Lessium.Interfaces;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
+using Lessium.Interfaces;
+using Lessium.Services;
+using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Windows;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Lessium.Utility;
-using Lessium.Classes.IO;
-using Lessium.ContentControls;
-using Lessium.Services;
+using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace Lessium.Models
 {

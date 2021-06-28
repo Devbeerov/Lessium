@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Lessium.Utility;
+using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.Windows.Input;
-using Lessium.Utility;
 
 namespace Lessium.Properties
 {

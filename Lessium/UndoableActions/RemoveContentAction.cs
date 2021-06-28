@@ -1,5 +1,5 @@
-﻿using Lessium.Models;
-using Lessium.Interfaces;
+﻿using Lessium.Interfaces;
+using Lessium.Models;
 using System;
 
 namespace Lessium.UndoableActions

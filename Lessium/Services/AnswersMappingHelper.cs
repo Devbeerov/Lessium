@@ -1,5 +1,4 @@
 ﻿using Lessium.CustomControls;
-using Lessium.Interfaces;
 using System;
 using System.Collections.Generic;
 

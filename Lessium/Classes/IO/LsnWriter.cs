@@ -1,6 +1,6 @@
 ﻿using Lessium.ContentControls;
-using Lessium.Models;
 using Lessium.Interfaces;
+using Lessium.Models;
 using Lessium.Utility;
 using System;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ namespace Lessium.Classes.IO
                     }
                 }
 
-                if (task.IsCompleted) { result = IOResult.successful; }
+                if (task.IsCompleted) { result = IOResult.Successful; }
             }
 
             cts = null;

@@ -2,7 +2,7 @@
 {
     public enum IOResult
     {
-        Null, Error, successful, Cancelled, Timeout
+        Null, Error, Successful, Cancelled, Timeout
     }
 
     public enum IOType

@@ -1,13 +1,13 @@
-﻿using Lessium.Models;
-using Lessium.Interfaces;
+﻿using Lessium.Interfaces;
+using Lessium.Models;
+using Lessium.Services;
+using Lessium.Utility;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using Lessium.Services;
-using Lessium.Utility;
 
 namespace Lessium.ContentControls
 {

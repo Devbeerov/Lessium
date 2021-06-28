@@ -1,6 +1,4 @@
-﻿using Lessium.CustomControls;
-
-namespace Lessium.Interfaces
+﻿namespace Lessium.Interfaces
 {
     /// <summary>
     /// Basic interface for ContentControl.

@@ -1,15 +1,13 @@
 ﻿using Lessium.Properties;
+using Lessium.Utility;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Lessium.Utility;
-using System.Windows.Data;
-using System.Globalization;
-using System.Collections;
-using System.Collections.Generic;
-using System;
 
 namespace Lessium.CustomControls
 {

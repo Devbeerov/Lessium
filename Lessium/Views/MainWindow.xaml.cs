@@ -1,12 +1,12 @@
-﻿using Lessium.Utility;
+﻿using Lessium.ContentControls;
+using Lessium.Utility;
 using Lessium.ViewModels;
+using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Linq;
 using static System.Windows.Forms.SystemInformation;
-using Lessium.ContentControls;
-using System;
 
 namespace Lessium.Views
 {

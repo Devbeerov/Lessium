@@ -1,30 +1,30 @@
-﻿using Lessium.ContentControls;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
+using Lessium.ContentControls.MaterialControls;
+using Lessium.ContentControls.TestControls;
+using Lessium.Interfaces;
 using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Services;
+using Lessium.UndoableActions;
+using Lessium.UndoableActions.Generic;
+using Lessium.Utility;
+using Lessium.Views;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Linq;
-using System;
-using Lessium.ContentControls.MaterialControls;
-using System.Windows.Input;
-using Lessium.Interfaces;
-using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
-using Microsoft.Win32;
-using Lessium.Classes.IO;
-using Lessium.Utility;
-using System.Diagnostics;
-using Lessium.Views;
-using System.Text;
-using Lessium.Properties;
-using System.Threading.Tasks;
-using Lessium.UndoableActions;
 using System.Configuration;
-using Lessium.Services;
-using Lessium.UndoableActions.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Lessium.ViewModels
 {
@@ -826,7 +826,7 @@ namespace Lessium.ViewModels
 
                 var result = await Task.Run(async () => await LsnWriter.SaveAsync(lessonModel, fileName, progress));
 
-                if (result != IOResult.Cancelled)
+                if (result != IOResult.Successful && result != IOResult.Cancelled)
                 {
                     MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {result}",
                         "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -904,7 +904,7 @@ namespace Lessium.ViewModels
                 var resultCode = result.Item1;
                 var resultLessonModel = result.Item2;
 
-                if (resultCode == IOResult.successful && resultLessonModel != null)
+                if (resultCode == IOResult.Successful && resultLessonModel != null)
                 {
                     ClearLesson();
 

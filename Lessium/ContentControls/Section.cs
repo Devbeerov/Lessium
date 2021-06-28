@@ -1,22 +1,22 @@
-﻿using System;
+﻿using Lessium.Classes.IO;
+using Lessium.Interfaces;
+using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Utility;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Resources;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Linq;
-using Lessium.Models;
-using System.ComponentModel;
-using System.Runtime.Serialization;
 using System.Xml;
-using Lessium.Interfaces;
-using System.Threading.Tasks;
-using Lessium.Utility;
-using System.Threading;
-using System.IO;
-using Lessium.Classes.IO;
-using Lessium.Properties;
-using System.Globalization;
-using System.Resources;
 
 namespace Lessium.ContentControls
 {

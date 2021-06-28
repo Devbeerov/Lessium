@@ -1,6 +1,6 @@
 ﻿using Lessium.Interfaces;
-using System.Windows;
 using System.Runtime.Serialization;
+using System.Windows;
 
 namespace Lessium.Services
 {

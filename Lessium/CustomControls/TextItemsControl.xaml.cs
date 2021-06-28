@@ -1,5 +1,4 @@
 ﻿using Lessium.ContentControls.MaterialControls;
-using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
 using System.Collections;

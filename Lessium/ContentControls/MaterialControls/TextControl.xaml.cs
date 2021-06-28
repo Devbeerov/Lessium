@@ -1,15 +1,14 @@
-﻿using Lessium.Interfaces;
+﻿using Lessium.Classes.IO;
+using Lessium.Interfaces;
+using Lessium.Utility;
+using Lessium.Utility.Behaviors;
 using System;
 using System.Runtime.Serialization;
-using System.Windows;
-using System.Windows.Controls;
-using Lessium.Utility;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Xml;
-using Lessium.Classes.IO;
-using Lessium.Utility.Behaviors;
-using System.Windows.Media;
 
 namespace Lessium.ContentControls.MaterialControls
 {

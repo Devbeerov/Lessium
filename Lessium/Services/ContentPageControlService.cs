@@ -1,8 +1,6 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Converters;
-using Lessium.CustomControls;
 using Lessium.Interfaces;
-using Lessium.Models;
 using Lessium.Views;
 using System;
 using System.Globalization;

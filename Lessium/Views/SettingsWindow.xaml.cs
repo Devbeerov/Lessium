@@ -1,6 +1,6 @@
-﻿using Lessium.ViewModels;
+﻿using Lessium.Models;
+using Lessium.ViewModels;
 using System.Windows;
-using Lessium.Models;
 
 namespace Lessium.Views
 {

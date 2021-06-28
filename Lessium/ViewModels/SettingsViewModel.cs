@@ -1,14 +1,14 @@
-﻿using Lessium.Properties;
+﻿using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Utility;
+using Microsoft.Extensions.Localization;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
-using System.Windows;
-using Lessium.Utility;
-using System.Windows.Controls;
 using System.Collections.ObjectModel;
-using Lessium.Models;
 using System.Globalization;
-using Microsoft.Extensions.Localization;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Lessium.ViewModels
 {

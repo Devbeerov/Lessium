@@ -1,11 +1,11 @@
 ﻿using Lessium.Interfaces;
 using Lessium.Properties;
+using Lessium.Utility;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Input;
 using System.Windows;
-using Lessium.Utility;
+using System.Windows.Input;
 
 namespace Lessium.Services
 {

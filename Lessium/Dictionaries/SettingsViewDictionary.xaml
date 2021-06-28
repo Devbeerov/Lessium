@@ -1,12 +1,12 @@
 ﻿<ResourceDictionary x:Class="Lessium.Themes.SettingsViewDictionary"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:prism="http://prismlibrary.com/"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Lessium.CustomControls"
                     xmlns:prop="clr-namespace:Lessium.Properties"
-                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
                     xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
-                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" 
-                    xmlns:controls="clr-namespace:Lessium.CustomControls" >
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase">
 
     <!--#region Item Templates -->
 

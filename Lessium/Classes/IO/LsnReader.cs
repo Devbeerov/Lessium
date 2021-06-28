@@ -104,7 +104,7 @@ namespace Lessium.Classes.IO
 
                 if (task.IsCompleted)
                 {
-                    result = IOResult.successful;
+                    result = IOResult.Successful;
                     model = task.Result;
                 }
             }

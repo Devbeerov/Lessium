@@ -1,5 +1,4 @@
-﻿using Lessium.Classes;
-using Lessium.Properties;
+﻿using Lessium.Properties;
 using Lessium.Views;
 using Prism.Ioc;
 using System.Windows;
