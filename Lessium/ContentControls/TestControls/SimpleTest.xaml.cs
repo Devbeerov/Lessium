@@ -133,8 +133,13 @@ namespace Lessium.ContentControls.TestControls
 
         private void UpdateCheckboxes()
         {
-            AnswersItemControl.UpdateCheckboxes(mappingHelper.GetCheckBoxTypes(TrueAnswers));
-            AnswersItemControl.UpdateCheckboxes(mappingHelper.GetCheckBoxTypes(SelectedAnswers));
+            AnswersItemControl.UpdateCheckboxes(TrueAnswers, mappingHelper.GetCheckBoxTypes(TrueAnswers));
+            AnswersItemControl.UpdateCheckboxes(SelectedAnswers, mappingHelper.GetCheckBoxTypes(SelectedAnswers));
+        }
+
+        private bool CheckSelectedAndTrueAnswersMatch()
+        {
+            return TrueAnswers.ContainsOtherList(SelectedAnswers);
         }
 
         private void UpdateCheckboxesOnceAtLoad()
@@ -222,16 +227,7 @@ namespace Lessium.ContentControls.TestControls
             if (TrueAnswers.Count != SelectedAnswers.Count) 
                 return false;
 
-            for (int i = 0; i < TrueAnswers.Count; i++)
-            {
-                var answerTrue = TrueAnswers[i];
-                var answerSelected = SelectedAnswers[i];
-
-                if (!answerTrue.Equals(answerSelected))
-                    return false;
-            }
-
-            return true;
+            return CheckSelectedAndTrueAnswersMatch();
         }
 
         #endregion

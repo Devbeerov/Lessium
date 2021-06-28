@@ -1,6 +1,5 @@
 ﻿using Lessium.ContentControls;
 using Lessium.Interfaces;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -11,7 +10,6 @@ namespace Lessium.Services
         private int totalTests = 0;
         private int correctTests = 0;
 
-        private List<ITestControl> wrongTestsControls = new List<ITestControl>();
         private Section section = null;
 
         #region Properties
@@ -57,8 +55,6 @@ namespace Lessium.Services
         public SectionTestsInfoService(Section section = null)
         {
             UpdateSection(section);
-
-            SectionTestsInfoManager.AddService(this);
         }
 
         #endregion
@@ -76,7 +72,6 @@ namespace Lessium.Services
                 return;
             }
 
-            wrongTestsControls.Clear();
             CalculateTests();
         }
 
@@ -102,8 +97,6 @@ namespace Lessium.Services
 
                         if (correct)
                             tempCorrect++;
-                        else
-                            wrongTestsControls.Add(testControl); //highlight
                     }
                 }
             }
@@ -116,8 +109,6 @@ namespace Lessium.Services
         {
             TotalTests = 0;
             CorrectTests = 0;
-
-            wrongTestsControls.Clear();
         }
 
         private void RaisePropertyChanged([CallerMemberName] string propertyName = null)

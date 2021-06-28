@@ -40,7 +40,8 @@ namespace Lessium.Utility
                 var firstPage = first[i];
                 var secondPage = second[i];
 
-                if (!firstPage.Equals(secondPage)) return false;
+                if (!AreEqual(firstPage.Items, secondPage.Items))
+                    return false;
             }
 
             return true;
@@ -64,7 +65,7 @@ namespace Lessium.Utility
                 var firstControl = first[i];
                 var secondControl = second[i];
 
-                if (!AreEqual(firstControl,secondControl)) return false;
+                if (!AreEqual(firstControl, secondControl)) return false;
             }
 
             return true;
@@ -96,22 +97,33 @@ namespace Lessium.Utility
         {
             return first.Question == second.Question &&
                 AreEqual(first.Answers, second.Answers) &&
-                first.SelectedAnswers.SequenceEqual(second.SelectedAnswers) &&
-                first.TrueAnswers.SequenceEqual(second.TrueAnswers);
+                AreEqual(first.SelectedAnswers, second.SelectedAnswers) &&
+                AreEqual(first.TrueAnswers, second.TrueAnswers);
         }
 
         public static bool AreEqual(IList<SimpleAnswerModel> first, IList<SimpleAnswerModel> second)
         {
             if (first.Count != second.Count) return false;
 
-            // Iterates over Answers
+            var secondCopy = second.ToList();
 
-            for (int i = 0; i < first.Count; i++)
+            foreach (var model in first)
             {
-                var firstAnswer = first[i];
-                var secondAnswer = second[i];
+                bool found = false;
 
-                if (!firstAnswer.Equals(secondAnswer)) return false;
+                for (int i = secondCopy.Count - 1; i >= 0; i--)
+                {
+                    var item = secondCopy[i];
+
+                    if (item.Text == model.Text)
+                    {
+                        found = true;
+                        secondCopy.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                if (!found) return false;
             }
 
             return true;

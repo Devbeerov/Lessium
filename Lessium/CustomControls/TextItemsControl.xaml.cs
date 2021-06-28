@@ -1,4 +1,5 @@
 ﻿using Lessium.ContentControls.MaterialControls;
+using Lessium.Interfaces;
 using Lessium.Utility;
 using System;
 using System.Collections;
@@ -36,9 +37,9 @@ namespace Lessium.CustomControls
 
         #region Public
 
-        public void UpdateCheckboxes(List<DynamicCheckBoxType> checkBoxTypes)
+        public void UpdateCheckboxes<T>(IList<T> answers, List<DynamicCheckBoxType> checkBoxTypes)
         {
-            foreach (var item in innerItemsControl.Items)
+            foreach (var item in answers)
             {
                 var containerPresenter = innerItemsControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
                 var contentTemplate = containerPresenter.ContentTemplate;

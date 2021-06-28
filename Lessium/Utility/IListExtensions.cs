@@ -11,5 +11,16 @@ namespace Lessium.Utility
                 list.Add(obj);
             }
         }
+
+        public static bool ContainsOtherList<T>(this IList<T> list, IList<T> other)
+        {
+            foreach (var item in list)
+            {
+                if (!other.Contains(item))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

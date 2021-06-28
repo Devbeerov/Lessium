@@ -9,6 +9,7 @@ namespace Lessium.CustomControls
 {
     public partial class DynamicCheckBox : UserControl
     {
+        private static readonly Array checkBoxTypesArray = Enum.GetValues(typeof(DynamicCheckBoxType));
         private bool fireEvents = true;
 
         public DynamicCheckBox()
@@ -19,23 +20,18 @@ namespace Lessium.CustomControls
         #region Methods
 
         /// <summary>
-        /// Updates specified CheckBox.IsChecked state, will not fire Checked events.
+        /// Updates specified CheckBox.IsChecked state.
         /// </summary>
-        public void UpdateIsChecked(bool isChecked, DynamicCheckBoxType checkBoxType)
+        public void UpdateIsChecked(bool isChecked, DynamicCheckBoxType checkBoxType, bool fireEvents = false)
         {
-            var typeString = checkBoxType.ToString();
+            var toggle = FindCheckBoxTypeResource(checkBoxType.ToString());
 
-            foreach (DictionaryEntry entry in currentContentControl.Resources)
-            {
-                if ((string)entry.Key != typeString) continue;
+            if (toggle == null) return;
 
-                var toggleContainer = entry.Value as ContentControl;
-                var toggle = toggleContainer.Content as ToggleButton;
-
+            if (fireEvents)
+                toggle.IsChecked = isChecked;
+            else
                 UpdateIsCheckedWithoutEvent(toggle, isChecked);
-
-                return;
-            }
         }
 
         private void UpdateIsCheckedWithoutEvent(ToggleButton toggle, bool isChecked)
@@ -58,7 +54,31 @@ namespace Lessium.CustomControls
             if (oldToggle as RadioButton != null && newToggle as RadioButton != null)
             {
                 newToggle.IsChecked = oldToggle.IsChecked;
-                // TODO: find place where  DynamicCheckBoxTypeKey changes
+            }
+        }
+
+        private ToggleButton FindCheckBoxTypeResource(string typeKey)
+        {
+            foreach (DictionaryEntry entry in currentContentControl.Resources)
+            {
+                if ((string)entry.Key != typeKey) continue;
+
+                var toggleContainer = entry.Value as ContentControl;
+
+                return toggleContainer.Content as ToggleButton;
+            }
+
+            throw new NotSupportedException($"\"{typeKey}\" is not supported.");
+        }
+
+        private void SynchronizeRadioButtons(bool isChecked)
+        {
+            foreach (DynamicCheckBoxType type in checkBoxTypesArray)
+            {
+                if (type != DynamicCheckBoxType.CheckBox)
+                {
+                    UpdateIsChecked(isChecked, type);
+                }
             }
         }
 
@@ -102,6 +122,7 @@ namespace Lessium.CustomControls
                 return;
             }
 
+            SynchronizeRadioButtons(true);
             RadioButtonChecked?.Invoke(sender, e);
         }
 
@@ -113,9 +134,11 @@ namespace Lessium.CustomControls
                 return;
             }
 
+            SynchronizeRadioButtons(false);
             RadioButtonUnchecked?.Invoke(sender, e);
         }
 
+        // There's a reference to that method in DynamicCheckBox.xaml, however it might not appear due to Visual Studio bug.
         private void OnDynamicContentChanged(object sender, DynamicContentChangedArgs e)
         {
             SynchronizeContent(e.OldContent as ContentControl, e.NewContent as ContentControl);
