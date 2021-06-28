@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- BitmapImages -->
+
+    <BitmapImage x:Key="AddContentIcon" UriSource="../Resources/green plus.png" />
+    <BitmapImage x:Key="RemoveContentIcon" UriSource="../Resources/cross.png" />
+
+</ResourceDictionary>

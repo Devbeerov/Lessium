@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="Lessium.ContentControls.ContentPageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lessium.ContentControls"
+             xmlns:controls="clr-namespace:Lessium.CustomControls"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             mc:Ignorable="d"
+             x:Name="pageControlReference" >
+
+    <UserControl.Resources>
+
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dictionaries/Generic.xaml" />
+
+                <ResourceDictionary>
+                    <Button x:Key="removeButtonTemplate" MinWidth="16" MinHeight="16"
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            IsEnabled="{Binding IsEditable}"
+                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                        <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
+                    </Button>
+                </ResourceDictionary>
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </UserControl.Resources>
+
+    <ListBox x:Name="itemsControl"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             ScrollViewer.CanContentScroll="False" 
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+             MaxWidth="{Binding ElementName=pageControlReference, Path=MaxWidth}"
+             MaxHeight="{Binding ElementName=pageControlReference, Path=MaxHeight}"
+             Focusable="{Binding ElementName=itemsControl, Path=HasItems}"
+             ItemsSource="{Binding Items}"
+             Keyboard.KeyDown="itemsControl_KeyDown" 
+             PreviewMouseWheel="itemsControl_PreviewMouseWheel">
+
+        <!--<ListBox.ItemTemplate>
+            <DataTemplate>
+                <ContentPresenter />
+            </DataTemplate>
+        </ListBox.ItemTemplate>-->
+
+        <ListBox.Resources>
+
+            <Style x:Key="DeselectListBoxItemStyle" TargetType="{x:Type ListBoxItem}">
+                <EventSetter Event="LostFocus" Handler="ListBoxItem_LostFocus" />
+            </Style>
+
+            <Style x:Key="FixedMaxSizeStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DeselectListBoxItemStyle}">
+                <!-- MaxHeight and MaxWidth is calculated in code-behind (see handler) -->
+                <EventSetter Event="Loaded" Handler="ListBoxItem_Loaded" />
+            </Style>
+
+            <Style x:Key="NoSelectionItemStyle" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource FixedMaxSizeStyle}">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                            <ContentPresenter Margin="5, 2, 5, 2"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ListBox.Resources>
+
+        <ListBox.Style>
+            <Style TargetType="{x:Type ListBox}">
+                <Setter Property="ItemContainerStyle" Value="{StaticResource NoSelectionItemStyle}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=local:ContentPageControl}, Path=IsEditable}" Value="True">
+                        <Setter Property="ItemContainerStyle" Value="{StaticResource FixedMaxSizeStyle}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </ListBox.Style>
+
+    </ListBox>
+
+</UserControl>

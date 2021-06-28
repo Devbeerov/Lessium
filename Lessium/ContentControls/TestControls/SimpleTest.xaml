@@ -6,83 +6,127 @@
              xmlns:local="clr-namespace:Lessium.ContentControls.TestControls"
              xmlns:properties="clr-namespace:Lessium.Properties"
              xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
+             xmlns:controls="clr-namespace:Lessium.CustomControls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
-             xmlns:tests="clr-namespace:Lessium.ContentControls.TestControls"
-             xmlns:converters="clr-namespace:Lessium.Converters"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:utility="clr-namespace:Lessium.Utility"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" 
+             x:Name="control" >
 
     <UserControl.Resources>
-        <converters:ArithmeticConverter x:Key="ArithmeticConverter" />
-        <converters:UIElementsDistanceConverter x:Key="UIElementsDistanceConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dictionaries/MainViewDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate x:Key="AnswerItemTemplate">
+                <!-- "dataPanel" name is used in code-behind. -->
+                <StackPanel Orientation="Horizontal" x:Name="dataPanel">
+
+                    <!-- "checkBox" name is used in code-behind. -->
+                    <controls:DynamicCheckBox Grid.Column="1" x:Name="checkBox"
+                                              Width="16" Height="16"
+                                              HorizontalAlignment="Left" VerticalAlignment="Top"
+                                              DynamicCheckBoxTypeKey="{Binding RelativeSource={RelativeSource AncestorType=controls:TextItemsControl}, Path=DataContext.CheckBoxType}" 
+                                              RadioButtonGroupName="{Binding RelativeSource={RelativeSource AncestorType=controls:TextItemsControl}, Path=DataContext.GUID, Mode=OneTime}"
+                                              CheckBoxChecked="ToggleAnswerTrue_Checked"
+                                              CheckBoxUnchecked="ToggleAnswerTrue_Unchecked"
+                                              RadioButtonChecked="AnswerSelected"
+                                              RadioButtonUnchecked="AnswerUnselected"/>
+
+                    <!-- TextControl. It's have it's own DataContext, so we bind to dataPanel.DataContext -->
+                    <!-- "TextContainer" name is used in code-behind (also in PageItemsControl). -->
+                    <materials:TextControl x:Name="TextContainer"
+                                           UsesCutBehavior="False"
+                                           controls:RemoveButtonPresenter.UsesCustomRemoveOnClick="True"
+                                           controls:RemoveButtonPresenter.OnClick="RemoveAnswer_Click"
+                                           IsEditable="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                           MaxHeight="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=MaxHeight}"
+                                           Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
+                                           Loaded="TextContainer_Loaded"
+                                           Unloaded="TextContainer_Unloaded" >
+
+                        <materials:TextControl.Style>
+                            <Style TargetType="{x:Type materials:TextControl}">
+                                <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=controls:TextItemsControl}, Path=MaxWidth, Converter={StaticResource ValidDoubleConverter}}" Value="True" >
+                                        <Setter Property="MaxWidth">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=controls:TextItemsControl}" Path="MaxWidth" />
+                                                    <Binding ElementName="checkBox" Path="ActualWidth" />
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+                            </Style>
+                        </materials:TextControl.Style>
+
+                    </materials:TextControl>
+                </StackPanel>
+            </DataTemplate>
+        </ResourceDictionary>
+
+        
     </UserControl.Resources>
 
-    <Border x:Name="border" MinWidth="16" MinHeight="16" SizeChanged="Border_SizeChanged">
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" >
+    <Border x:Name="border">
+        <Grid x:Name="grid" Style="{StaticResource ContentControlGridFixedWidthStyle}">
 
-            <StackPanel Orientation="Vertical">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="testQuestion"
-                     TextWrapping="Wrap" Background="Transparent"
-                     ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
-                     Text="{x:Static properties:Resources.SimpleTestControl_DefaultText}">
+            <StackPanel x:Name="contentPanel" Orientation="Vertical" MaxHeight="{Binding ElementName=control, Path=MaxHeight}">
 
-                    <i:Interaction.Behaviors>
-                        <utility:TextBoxNewlineBehavior />
-                    </i:Interaction.Behaviors>
-                    
-                </TextBox>
+                <materials:TextControl x:Name="testQuestion"
+                                       UseRemoveButtonPresenter="False"
+                                       ToolTip="{x:Static properties:Resources.TextControl_Tooltip}"
+                                       Text="{Binding Question, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                       IsEditable="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=local:SimpleTest}}"
+                                       MaxWidth="{Binding ElementName=control, Path=MaxWidth}"
+                                       MaxHeight="{Binding ElementName=control, Path=MaxHeight}" />
 
-                <ItemsControl x:Name="AnswersItemControl" ItemsSource="{Binding Answers}" >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" x:Name="dataPanel">
-                                <RadioButton x:Name="radioButton" 
-                                             GroupName="{Binding RelativeSource={RelativeSource AncestorType=local:SimpleTest}, Path=GUID, Mode=OneTime}" >
-                                    <!-- TextControl have it's own DataContext, so we bind to dataPanel.DataContext -->
-                                    <materials:Text x:Name="TextContainer"
-                                                    Text="{Binding ElementName=dataPanel, Path=DataContext.Text, Mode=TwoWay}"
-                                                    Loaded="TextContainer_Loaded"
-                                                    Unloaded="TextContainer_Unloaded"
-                                                    RemoveControl="RemoveAnswer_Click" >
+                <controls:TextItemsControl x:Name="AnswersItemControl" 
+                                           ItemsSource="{Binding Answers}" 
+                                           ItemTemplate="{StaticResource ResourceKey=AnswerItemTemplate}"
+                                           SizeChanged="AnswersItemControl_SizeChanged" >
 
-                                        <materials:Text.Tag>
-                                            <MultiBinding Converter="{StaticResource UIElementsDistanceConverter}" ConverterParameter="X">
-                                                <Binding ElementName="TextContainer" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                            </MultiBinding>
-                                        </materials:Text.Tag>
+                    <controls:TextItemsControl.MaxHeight>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                            <Binding ElementName="control" Path="MaxHeight" />
+                            <Binding ElementName="testQuestion" Path="ActualHeight" />
+                            <Binding ElementName="addAnswerButton" Path="Height" />
+                            <Binding ElementName="addAnswerButton" Path="BorderThickness.Top" />
+                            <Binding ElementName="addAnswerButton" Path="BorderThickness.Bottom" />
+                        </MultiBinding>
+                    </controls:TextItemsControl.MaxHeight>
 
-                                        <materials:Text.MaxWidth>
-                                            <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
-                                                <Binding RelativeSource="{RelativeSource AncestorType=ItemsControl}" Path="MaxWidth" />
-                                                <Binding Path="Tag" />
-                                            </MultiBinding>
-                                        </materials:Text.MaxWidth>
-                                        
-                                    </materials:Text>
-                                </RadioButton>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    <controls:TextItemsControl.MaxWidth>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-">
+                            <Binding ElementName="control" Path="MaxWidth" />
+                            <Binding ElementName="controlRemoveButtonPresenter" Path="ActualWidth" />
+                        </MultiBinding>
+                    </controls:TextItemsControl.MaxWidth>
 
-                <Button x:Name="addAnswerButton" Click="AddAnswer_Click" Width="16" Height="16"
-                        HorizontalAlignment="Left">
+                </controls:TextItemsControl>
+
+                <!-- Using code-behind for IsEnabled property, because it's calculated based on if button fits. -->
+                <Button x:Name="addAnswerButton" HorizontalAlignment="Left"
+                        Width="16" Height="16"
+                        Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Click="AddAnswer_Click" >
 
                     <Image x:Name="addAnswerIcon" Source="{StaticResource ResourceKey=AddContentIcon}" />
                 </Button>
 
             </StackPanel>
 
-            <Button x:Name="removeButton" Click="RemoveButton_Click" Width="16" Height="16"
-                    HorizontalAlignment="Right" VerticalAlignment="Top">
+            <controls:RemoveButtonPresenter x:Name="controlRemoveButtonPresenter" Grid.Column="1" VerticalAlignment="Top" />
 
-                <Image x:Name="removeContentIcon" Source="{StaticResource ResourceKey=RemoveContentIcon}" />
-            </Button>
-
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>

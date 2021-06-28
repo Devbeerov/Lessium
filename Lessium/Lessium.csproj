@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,12 +37,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Lessium.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\LessiumIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -54,13 +57,110 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ContentControls\MaterialControls\Text.xaml">
+    <Compile Include="Classes\IO\CountData.cs" />
+    <Compile Include="Classes\IO\LsnIO.cs" />
+    <Compile Include="Classes\IO\LsnReader.cs" />
+    <Compile Include="Classes\Wrappers\DispatcherWrapper.cs" />
+    <Compile Include="ContentControls\ContentPageControl.xaml.cs">
+      <DependentUpon>ContentPageControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ContentControls\TestControls\AnswerModels\SimpleAnswerModel.cs" />
+    <Compile Include="Converters\ValidDoubleConverter.cs" />
+    <Compile Include="CustomControls\TextItemsControl.xaml.cs">
+      <DependentUpon>TextItemsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\RemoveButtonPresenter.cs" />
+    <Compile Include="CustomControls\UnselectableRadioButton.cs" />
+    <Compile Include="CustomControls\DynamicCheckBox.xaml.cs">
+      <DependentUpon>DynamicCheckBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\ShortcutControl.xaml.cs">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\TitledProgressBar.xaml.cs">
+      <DependentUpon>TitledProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\IActionSender.cs" />
+    <Compile Include="Interfaces\IAnswerModel.cs" />
+    <Compile Include="Interfaces\IDispatcher.cs" />
+    <Compile Include="Interfaces\ILsnSerializable.cs" />
+    <Compile Include="Interfaces\IUndoableAction.cs" />
+    <Compile Include="Models\LessonModel.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
+    <Compile Include="Properties\Hotkeys.cs" />
+    <Compile Include="Properties\Resources.ru-RU1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.ru-RU.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ActionSenderRegistratorService.cs" />
+    <Compile Include="Services\AnswersMappingHelper.cs" />
+    <Compile Include="Services\ClipboardService.cs" />
+    <Compile Include="Dictionaries\SettingsViewDictionary.xaml.cs">
+      <DependentUpon>SettingsViewDictionary.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\MathHelper.cs" />
+    <Compile Include="Services\ContentPageControlService.cs" />
+    <Compile Include="Services\SectionTestsInfoService.cs" />
+    <Compile Include="Services\UndoableActionsServiceLocator.cs" />
+    <Compile Include="UndoableActions\InsertContentAction.cs" />
+    <Compile Include="UndoableActions\RemoveContentAction.cs" />
+    <Compile Include="UndoableActions\AddContentAction.cs" />
+    <Compile Include="UndoableActions\Generic\RemoveFromCollectionAction.cs" />
+    <Compile Include="UndoableActions\Generic\AddToCollectionAction.cs" />
+    <Compile Include="Utility\Behaviors\TextBoxCaretIndexLastBehavior.cs" />
+    <Compile Include="Utility\Behaviors\TextBoxCutBehavior.cs" />
+    <Compile Include="Utility\Behaviors\TextBoxNewLineBehavior.cs" />
+    <Compile Include="Utility\Behaviors\DoubleClickTextBoxBehavior.cs" />
+    <Compile Include="Utility\BehaviorUtility.cs" />
+    <Compile Include="Utility\DispatcherUtility.cs" />
+    <Compile Include="Services\HotkeysService.cs" />
+    <Compile Include="Utility\EqualsHelper.cs" />
+    <Compile Include="Utility\IListExtensions.cs" />
+    <Compile Include="Utility\ILsnSerializableExtensions.cs" />
+    <Compile Include="Utility\KeyExtensions.cs" />
+    <Compile Include="Utility\IOTools.cs" />
+    <Compile Include="Services\RuntimeDataService.cs" />
+    <Compile Include="Services\UndoableActionsService.cs" />
+    <Compile Include="Utility\LinkedListExtensions.cs" />
+    <Compile Include="Utility\StoredTestAnswers.cs" />
+    <Compile Include="Utility\Validator.cs" />
+    <Compile Include="ViewModels\ProgressWindowViewModel.cs" />
+    <Compile Include="ViewModels\AboutViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="Views\AboutView.xaml.cs">
+      <DependentUpon>AboutView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProgressWindow.xaml.cs">
+      <DependentUpon>ProgressWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="ContentControls\ContentPageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ContentControls\MaterialControls\TextControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\DynamicCheckBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\TextItemsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\ShortcutControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -68,19 +168,39 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\MainWindowView.Icons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Generic.Icons.xaml">
+    <Page Include="CustomControls\TitledProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Generic.xaml">
+    <Page Include="Dictionaries\AboutViewDictionary.Icons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dictionaries\AboutViewDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\MainWindowView.xaml">
+    <Page Include="Dictionaries\MainViewDictionary.Icons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dictionaries\Generic.Icons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dictionaries\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dictionaries\MainViewDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dictionaries\SettingsViewDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AboutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -92,7 +212,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ContentControls\ContentPageControl.cs" />
+    <Compile Include="Classes\IO\LsnWriter.cs" />
     <Compile Include="ContentControls\Section.cs" />
     <Compile Include="ContentControls\TestControls\SimpleTest.xaml.cs">
       <DependentUpon>SimpleTest.xaml</DependentUpon>
@@ -107,24 +227,32 @@
     <Compile Include="Interfaces\ITestControl.cs" />
     <Compile Include="Interfaces\IMaterialControl.cs" />
     <Compile Include="Interfaces\IContentControl.cs" />
-    <Compile Include="ContentControls\MaterialControls\Text.xaml.cs">
-      <DependentUpon>Text.xaml</DependentUpon>
+    <Compile Include="ContentControls\MaterialControls\TextControl.xaml.cs">
+      <DependentUpon>TextControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanAndConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
-    <Compile Include="ContentControls\Models\ContentPage.cs" />
-    <Compile Include="Models\MainWindowModel.cs" />
+    <Compile Include="Models\ContentPageModel.cs" />
+    <Compile Include="Models\MainModel.cs" />
     <Compile Include="Properties\Resources.ru-RU.Designer.cs">
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Utility\Behaviors.cs" />
+    <Compile Include="Utility\WpfExtensions.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\ProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -142,19 +270,23 @@
     </Compile>
     <EmbeddedResource Include="Properties\Resources.ru-RU.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.ru-RU.Designer.cs</LastGenOutput>
+      <LastGenOutput>Resources.ru-RU1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions">
+      <Version>5.0.4</Version>
+    </PackageReference>
     <PackageReference Include="Prism.Core">
       <Version>7.2.0.1422</Version>
     </PackageReference>
@@ -167,10 +299,10 @@
     <Resource Include="Resources\gear.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Lessium.ico" />
+    <Resource Include="Resources\LessiumIcon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Classes\" />
+    <Compile Include="Utility\XmlExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\plus.png" />
@@ -182,10 +314,10 @@
     <Resource Include="Resources\green plus.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\search.png" />
+    <Resource Include="Resources\question.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\sort.png" />
+    <Resource Include="Resources\check.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

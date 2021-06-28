@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Lesson>
+  <Materials>
+    <Section Title="sect">
+      <Page>
+        <TextControl>zxc</TextControl>
+        <TextControl>vbn</TextControl>
+      </Page>
+    </Section>
+  </Materials>
+  <Tests>
+    <Section Title="sect2">
+      <Page>
+        <SimpleTest Question="qwe">
+          <Answer>cc</Answer>
+          <Answer>zx</Answer>
+        </SimpleTest>
+        <SimpleTest Question="vv" />
+      </Page>
+    </Section>
+  </Tests>
+</Lesson>

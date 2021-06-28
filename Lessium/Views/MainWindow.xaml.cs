@@ -1,15 +1,15 @@
-﻿using Lessium.ViewModels;
+﻿using Lessium.ContentControls;
+using Lessium.Utility;
+using Lessium.ViewModels;
 using System;
-using System.Text.RegularExpressions;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static System.Windows.Forms.SystemInformation;
 
 namespace Lessium.Views
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         // This should not break MVVM, because Window should know about ViewModel, as it's DataContext.
@@ -24,21 +24,84 @@ namespace Lessium.Views
         #region UI related code-behind
         // Code in this region affects visual part only, it's not breaking MVVM pattern.
 
-        #region Window-Wide Events
+        #region TabControl
 
-        private void MainWindow_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void OnTabChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (viewModel.CurrentPage != null && viewModel.Pages.Count > 1)
+            var newTab = e.AddedItems.OfType<TabItem>().Single();
+            var newTabType = GetTabType(newTab);
+
+            if (e.RemovedItems.Count > 0)
             {
-                if (e.Delta < 0) // Down one page (index is Top-Down)
+                var oldTab = e.RemovedItems.OfType<TabItem>().Single();
+                var oldTabType = GetTabType(oldTab);
+
+                viewModel.TabsVerticalScrollOffsets[oldTabType] = sectionsScrollViewer.VerticalOffset;
+            }
+
+            var offset = viewModel.TabsVerticalScrollOffsets[newTabType];
+            sectionsScrollViewer.ScrollToVerticalOffset(offset);
+        }
+
+        private ContentType GetTabType(TabItem tab)
+        {
+            if (tab == Materials) return ContentType.Material;
+            else if (tab == Tests) return ContentType.Test;
+
+            throw new NotSupportedException($"Tab is not supported. You can only get ContentType from Materials or Tests tabs.");
+        }
+
+        #endregion
+
+        #region SectionsListBox
+
+        private void SectionsListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta == 0) return;
+
+            bool scrollDown = e.Delta < 0;
+            int linesAmount = MouseWheelScrollLines;
+
+            if (linesAmount == -1) // "One screen at time"
+            {
+                if (scrollDown)
                 {
-                    // Number > index, because of bindings to Number, it will also do all validations with value.
-                    viewModel.CurrentPageNumber++;
+                    sectionsScrollViewer.ScrollToBottom();
                 }
+
                 else
                 {
-                    viewModel.CurrentPageNumber--;
+                    sectionsScrollViewer.ScrollToTop();
                 }
+            }
+
+            else
+            {
+                for (int i = 0; i < MouseWheelScrollLines; i++)
+                {
+                    if (scrollDown)
+                    {
+                        sectionsScrollViewer.LineDown();
+                    }
+
+                    else
+                    {
+                        sectionsScrollViewer.LineUp();
+                    }
+                }
+            }
+        }
+
+        private void SectionsListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && !e.IsRepeat)
+            {
+                var command = viewModel.RemoveSection;
+                var section = viewModel.CurrentSection;
+
+                if (!command.CanExecute(section)) return;
+
+                command.Execute(section);
             }
         }
 
@@ -60,12 +123,10 @@ namespace Lessium.Views
 
         #region CurrentPage
 
-        private static readonly Regex onlyDigitsRegex = new Regex("\\d");
-
         // Filters input
         private void CurrentPageBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = !onlyDigitsRegex.IsMatch(e.Text); // if not digit, sets event to Handled, so it won't update text.
+            e.Handled = !Validator.IsOnlyDigits(e.Text); // if not digit, sets event to Handled, so it won't update text.
         }
 
         private void CurrentPageBox_LostFocus(object sender, RoutedEventArgs e)
@@ -79,8 +140,28 @@ namespace Lessium.Views
             }
 
             textBox.Text = page.ToString();
-            
+
             viewModel.CurrentPageNumber = page;
+        }
+
+        #endregion
+
+        #region ContentPageControl
+
+        private void ContentPageControl_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (viewModel.CurrentPage != null && viewModel.Pages.Count > 1)
+            {
+                if (e.Delta < 0) // Down one page (index is Top-Down)
+                {
+                    // Number > index, because of bindings to Number, it will also do all validations with value.
+                    viewModel.CurrentPageNumber++;
+                }
+                else
+                {
+                    viewModel.CurrentPageNumber--;
+                }
+            }
         }
 
         #endregion

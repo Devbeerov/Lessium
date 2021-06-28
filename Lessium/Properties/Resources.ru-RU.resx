@@ -117,32 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActionsInCaseHeader" xml:space="preserve">
-    <value>Действия в ситуации:</value>
-  </data>
   <data name="AddSectionText" xml:space="preserve">
     <value>Добавить раздел</value>
   </data>
-  <data name="AudioHeader" xml:space="preserve">
-    <value>Аудио</value>
-  </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Добавить</value>
-    <comment>Кнопки</comment>
   </data>
   <data name="ButtonRemoveHeader" xml:space="preserve">
     <value>Удалить</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
-    <value>Закрыть Урок</value>
-    <comment>Меню</comment>
-  </data>
-  <data name="CompareHeader" xml:space="preserve">
-    <value>Сравнение</value>
-  </data>
-  <data name="DifferencesHeader" xml:space="preserve">
-    <value>Отличия</value>
-    <comment>Тесты</comment>
+    <value>Закрыть</value>
   </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Редактировать</value>
@@ -150,66 +135,26 @@
   <data name="ExitHeader" xml:space="preserve">
     <value>Выход</value>
   </data>
-  <data name="ImageHeader" xml:space="preserve">
-    <value>Изображение</value>
-  </data>
-  <data name="JokeHeader" xml:space="preserve">
-    <value>Шутка</value>
-  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Урок</value>
-  </data>
-  <data name="LinkTogetherHeader" xml:space="preserve">
-    <value>Соответствия</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Загрузить</value>
   </data>
-  <data name="MaterialHeader" xml:space="preserve">
-    <value>Материал</value>
-  </data>
-  <data name="MiniGameHeader" xml:space="preserve">
-    <value>Мини-игра</value>
-  </data>
   <data name="NewLessonHeader" xml:space="preserve">
-    <value>Новый Урок</value>
+    <value>Новый</value>
   </data>
   <data name="NewSection" xml:space="preserve">
     <value>Раздел</value>
   </data>
-  <data name="PrintLessonHeader" xml:space="preserve">
-    <value>Печать</value>
-  </data>
-  <data name="PrioritiesHeader" xml:space="preserve">
-    <value>Расстановка приоритетов</value>
-  </data>
-  <data name="RecentHeader" xml:space="preserve">
-    <value>Недавнее</value>
-  </data>
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Сохранить</value>
-  </data>
-  <data name="SelectCorrectHeader" xml:space="preserve">
-    <value>Выбор правильного</value>
-  </data>
-  <data name="SIGameHeader" xml:space="preserve">
-    <value>Своя Игра</value>
   </data>
   <data name="SimpleTestHeader" xml:space="preserve">
     <value>Тест</value>
   </data>
-  <data name="TestsHeader" xml:space="preserve">
-    <value>Тесты</value>
-  </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Текст</value>
-    <comment>Материалы</comment>
-  </data>
-  <data name="TrickyQuestionHeader" xml:space="preserve">
-    <value>Вопрос с подвохом</value>
-  </data>
-  <data name="TrueFalseHeader" xml:space="preserve">
-    <value>Правда/ложь</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Отменить</value>
@@ -223,7 +168,6 @@
   <data name="ReadOnlyToolTip" xml:space="preserve">
     <value>Не поддерживается в режиме "Для чтения".
 Чтобы редактировать урок, выберите "Урок" слева-сверху и щелкните по "Редактировать".</value>
-    <comment>Подсказки</comment>
   </data>
   <data name="TextControl_DefaultText" xml:space="preserve">
     <value>Введите текст здесь.</value>
@@ -242,5 +186,74 @@
   </data>
   <data name="StopEditingHeader" xml:space="preserve">
     <value>Прекратить редактирование</value>
+  </data>
+  <data name="NewLessonMessageHeader" xml:space="preserve">
+    <value>Вы уверены?</value>
+  </data>
+  <data name="NewLessonMessageText" xml:space="preserve">
+    <value>Создаст новый пустой урок. Все несохраненные изменения будут потеряны!</value>
+  </data>
+  <data name="LoadingHeader" xml:space="preserve">
+    <value>Загрузка...</value>
+  </data>
+  <data name="SavingHeader" xml:space="preserve">
+    <value>Сохранение...</value>
+  </data>
+  <data name="LessonFilter" xml:space="preserve">
+    <value>Урок (*.lsn)|*.lsn</value>
+  </data>
+  <data name="Contents" xml:space="preserve">
+    <value>Содержимые элементы</value>
+  </data>
+  <data name="Pages" xml:space="preserve">
+    <value>Страницы</value>
+  </data>
+  <data name="Sections" xml:space="preserve">
+    <value>Разделы</value>
+  </data>
+  <data name="Materials" xml:space="preserve">
+    <value>Материалы</value>
+  </data>
+  <data name="Tests" xml:space="preserve">
+    <value>Тесты</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="FontSliderHeader" xml:space="preserve">
+    <value>Размер текста</value>
+  </data>
+  <data name="Editing" xml:space="preserve">
+    <value>Редактирование</value>
+  </data>
+  <data name="Generic" xml:space="preserve">
+    <value>Общее</value>
+  </data>
+  <data name="UndoLimitHeader" xml:space="preserve">
+    <value>Лимит отменяемых изменений (Undo/Redo)</value>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>О программе</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>Все права защищены</value>
+  </data>
+  <data name="RedoChangesHeader" xml:space="preserve">
+    <value>Вернуть</value>
+  </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>Сочетания клавиш</value>
+  </data>
+  <data name="CombinationToolTip" xml:space="preserve">
+    <value>Для смены сочетания клавиш, выберите это поле и нажмите новую комбинацию (например: Ctrl + Z)</value>
+  </data>
+  <data name="HotkeyExistError" xml:space="preserve">
+    <value>Это сочетание клавиш уже используется.</value>
+  </data>
+  <data name="CheckAnswersToolTip" xml:space="preserve">
+    <value>Проверить ответы</value>
   </data>
 </root>

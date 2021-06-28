@@ -1,7 +1,0 @@
-TODO (in order):
-- Materials
-- Tests
-- Settings (child) Window
-  - Credits
-- Menu
-COMPLETED:

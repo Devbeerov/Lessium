@@ -7,16 +7,16 @@
 
 <Materials>
 
-<Sections>
-<!-- Коллекция секций -->
+<!-- Секции -->
 <Section>
+<Page>
 
-<Content>
-<!-- Коллекция отдельных элементов контента -->
-</Content>
+<Text>
 
+</Text>
+
+</Page>
 </Section>
-</Sections>
 
 </Materials>
 

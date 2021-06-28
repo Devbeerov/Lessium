@@ -1,25 +1,11 @@
-﻿using System;
-using System.Runtime.Serialization;
-using System.Windows;
-
-namespace Lessium.Interfaces
+﻿namespace Lessium.Interfaces
 {
     /// <summary>
     /// Basic interface for ContentControl.
     /// </summary>
-    public interface IContentControl : ISerializable
+    public interface IContentControl : ILsnSerializable
     {
-        // Similar to IsReadOnly
-        void SetEditable(bool editable);
-
-        // MaxWidth, MaxHeight
-
-        void SetMaxWidth(double width);
-        void SetMaxHeight(double height);
-
-        // Events
-
-        event RoutedEventHandler RemoveControl;
-        event SizeChangedEventHandler Resize;
+        // Preferable to implement through Dependency Property
+        bool IsEditable { get; set; }
     }
 }

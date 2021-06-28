@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Lesson" use="required" maxOccurs="1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Materials" use="required" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Section" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType mixed="true">
+                  <xs:sequence>
+                    <xs:element name="Page" minOccurs="1" maxOccurs="unbounded" use="required">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="TextControl" type="xs:string" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="Title" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Tests" use="required" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Section" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType mixed="true">
+                  <xs:sequence>
+                    <xs:element name="Page" minOccurs="1" maxOccurs="unbounded" use="required">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="SimpleTest">
+                            <xs:complexType mixed="true">
+                              <xs:sequence minOccurs="0">
+                                <xs:element maxOccurs="unbounded" name="Answer" type="xs:string" />
+                              </xs:sequence>
+                              <xs:attribute name="Question" type="xs:string" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="Title" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

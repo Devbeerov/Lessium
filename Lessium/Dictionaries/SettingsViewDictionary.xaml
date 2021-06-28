@@ -1,0 +1,98 @@
+﻿<ResourceDictionary x:Class="Lessium.Themes.SettingsViewDictionary"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:prism="http://prismlibrary.com/"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Lessium.CustomControls"
+                    xmlns:prop="clr-namespace:Lessium.Properties"
+                    xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase">
+
+    <!--#region Item Templates -->
+
+    <DataTemplate x:Key="SettingsSection">
+        <Border BorderThickness="2" BorderBrush="Black" Background="Transparent" 
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <TextBlock Text="{Binding Value}" HorizontalAlignment="Center" />
+        </Border>
+    </DataTemplate>
+
+    <!--#endregion-->
+
+    <!--#region Sections Controls -->
+    <!-- IMPORTANT NOTE: ElementName binding won't work by Tree issues. To fix it, 
+    use Binding Source={x:Reference elementName}, 
+    ContentControls resourceKeys should match in SettingsModel! -->
+
+    <ContentControl x:Key="Generic" SizeChanged="ContentControl_SizeChanged" >
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="{Binding FontSliderHeader}" />
+            <Slider x:Name="fontSlider" Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
+                    ValueChanged="fontSlider_ValueChanged"
+                    Value="{Binding Source={x:Static prop:Settings.Default}, Path=FontSize, Mode=OneTime}" >
+
+                <!-- There are two ValueChanged handlers:
+                    first - dictionary code-behind to update fontSizeTextBlock margin,
+                    second - ViewModel handler, which will update actual FontSize property. -->
+
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <prism:InvokeCommandAction Command="{Binding OnFontSliderChanged}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+            </Slider>
+
+            <TextBlock x:Name="fontSizeTextBlock" Text="{Binding Source={x:Reference fontSlider}, Path=Value}"
+                       Loaded="fontSizeTextBlock_Loaded" Margin="230,0"/>
+        </StackPanel>
+    </ContentControl>
+
+    <ContentControl x:Key="Editing">
+        <StackPanel Orientation="Vertical">
+
+            <!-- Undo -->
+
+            <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
+                <TextBlock x:Name="undoCountBlock" DockPanel.Dock="Left" Text="{Binding UndoLimitHeader}" />
+                <TextBox x:Name="undoCountBox" Margin="5,0,0,0" 
+                         Height="{Binding Source={x:Reference undoCountBlock}, Path=ActualHeight}"
+                         Text="{Binding UndoLimit, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" >
+
+                    <i:Interaction.Behaviors>
+                        <behaviors:TextBoxCaretIndexLastBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding OnUndoLimitChanged}" 
+                                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox}, Path=Text}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                </TextBox>
+            </DockPanel>
+
+        </StackPanel>
+    </ContentControl>
+
+    <ContentControl x:Key="Shortcuts">
+        <StackPanel Orientation="Vertical">
+
+            <!-- Edit -->
+            <controls:ShortcutControl ShortcutKeyName="EditHotkey" 
+                                      ShortcutHeader="{x:Static prop:Resources.EditHeader}"/>
+
+            <!-- Undo -->
+            <controls:ShortcutControl ShortcutKeyName="UndoHotkey" 
+                                      ShortcutHeader="{x:Static prop:Resources.UndoChangesHeader}"/>
+
+            <!-- Redo -->
+            <controls:ShortcutControl ShortcutKeyName="RedoHotkey" 
+                                      ShortcutHeader="{x:Static prop:Resources.RedoChangesHeader}"/>
+
+        </StackPanel>
+    </ContentControl>
+
+    <!--#endregion-->
+</ResourceDictionary>

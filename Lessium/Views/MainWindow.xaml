@@ -5,19 +5,17 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Lessium.Converters"
         xmlns:controls="clr-namespace:Lessium.ContentControls"
-        xmlns:utility="clr-namespace:Lessium.Utility"
+        xmlns:behaviors="clr-namespace:Lessium.Utility.Behaviors"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:materials="clr-namespace:Lessium.ContentControls.MaterialControls"
-        xmlns:models="clr-namespace:Lessium.ContentControls.Models"
+        xmlns:models="clr-namespace:Lessium.Models"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Width="1024" Height="768" Title="{Binding Title}" WindowStartupLocation="CenterScreen"
-        MouseWheel="MainWindow_MouseWheel"
-        x:Name="MainWindowReference"> <!-- Used for referencing -->
+        Width="1024" Height="768"
+        WindowStartupLocation="CenterScreen"
+        x:Name="MainWindowReference"
+        Title="{Binding Title}" >
     
     <!--#region Resources -->
-    
-    <!-- Temp -->
-    <!-- diag:PresentationTraceSources.TraceLevel=High -->
 
     <Window.Resources>
         <ResourceDictionary>
@@ -25,7 +23,7 @@
                 
                 <!-- Icon, Themes used in View -->
 
-                <ResourceDictionary Source="../Themes/MainWindowView.xaml" />
+                <ResourceDictionary Source="../Dictionaries/MainViewDictionary.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -42,7 +40,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/> <!-- UI above content -->
             <RowDefinition Height="92*"/> <!-- Content (materials/tests) -->
-            <RowDefinition Height="3*"/> <!-- ContentPage Counter -->
+            <RowDefinition Height="3*"/> <!-- ContentPageModel Counter -->
         </Grid.RowDefinitions>
 
         <!-- Columns (percentage space) -->
@@ -63,24 +61,21 @@
                 <!-- Edit -->
                 
                 <MenuItem Header="{Binding EditHeader}" Command="{Binding Lesson_Edit}" 
-                          Visibility="{Binding ReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                          Visibility="{Binding IsEditable, Converter={StaticResource InverseVisiblityConverter}}" />
                 
                 <!-- Stop editing -->
                 
                 <MenuItem Header="{Binding StopEditingHeader}" Command="{Binding Lesson_StopEditing}" 
-                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" />
+                          Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 
                 <MenuItem Header="{Binding UndoChangesHeader}" Command="{Binding Lesson_UndoChanges}" />
-                <Separator />
-                <MenuItem Header="{Binding RecentHeader}" />
+                <MenuItem Header="{Binding RedoChangesHeader}" Command="{Binding Lesson_RedoChanges}" />
                 <Separator />
                 <MenuItem Header="{Binding NewLessonHeader}" Command="{Binding Lesson_New}" />
                 <!-- There's no need to do checks for IsEnabled, because Command already handles it. -->
-                <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" />
-                <MenuItem Header="{Binding LoadLessonHeader}" />
+                <MenuItem Header="{Binding SaveLessonHeader}" Command="{Binding Lesson_Save}" CommandParameter="{Binding ElementName=MainWindowReference}" />
+                <MenuItem Header="{Binding LoadLessonHeader}" Command="{Binding Lesson_Load}" CommandParameter="{Binding ElementName=MainWindowReference}" />
                 <MenuItem Header="{Binding CloseLessonHeader}" />
-                <Separator />
-                <MenuItem Header="{Binding PrintLessonHeader}" />
                 <Separator />
                 <MenuItem Header="{Binding ExitHeader}" />
             </MenuItem>
@@ -90,15 +85,21 @@
         
         <!--#region UI -->
 
-        <!-- Settings, child window OnClick. TODO: Add credits to Settings -->
+        <!-- Settings, About, same height as Menu Header -->
 
-        <Button Content="{StaticResource ResourceKey=SettingsIcon}"
-                Grid.Column="1" Width="32" Height="25"
-                HorizontalAlignment="Right" VerticalAlignment="Top">
-            <!-- Same size as Menu Header -->
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Height="25"
+                    HorizontalAlignment="Right" VerticalAlignment="Top">
 
-        </Button>
-        
+            <Button Width="32" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource ResourceKey=SettingsIcon}"
+                    Command="{Binding ShowSettings}" />
+
+            <Button Width="32" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource ResourceKey=QuestionIcon}"
+                    Command="{Binding ShowAbout}" />
+
+        </StackPanel>
+
         <!--#endregion-->
         
         <!--#endregion-->
@@ -109,29 +110,30 @@
 
         <TabControl Name="Tabs" Grid.Row="1" Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Margin="10,0,10,10" >
+                    Margin="10,0,10,10"
+                    SelectionChanged="OnTabChanged" > <!-- Code-behind versin of OnTabChanged. Used for restoring scroll -->
 
-            <!-- Material -->
-            <TabItem Name="MaterialHeader" Header="{Binding MaterialHeader}" >
+            <!-- Materials -->
+            <TabItem Name="Materials" Header="{Binding Materials}" >
 
                 <!-- Interaction -->
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
-                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Materials"/>
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Material"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 
             </TabItem>
 
             <!-- Tests -->
-            <TabItem Name="TestsHeader" Header="{Binding TestsHeader}">
+            <TabItem Name="Tests" Header="{Binding Tests}">
 
                 <!-- Interaction -->
 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
-                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Tests"/>
+                        <i:InvokeCommandAction Command="{Binding OnTabChanged}" CommandParameter="Test"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 
@@ -146,18 +148,33 @@
         <!-- Border serves as separator of Sections and (selected) Section content 
              Also used as container for Sections and AddSectionButton -->
 
-        <Border BorderThickness="1" BorderBrush="DarkGray"
+        <Border x:Name="sectionsBorder" BorderThickness="1" BorderBrush="DarkGray"
                 Grid.Row="1" Margin="11,22,0,11"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Orientation="Vertical" >
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling">
+                
+                <ScrollViewer x:Name="sectionsScrollViewer" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+
+                    <ScrollViewer.MaxHeight>
+                        <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
+                            <Binding ElementName="sectionsBorder" Path="ActualHeight" />
+                            <Binding ElementName="addSectionButton" Path="ActualHeight" />
+                        </MultiBinding>
+                    </ScrollViewer.MaxHeight>
+
                     <!-- Sections Headers -->
+
                     <ListBox x:Name="Sections" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                            ItemsSource="{Binding Sections}"
-                            SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
-                            SelectionChanged="Sections_SelectionChanged"
-                            IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
-                            ItemTemplate="{StaticResource SectionTemplate}">
+                             ItemsSource="{Binding Sections}"
+                             SelectedIndex="{Binding CurrentSectionID, Mode=OneWay}"
+                             SelectionChanged="Sections_SelectionChanged"
+                             IsSynchronizedWithCurrentItem="True" Style="{StaticResource CollapsedIfEmptyStyle}"
+                             ItemTemplate="{StaticResource SectionTemplate}"
+                             PreviewMouseWheel="SectionsListBox_PreviewMouseWheel"
+                             KeyDown="SectionsListBox_KeyDown"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling" >
 
                         <i:Interaction.Triggers>
 
@@ -165,25 +182,28 @@
                                 <i:InvokeCommandAction Command="{Binding TrySelectSection}" CommandParameter="{Binding ElementName=Sections, Path=SelectedValue}" />
                             </i:EventTrigger>
 
-                            <i:EventTrigger EventName="KeyDown">
-                                <i:InvokeCommandAction Command="{Binding SectionInput}" />
-                            </i:EventTrigger>
-
                         </i:Interaction.Triggers>
 
                     </ListBox>
+                </ScrollViewer>
+                
+                <!-- Add Section -->
 
-                    <!-- Add Section -->
-
-                    <Button Template="{StaticResource AddSectionButton}" Height="25" 
+                <Button x:Name="addSectionButton" Template="{StaticResource AddSectionButton}" Height="25" 
                             Command="{Binding AddSection}"
                             ToolTip="{Binding ReadOnlyToolTip}" 
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
+                            ToolTipService.ShowOnDisabled="True"
+                            ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
                             Style="{StaticResource AddSectionButtonStyle}">
-                    </Button>
+                </Button>
+            </VirtualizingStackPanel>
 
-                </StackPanel>
-            </ScrollViewer>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="KeyDown">
+                    <i:InvokeCommandAction Command="{Binding SectionInput}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            
          </Border>
 
 
@@ -198,8 +218,8 @@
                  VerticalAlignment="Top" HorizontalAlignment="Left">
 
             <controls:Section x:Name="section" CanVerticallyScroll="False"
-                              MaxWidth="{x:Static models:ContentPage.PageWidth}"
-                              MaxHeight="{x:Static models:ContentPage.PageHeight}"
+                              MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
+                              MaxHeight="{x:Static models:ContentPageModel.PageHeight}"
                               Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
                               Style="{StaticResource CurrentSectionStyle}">
 
@@ -208,25 +228,25 @@
                 <!-- Page Toolbar -->
 
                 <Border x:Name="toolbar" Height="26"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                    BorderThickness="3" BorderBrush="Gray" Background="#dddddd" >
+                        HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                        BorderThickness="3" BorderBrush="Gray" Background="#dddddd" >
 
                     <Grid>
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" /> <!-- Edit-Only, left part -->
-                            <ColumnDefinition Width="Auto" /> <!-- Both, middle -->
                             <ColumnDefinition Width="*" /> <!-- Edit-Only, right part -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Column 0 -->
+                        <!-- Column 0 (Editing) -->
 
-                        <Menu IsEnabled="{Binding ReadOnly, Converter={StaticResource InverseBooleanConverter}}"
-                          Visibility="{Binding ReadOnly, Converter={StaticResource InverseVisiblityConverter}}" >
+                        <Menu IsEnabled="{Binding IsEditable}"
+                              Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <MenuItem ToolTip="{Binding ReadOnlyToolTip}"  
-                                  ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}"
-                                  Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
+                                      ToolTipService.ShowOnDisabled="True" 
+                                      ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}"
+                                      Background="{Binding ElementName=toolbar, Path=Background}" BorderThickness="0" >
 
                                 <MenuItem.Header>
                                     <Image x:Name="addContentIcon" Source="{StaticResource ResourceKey=AddContentIcon}" Margin="-5,0,-5,0" />
@@ -237,7 +257,7 @@
 
                                 <!-- Materials -->
 
-                                <MenuItem Name="Text" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
+                                <MenuItem Name="TextControl" Header="{Binding TextHeader}" Style="{StaticResource MaterialItem}" />
 
                                 <!-- Tests -->
 
@@ -245,32 +265,43 @@
                                 <!--#endregion-->
                             </MenuItem>
                         </Menu>
+                        
+                        <!-- ReadOnly -->
 
-                        <!-- Column 1 -->
+                        <StackPanel Orientation="Horizontal">
 
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" >
+                            <Button x:Name="checkAnswersButton"
+                                    Background="{Binding ElementName=toolbar, Path=Background}"
+                                    ToolTip="{Binding CheckAnswersToolTip}"
+                                    Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Command="{Binding CheckSectionTests}">
 
-                            <Button BorderThickness="0">
-                                <Image x:Name="sortIcon" Source="{StaticResource ResourceKey=SortIcon}" />
+                                <Image Source="{StaticResource CheckIcon}" />
                             </Button>
 
-                            <Button BorderThickness="0">
-                                <Image x:Name="searchIcon" Source="{StaticResource ResourceKey=SearchIcon}" />
-                            </Button>
+                            <!-- Checked Tests info -->
+                            <StackPanel Orientation="Horizontal"
+                                        IsEnabled="{Binding ElementName=checkAnswersButton, Path=IsEnabled}"
+                                        Visibility="{Binding ElementName=checkAnswersButton, Path=Visibility}">
+
+                                <TextBlock Text="{Binding CorrectTestsCount}" Foreground="Green" />
+                                <TextBlock Text=" / " />
+                                <TextBlock Text="{Binding TotalTestsCount}" />
+                            </StackPanel>
 
                         </StackPanel>
 
-                        <!-- Column 2 -->
+                        <!-- Column 1 (Editing) -->
 
-                        <Button Grid.Column="2" HorizontalAlignment="Right" Margin="2,2,2,2"
-                            Command="{Binding RemovePage}"
-                            ToolTip="{Binding ReadOnlyToolTip}"
-                            ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding ReadOnly}" 
-                            Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                        <Button Grid.Column="1" HorizontalAlignment="Right" Margin="2,2,2,2"
+                                Command="{Binding RemovePage}"
+                                ToolTip="{Binding ReadOnlyToolTip}"
+                                ToolTipService.ShowOnDisabled="True" ToolTipService.IsEnabled="{Binding IsEditable, Converter={StaticResource InverseBooleanConverter}}" 
+                                Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" >
 
                             <Button.IsEnabled>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                                    <Binding Path="ReadOnly" Converter="{StaticResource InverseBooleanConverter}" />
+                                    <Binding Path="IsEditable" />
                                     <Binding Path="CurrentPageIsNotFirst" />
                                 </MultiBinding>
                             </Button.IsEnabled>
@@ -280,20 +311,24 @@
                     </Grid>
 
                 </Border>
+                
+                <!-- ContentPageControl -->
 
-                <!-- CurrentPage Content -->
-                <ContentControl x:Name="CurrentPage" 
-                                Content="{Binding CurrentPage}" HorizontalAlignment="Left"
-                                Style="{StaticResource CurrentPageControlStyle}" ContentTemplate="{StaticResource PageTemplate}">
+                <controls:ContentPageControl x:Name="contentPageControl" HorizontalAlignment="Left"
+                                             MouseWheel="ContentPageControl_MouseWheel"
+                                             IsEditable="{Binding ElementName=section, Path=DataContext.IsEditable}"
+                                             MaxWidth="{x:Static models:ContentPageModel.PageWidth}"
+                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=MaxWidth}"
+                                             DataContext="{Binding CurrentPage}">
 
-                    <ContentControl.MaxHeight>
+                    <controls:ContentPageControl.MaxHeight>
                         <MultiBinding Converter="{StaticResource ArithmeticConverter}" ConverterParameter="-" >
                             <Binding ElementName="section" Path="MaxHeight" />
                             <Binding ElementName="toolbar" Path="ActualHeight" />
                         </MultiBinding>
-                    </ContentControl.MaxHeight>
-                   
-                </ContentControl>
+                    </controls:ContentPageControl.MaxHeight>
+
+                </controls:ContentPageControl>
 
             </controls:Section>
         </Viewbox>
@@ -302,9 +337,7 @@
         
         <!--#endregion-->
         
-        <!--#endregion-->
-        
-        <!--#region Row 2 - ContentPage Counter-->
+        <!--#region Row 2 - ContentPageModel Counter-->
 
         <Border BorderBrush="Black" BorderThickness="1"
                 Width="Auto" Height="20" Grid.Row="2" Grid.Column="1" Margin="0,0,11,1"
@@ -320,7 +353,7 @@
 
                     <!-- To handle enter press -->
                     <i:Interaction.Behaviors>
-                        <utility:TextBoxNewlineBehavior />
+                        <behaviors:TextBoxNewlineBehavior />
                     </i:Interaction.Behaviors>
 
                 </TextBox>

@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Lessium.Services;
+using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 
@@ -21,24 +22,18 @@ namespace Lessium.Converters
         {
             var first = (UIElement)values[0];
             var second = (UIElement)values[1];
-            var coordinate = (string)parameter;
+            var coordinateString = (string)parameter;
 
-            if(values.Length > 2)
+            if (values.Length > 2)
             {
                 var warning = new WarningException("Values past first two were ignored.");
-                Console.WriteLine(warning.ToString());
+                Debug.WriteLine(warning, "Warning");
             }
 
-            var point = first.TranslatePoint(new Point(0, 0), second);
+            var converter = TypeDescriptor.GetConverter(typeof(Coordinate));
+            var coordinate = (Coordinate)converter.ConvertFrom(coordinateString);
 
-            switch (coordinate.ToLower())
-            {
-                case "x":
-                    return point.X;
-                case "y":
-                    return point.Y;
-                default: throw new ArgumentException("Parameter should be either X or Y!");
-            }
+            return MathHelper.DistanceBetweenElements(first, second, coordinate);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

@@ -11,10 +11,10 @@ namespace Lessium.Converters
         {
             bool visible = true;
 
-            for(int i = 0; i < values.Length; i++)
+            for (int i = 0; i < values.Length; i++)
             {
                 var value = System.Convert.ToBoolean(values[i]);
-                if(!value)
+                if (!value)
                 {
                     visible = false;
                 }

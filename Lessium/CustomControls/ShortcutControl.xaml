@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="Lessium.CustomControls.ShortcutControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lessium.CustomControls"
+             xmlns:prop="clr-namespace:Lessium.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="200"
+             DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
+             PreviewKeyDown="ShortcutControl_PreviewKeyDown" >
+    
+    <DockPanel LastChildFill="True">
+        <TextBlock Text="{Binding ShortcutHeader}" Width="Auto"/>
+        <TextBox x:Name="shortcutBox" Margin="5,0"
+                 Text="{Binding Hotkey, Mode=OneWay, UpdateSourceTrigger=Explicit, ValidatesOnNotifyDataErrors=True}"
+                 ToolTip="{Binding CombinationToolTip}"
+                 GotFocus="ShortcutBox_GotFocus" LostFocus="ShortcutBox_LostFocus"
+                 KeyDown="ShortcutBox_KeyDown" PreviewTextInput="ShortcutBox_PreviewTextInput"
+                 CommandManager.PreviewCanExecute="ShortcutBox_PreviewCanExecute" >
+
+            <TextBox.InputBindings>
+                <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Key}" 
+                            Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=UndoHotkey.Modifier}"
+                            Command="ApplicationCommands.Undo" />
+                <KeyBinding Key="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Key}" 
+                            Modifiers="{Binding Source={x:Static prop:Hotkeys.Current}, Path=RedoHotkey.Modifier}"
+                            Command="ApplicationCommands.Redo" />
+            </TextBox.InputBindings>
+
+            <TextBox.ContextMenu>
+                <ContextMenu IsEnabled="False" Visibility="Collapsed" />
+            </TextBox.ContextMenu>
+
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}">
+
+                    <Style.Setters>
+                        <Setter Property="ToolTipService.IsEnabled" Value="False" />
+                    </Style.Setters>
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text.Length}" Value="0">
+                            <DataTrigger.Setters>
+                                <Setter Property="ToolTipService.IsEnabled" Value="True" />
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+            
+        </TextBox>
+    </DockPanel>
+    
+</UserControl>

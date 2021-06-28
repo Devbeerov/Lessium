@@ -1,18 +1,24 @@
-﻿<Lesson Title="Петр 1">
+﻿<Lesson>
 	<Materials>
 		<Section Title="Реформы Петра">
-			<Text Text="Петр 1 ввел следующие реформы..." />
-			<Image Source="Reforms.jpg" />
+			<Page>
+				<Text Text="Петр 1 ввел следующие реформы..." />
+				<Image Source="Reforms.jpg" />
+			</Page>
 		</Section>
 	</Materials>
 	<Tests>
 		<Section Title="Тест Реформы Петра">
-			<SimpleTest>
-				<Question Title="В чем заключалась реформа армии?">
-					<StringAnswer Title="В изменении внешней политики">
-					<StringAnswer Title="В новом вооружении">
-					<StringAnswer Title="Ничего из предложенного">
-				</Question>
+			<SimpleTest Question="В чем заключалась реформа армии?">
+				<Answer>
+					"В изменении внешней политики"
+				</Answer>
+				<Answer>
+					"В новом вооружении"
+				</Answer>
+				<Answer>
+					"Ничего из предложенного"
+				</Answer>
 			</SimpleTest>
 		</Section>
 	</Tests>

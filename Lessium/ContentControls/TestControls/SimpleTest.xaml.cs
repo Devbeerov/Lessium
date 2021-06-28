@@ -1,13 +1,23 @@
-﻿using Lessium.ContentControls.MaterialControls;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls.MaterialControls;
+using Lessium.ContentControls.TestControls.AnswerModels;
+using Lessium.CustomControls;
 using Lessium.Interfaces;
+using Lessium.Services;
+using Lessium.UndoableActions.Generic;
+using Lessium.Utility;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace Lessium.ContentControls.TestControls
 {
@@ -15,27 +25,30 @@ namespace Lessium.ContentControls.TestControls
     /// Simple test with multiple answers.
     /// </summary>
     [Serializable]
-    public partial class SimpleTest : UserControl, ITestControl
+    public partial class SimpleTest : UserControl, ITestControl<SimpleAnswerModel>
     {
         private Guid id;
+        private readonly IDispatcher dispatcher;
+        private AnswersMappingHelper<SimpleAnswerModel> mappingHelper;
 
-        private bool editable;
+        private bool raiseResizeEvent = true;
 
-        private ObservableCollection<AnswerModel> answers = new ObservableCollection<AnswerModel>();
+        // Serialization
 
-        private readonly Collection<IContentControl> textControls = new Collection<IContentControl>();
+        private StoredTestAnswers<SimpleAnswerModel> storedAnswers;
 
-        #region Properties
+        #region CLR Properties
 
-        public ObservableCollection<AnswerModel> Answers
-        {
-            get { return answers; }
-            set { answers = value; }
-        }
+        public string Question { get; set; } = Properties.Resources.SimpleTestControl_DefaultText;
 
         public string GUID
         {
             get { return id.ToString(); }
+        }
+
+        private UndoableActionsService ActionsService
+        {
+            get { return UndoableActionsServiceLocator.GetService(this); }
         }
 
         #endregion
@@ -44,21 +57,31 @@ namespace Lessium.ContentControls.TestControls
 
         public SimpleTest()
         {
+            this.dispatcher = DispatcherUtility.Dispatcher;
+
+            Initialize();
+        }
+
+        public SimpleTest(IDispatcher dispatcher)
+        {
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
             Initialize();
         }
 
         // For serialization
         protected SimpleTest(SerializationInfo info, StreamingContext context)
         {
+            dispatcher = DispatcherUtility.Dispatcher;
+
             // Initializes component
 
             Initialize();
 
             // Serializes properties
 
-            var answersList = (List<AnswerModel>) info.GetValue("Answers", typeof(List<AnswerModel>));
-
-            answers = new ObservableCollection<AnswerModel>(answersList);
+            Question = info.GetString(nameof(Question));
+            storedAnswers = new StoredTestAnswers<SimpleAnswerModel>(info, nameof(Answers), nameof(TrueAnswers), nameof(SelectedAnswers));
         }
 
         #endregion
@@ -69,139 +92,186 @@ namespace Lessium.ContentControls.TestControls
 
         public void Initialize()
         {
+            mappingHelper = new AnswersMappingHelper<SimpleAnswerModel>(TrueAnswers, SelectedAnswers);
+
+            // Custom control initialization
+
             id = Guid.NewGuid();
+            DataContext = this;
 
+            ValidateAnswersSelectionMode();
             InitializeComponent();
-            this.DataContext = this;
         }
 
         #endregion
 
-        #endregion
+        #region Private
 
-
-        #region ISerializable
-
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        private DynamicCheckBoxType GetActualCheckBoxType()
         {
-            info.AddValue("Answers", answers.ToList());
+            if (IsEditable) { return DynamicCheckBoxType.CheckBox; }
+
+            if (TrueAnswers.Count < 2) return DynamicCheckBoxType.RadioSingle;
+
+            return DynamicCheckBoxType.RadioMultiple;
         }
+
+        private void ValidateAnswersSelectionMode()
+        {
+            CheckBoxType = GetActualCheckBoxType();
+        }
+
+        private SimpleAnswerModel FindAnswerModelFromElement(FrameworkElement element)
+        {
+            var answerControlContainer = element.FindParentOfName("dataPanel");
+
+            // if dataPanel not found it means either it was because DynamicCheckBoxType was changed
+            if (answerControlContainer == null) throw new NullReferenceException("Failed to find parent with name \"dataPanel\".");
+
+            return answerControlContainer.DataContext as SimpleAnswerModel;
+        }
+
+        private void UpdateCheckboxes()
+        {
+            AnswersItemControl.UpdateCheckboxes(TrueAnswers, mappingHelper.GetCheckBoxTypes(TrueAnswers));
+            AnswersItemControl.UpdateCheckboxes(SelectedAnswers, mappingHelper.GetCheckBoxTypes(SelectedAnswers));
+        }
+
+        private bool CheckSelectedAndTrueAnswersMatch()
+        {
+            return TrueAnswers.ContainsOtherList(SelectedAnswers);
+        }
+
+        private void UpdateCheckboxesOnceAtLoad()
+        {
+            RoutedEventHandler updateAction = null;
+            Action unsubscribeAction = delegate ()
+            {
+                AnswersItemControl.Loaded -= updateAction;
+            };
+
+            updateAction = new RoutedEventHandler((s, e) =>
+            {
+                UpdateCheckboxes();
+                unsubscribeAction.Invoke();
+            });
+
+            AnswersItemControl.Loaded += updateAction;
+        }
+
+        #endregion
 
         #endregion
 
         #region IContentControl
 
-        public void SetEditable(bool editable)
+        public bool IsEditable
         {
-            this.editable = editable;
-
-            // ReadOnly
-
-            testQuestion.IsReadOnly = !editable;
-
-            // Border
-
-            var converter = new ThicknessConverter();
-            var thickness = (Thickness)converter.ConvertFrom(editable);
-
-            testQuestion.BorderThickness = thickness;
-
-            // Buttons
-
-            removeButton.IsEnabled = editable;
-
-            if (editable)
+            get { return (bool)GetValue(IsEditableProperty); }
+            set
             {
-                removeButton.Visibility = Visibility.Visible;
+                SetValue(IsEditableProperty, value);
             }
-
-            else
-            {
-                removeButton.Visibility = Visibility.Collapsed;
-            }
-
-            addAnswerButton.IsEnabled = editable;
-            addAnswerButton.Visibility = removeButton.Visibility;
-
-            // Answers Controls
-
-            foreach (var item in AnswersItemControl.Items)
-            {
-                var contentPresenter = AnswersItemControl.ItemContainerGenerator.ContainerFromItem(item) as ContentPresenter;
-                DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-                Text textContainer = dataTemplate.FindName("TextContainer", contentPresenter) as Text;
-                textContainer.SetEditable(editable);
-            }
-
-            // Tooltip
-
-            ToolTipService.SetIsEnabled(testQuestion, editable);
         }
 
-        public void SetMaxWidth(double width)
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(SimpleTest), new PropertyMetadata(false,
+                new PropertyChangedCallback(OnEditableChanged)));
+
+        private static void OnEditableChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
-            var adjustedWidth = width - removeButton.Width;
+            var control = sender as SimpleTest;
 
-            testQuestion.Width = adjustedWidth;
-            testQuestion.MaxWidth = adjustedWidth;
-
-            AnswersItemControl.MaxWidth = adjustedWidth;
+            control.ValidateAnswersSelectionMode();
         }
 
-        public void SetMaxHeight(double height)
-        {
-            // We do not calculate adjustedHeight here because of design. Don't want to consider removeButton.Height here.
+        #endregion
 
-            testQuestion.MaxHeight = height;
-            AnswersItemControl.MaxHeight = height;
+        #region ITestControl
+
+        public IList<SimpleAnswerModel> Answers { get; set; } = new ObservableCollection<SimpleAnswerModel>();
+        public IList<SimpleAnswerModel> TrueAnswers { get; set; } = new List<SimpleAnswerModel>();
+        public IList<SimpleAnswerModel> SelectedAnswers { get; set; } = new List<SimpleAnswerModel>();
+
+        public event NotifyCollectionChangedEventHandler AnswersChanged;
+
+        IList ITestControl.Answers
+        {
+            get
+            {
+                return Answers.ToList();
+            }
+            set { throw new NotSupportedException(); }
         }
 
-        public event RoutedEventHandler RemoveControl;
-        public event SizeChangedEventHandler Resize;
+        IList ITestControl.TrueAnswers
+        {
+            get
+            {
+                return TrueAnswers.ToList();
+            }
+            set { throw new NotSupportedException(); }
+        }
+
+        IList ITestControl.SelectedAnswers
+        {
+            get
+            {
+                return SelectedAnswers.ToList();
+            }
+            set { throw new NotSupportedException(); }
+        }
+
+        public bool CheckAnswers()
+        {
+            if (TrueAnswers.Count != SelectedAnswers.Count)
+                return false;
+
+            return CheckSelectedAndTrueAnswersMatch();
+        }
 
         #endregion
 
         #region Events
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        private void AnswersItemControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // Sets source to SimpleTest Control, not Button
+            if (!raiseResizeEvent) { return; }
 
-            e.Source = this;
+            if (addAnswerButton.Visibility == Visibility.Collapsed) return;
 
-            // Invokes event
+            var buttonPos = addAnswerButton.TranslatePoint(default, AnswersItemControl);
+            var lineHeight = testQuestion.textBox.CalculateLineHeight();
+            var maximumValidPosY = MaxHeight - addAnswerButton.ActualHeight - lineHeight;
+            var fits = buttonPos.Y + addAnswerButton.ActualHeight <= maximumValidPosY;
 
-            RemoveControl?.Invoke(sender, e);
-        }
+            addAnswerButton.IsEnabled = fits;
 
-        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
             // Sets source to SimpleTest Control, not Border
 
             e.Source = this;
-
-            // Invokes event
-
-            Resize?.Invoke(sender, e);
+            raiseResizeEvent = true;
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            answers.Add(new AnswerModel());
+            var answer = new SimpleAnswerModel();
+
+            ActionsService.ExecuteAction(new AddToCollectionAction<SimpleAnswerModel>(Answers, answer));
         }
 
         private void RemoveAnswer_Click(object sender, RoutedEventArgs e)
         {
-            var textControl = (Text)e.Source;
+            var textControl = (TextControl)e.Source;
 
-            foreach (var answer in answers)
+            foreach (var answer in Answers)
             {
-                var text = textControl.GetText();
+                var text = textControl.Text;
 
-                if (ReferenceEquals(answer.Text, text)) // Checks for string reference, not value!
+                if (ReferenceEquals(answer.Text, text)) // Checks for reference equality, not value!
                 {
-                    answers.Remove(answer); // We remove Text string by it's reference, not by value!
+                    ActionsService.ExecuteAction(new RemoveFromCollectionAction<SimpleAnswerModel>(Answers, answer));
+
                     return;
                 }
             }
@@ -209,27 +279,154 @@ namespace Lessium.ContentControls.TestControls
 
         private void TextContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as Text;
+            var control = e.Source as TextControl;
 
-            control.SetEditable(editable);
-            textControls.Add(control);
+            control.IsEditable = IsEditable;
         }
 
         private void TextContainer_Unloaded(object sender, RoutedEventArgs e)
         {
-            var control = e.Source as Text;
+            var control = e.Source as TextControl;
 
-            control.SetEditable(editable);
-            textControls.Remove(control);
+            control.IsEditable = IsEditable;
+        }
+
+        private void ToggleAnswerTrue_Checked(object sender, RoutedEventArgs e)
+        {
+            var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
+
+            TrueAnswers.Add(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+
+            ValidateAnswersSelectionMode();
+        }
+
+        private void ToggleAnswerTrue_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
+
+            TrueAnswers.Remove(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+
+            ValidateAnswersSelectionMode();
+        }
+
+        private void AnswerSelected(object sender, RoutedEventArgs e)
+        {
+            var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
+
+            SelectedAnswers.Add(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+        }
+
+        private void AnswerUnselected(object sender, RoutedEventArgs e)
+        {
+            var answerModel = FindAnswerModelFromElement(sender as FrameworkElement);
+
+            SelectedAnswers.Remove(answerModel);
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
         }
 
         #endregion
-    }
 
-    public class AnswerModel
-    {
-        private string text = string.Copy(Properties.Resources.DefaultAnswerHeader);
+        #region Dependency Properties
 
-        public string Text { get => text; set => text = value; }
+        private DynamicCheckBoxType CheckBoxType
+        {
+            get
+            {
+                var stringValue = (string)GetValue(CheckBoxTypeProperty);
+                var parsedDynamicCheckBoxType = (DynamicCheckBoxType)Enum.Parse(typeof(DynamicCheckBoxType), stringValue);
+
+                return parsedDynamicCheckBoxType;
+            }
+            set { SetValue(CheckBoxTypeProperty, value.ToString()); }
+        }
+
+        private static readonly DependencyProperty CheckBoxTypeProperty =
+            DependencyProperty.Register("CheckBoxType", typeof(string), typeof(SimpleTest), new PropertyMetadata(null));
+
+
+        #endregion
+
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Question), Question);
+
+            // ITestControl
+
+            info.AddValue(nameof(Answers), Answers.ToList());
+            info.AddValue(nameof(TrueAnswers), TrueAnswers.ToList());
+            info.AddValue(nameof(SelectedAnswers), SelectedAnswers.ToList());
+        }
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext c)
+        {
+            storedAnswers.AddStoredListsTo(Answers, TrueAnswers, SelectedAnswers);
+            storedAnswers.Clear();
+            storedAnswers = null;
+
+            AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+            UpdateCheckboxesOnceAtLoad();
+        }
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
+            #region SimpleTest
+
+            await writer.WriteStartElementAsync(GetType().Name);
+
+            await writer.WriteAttributeStringAsync(nameof(Question), Question);
+
+            foreach (var answer in Answers)
+            {
+                await answer.WriteXmlAsync(writer, progress, token);
+            }
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            // Reports to process new Content.
+
+            progress.Report(ProgressType.Content);
+
+            // Reads attributes
+
+            Question = reader.GetAttribute(nameof(Question));
+
+            // Reads Answers
+
+            while (await reader.ReadToFollowingAsync("Answer"))
+            {
+                if (token.HasValue && token.Value.IsCancellationRequested) break;
+                if (reader.NodeType != XmlNodeType.Element) continue;
+
+                var answer = new SimpleAnswerModel();
+                await answer.ReadXmlAsync(reader, progress, token);
+
+                dispatcher.Invoke(() =>
+                {
+                    Answers.Add(answer);
+                    AnswersChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                });
+            }
+        }
+
+        #endregion
     }
 }

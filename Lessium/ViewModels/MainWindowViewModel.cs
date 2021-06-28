@@ -1,28 +1,58 @@
-﻿using Lessium.ContentControls;
+﻿using Lessium.Classes.IO;
+using Lessium.ContentControls;
+using Lessium.ContentControls.MaterialControls;
+using Lessium.ContentControls.TestControls;
+using Lessium.Interfaces;
 using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Services;
+using Lessium.UndoableActions;
+using Lessium.UndoableActions.Generic;
+using Lessium.Utility;
+using Lessium.Views;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Linq;
-using System;
-using Lessium.ContentControls.MaterialControls;
-using System.Windows.Input;
-using Lessium.Interfaces;
-using Lessium.ContentControls.Models;
-using Lessium.ContentControls.TestControls;
 using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Lessium.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        #region Private properties
+        #region Private fields
 
-        private readonly MainWindowModel model;
+        // Model
+
+        private readonly MainModel model;
+
+        // Services
+
+        private readonly UndoableActionsService actionsService;
+        private readonly HotkeysService hotkeysService;
+        private readonly SectionTestsInfoService testsInfoService;
+
+        // Logical variables
+
         private bool currentPageIsNotFirst = false;
+        private bool savingOrLoading = false;
+        private bool currentSectionUpdating = false;
+
+        // Windows
+
+        private Window mainWindow = null;
+        private Window settingsWindow = null;
+        private Window aboutWindow = null;
 
         #endregion
 
@@ -42,22 +72,16 @@ namespace Lessium.ViewModels
 
         public bool HasChanges
         {
-            get { return model.HasChanges; }
-            set { SetProperty(ref model.HasChanges, value); }
+            get { return actionsService.ExecutedActionsCount > 0; }
         }
 
-        public bool ReadOnly
+        public bool IsEditable
         {
-            get { return model.ReadOnly; }
+            get { return model.IsEditable; }
             set
             {
-                if(SetProperty(ref model.ReadOnly, value))
-                {
-                    foreach (var section in Sections)
-                    {
-                        section.SetEditable(!model.ReadOnly);
-                    }
-                }
+                if (SetProperty(ref model.IsEditable, value))
+                    CheckSectionTests.RaiseCanExecuteChanged();
             }
         }
 
@@ -65,47 +89,56 @@ namespace Lessium.ViewModels
 
         #region Tabs
 
-        public string SelectedTab
+        public ContentType SelectedContentType
         {
-            get { return model.SelectedTab; }
+            get { return model.SelectedContentType; }
             set
             {
-                var prevTab = string.Copy(model.SelectedTab); // If we won't copy, it will change on SetProperty.
+                var prevTab = model.SelectedContentType;
                 var prevSection = model.CurrentSection[prevTab];
 
-                if (SetProperty(ref model.SelectedTab, value)) // Will change CurrentSection property, because it's Get method bound with SelectedTab
+                if (SetProperty(ref model.SelectedContentType, value)) // Will change CurrentSection property, because it's Get method bound with SelectedContentType
                 {
                     // Updates previous
 
-                    model.LastSelectedSection[prevTab] = prevSection;
+                    model.CurrentSection[prevTab] = prevSection;
                 }
             }
         }
 
         public bool SelectedTabIsMaterials
         {
-            get { return model.SelectedTab == "Materials"; }
+            get { return model.SelectedContentType == ContentType.Material; }
         }
 
         public bool SelectedTabIsTests
         {
-            get { return model.SelectedTab == "Tests"; }
+            get { return model.SelectedContentType == ContentType.Test; }
         }
 
         public ObservableCollection<Section> Sections
         {
-            get { return model.Sections[SelectedTab]; }
+            get { return model.Sections[SelectedContentType]; }
             set
             {
-                SetDictionaryProperty(ref model.Sections, SelectedTab, value);
+                SetDictionaryProperty(ref model.Sections, SelectedContentType, value);
             }
+        }
+
+        public Dictionary<ContentType, ObservableCollection<Section>> SectionsByType
+        {
+            get { return model.Sections; }
+        }
+
+        public Dictionary<ContentType, double> TabsVerticalScrollOffsets
+        {
+            get { return model.TabsVerticalScrollOffsets; }
         }
 
         // Use SelectSection method to "Set" CurrentSection.
         public Section CurrentSection
         {
-            get { return model.CurrentSection[SelectedTab]; }
-
+            get { return model.CurrentSection[SelectedContentType]; }
         }
 
         // Should be used exclusively for binding!
@@ -113,13 +146,18 @@ namespace Lessium.ViewModels
         {
             get
             {
-                return model.CurrentSectionID[SelectedTab];
+                return model.CurrentSectionID[SelectedContentType];
             }
+
             set
             {
-                if(SetDictionaryProperty(ref model.CurrentSectionID, SelectedTab, value))
+                if (SetDictionaryProperty(ref model.CurrentSectionID, SelectedContentType, value))
                 {
-                    if(value == -1) { return; }
+                    // Returns if there is no Section.
+
+                    if (value == -1) { return; }
+
+                    // Otherwise selects Section.
 
                     SelectSection(Sections[value]);
                 }
@@ -130,12 +168,14 @@ namespace Lessium.ViewModels
 
         #region Pages
 
-        public ObservableCollection<ContentPage> Pages
+        public ObservableCollection<ContentPageModel> Pages
         {
-            get { return CurrentSection?.GetPages(); }
+            get { return CurrentSection?.Pages; }
             set
             {
-                CurrentSection.SetPages(value);
+                // Not SetProperty! We don't check Collection for equality, and we don't need.
+                // It's dependency property anyway. So we can do it just in single line like that.
+                CurrentSection.Pages = value;
             }
         }
 
@@ -143,9 +183,9 @@ namespace Lessium.ViewModels
         {
             get
             {
-                if(CurrentSection == null) { return -1; }
+                if (CurrentSection == null) { return -1; }
 
-                return CurrentSection.GetSelectedPageIndex();
+                return CurrentSection.SelectedPageIndex;
             }
             set
             {
@@ -154,7 +194,7 @@ namespace Lessium.ViewModels
                     if (value < 0) { value = 0; }
                     else if (value >= Pages.Count) { value = Pages.Count - 1; }
 
-                    CurrentSection.SetSelectedPageIndex(value);
+                    CurrentSection.SelectedPageIndex = value;
                     CurrentPage = Pages[value];
 
                     RaisePropertyChanged();
@@ -172,8 +212,8 @@ namespace Lessium.ViewModels
 
                 var number = value;
 
-                if (number <= 0) { number = 1; }
-                else if (number > Pages.Count) { number = Pages.Count; }
+                if (number <= 0) number = 1;
+                else if (number > Pages.Count) number = Pages.Count;
 
                 var index = number - 1;
 
@@ -183,28 +223,29 @@ namespace Lessium.ViewModels
             }
         }
 
-        public ContentPage CurrentPage
+        public ContentPageModel CurrentPage
         {
-            get { return CurrentSection?.GetSelectedPage(); }
+            get { return CurrentSection?.SelectedPage; }
             set
             {
-                if (CurrentPage != value)
+                if (CurrentPage == value) return;
+
+                // Update value
+
+                CurrentSection.SelectedPage = value;
+
+                if (CurrentPage == null)
                 {
-                    CurrentSection.SetSelectedPage(value);
-
-                    if (CurrentPage == null)
-                    {
-                        CurrentPageIndex = -1;
-                    }
-
-                    else
-                    {
-                        CurrentPageIndex = CurrentSection.GetPages().IndexOf(value);
-                    }
-
-                    UpdateCurrentPageNotFirst();
-                    RaisePropertyChanged();
+                    CurrentPageIndex = -1;
                 }
+
+                else
+                {
+                    CurrentPageIndex = CurrentSection.Pages.IndexOf(value);
+                }
+
+                UpdateCurrentPageNotFirst();
+                RaisePropertyCurrentPageChanged();
             }
         }
 
@@ -212,6 +253,18 @@ namespace Lessium.ViewModels
         {
             get { return currentPageIsNotFirst; }
             set { SetProperty(ref currentPageIsNotFirst, value); }
+        }
+
+        public int TotalTestsCount
+        {
+            get { return model.TotalTestsCount; }
+            set { SetProperty(ref model.TotalTestsCount, value); }
+        }
+
+        public int CorrectTestsCount
+        {
+            get { return model.CorrectTestsCount; }
+            set { SetProperty(ref model.CorrectTestsCount, value); }
         }
 
         #endregion
@@ -227,39 +280,65 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region Methods
+        #region Constructors
 
-        // Constructs ViewModel with Model as parameter.
-        public MainWindowViewModel(MainWindowModel model = null)
+        public MainWindowViewModel(MainModel model = null)
         {
             // In case we don't provide model (for example when Prism wires ViewModel automatically), creates new Model.
 
             if (model == null)
             {
-                model = new MainWindowModel();
+                model = new MainModel();
             }
 
             this.model = model;
+
+            // Retrieves MainWindow
+
+            mainWindow = Application.Current.Windows.OfType<MainWindow>().SingleOrDefault();
+
+            // Creates service
+
+            actionsService = new UndoableActionsService(mainWindow, () => RaiseHasChanges());
+            hotkeysService = new HotkeysService(mainWindow);
+            testsInfoService = new SectionTestsInfoService();
+
+            // Setup hotkeys
+
+            SetupHotkeys();
+
+            // Attach handlers to hotkeys changes
+
+            Hotkeys.Current.PropertyChanged += OnHotkeyChanged;
+            Hotkeys.Current.SettingChanging += OnHotkeyChanging;
         }
 
-        public SectionType SelectedTabToSectionType()
+        #endregion
+
+        #region Methods
+
+        #region Public
+
+        public SendActionEventHandler GetSendActionEventHandler()
         {
-            if (SelectedTab == "Materials")
-            {
-                return SectionType.MaterialSection;
-            }
-
-            return SectionType.TestSection;
+            return OnContentReceived;
         }
 
+        #endregion
+
+        #region Private
+
+        /// <param name="name">If explicitly provided null, then won't call RaisePropertyChanged.</param>
         private bool SetDictionaryProperty<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue newValue, [CallerMemberName] string name = null)
         {
             var oldValue = dictionary[key];
 
-            if (oldValue == null || !oldValue.Equals(newValue))
+            if (oldValue == null || !ReferenceEquals(oldValue, newValue))
             {
                 dictionary[key] = newValue;
-                RaisePropertyChanged(name);
+
+                if (name != null) { RaisePropertyChanged(name); }
+
                 return true;
             }
 
@@ -268,9 +347,17 @@ namespace Lessium.ViewModels
 
         private void AddContentControl(IContentControl control)
         {
-            CurrentPage.Add(control);
+            actionsService.ExecuteAction(new AddContentAction(CurrentPage, control));
+        }
 
-            HasChanges = true;
+        private void InsertContentControl(IContentControl control, int position)
+        {
+            actionsService.ExecuteAction(new InsertContentAction(CurrentPage, control, position));
+        }
+
+        private void RemoveContentControl(IContentControl control)
+        {
+            actionsService.ExecuteAction(new RemoveContentAction(CurrentPage, control));
         }
 
         private void UpdateCurrentPageNotFirst()
@@ -284,6 +371,122 @@ namespace Lessium.ViewModels
 
             CurrentPageIsNotFirst = notFirst;
         }
+
+        private void ClearLesson()
+        {
+            foreach (var key in model.Sections.Keys)
+            {
+                model.Sections[key].Clear();
+                model.CurrentSection[key] = null;
+            }
+
+            // Clears changes as well.
+
+            ClearChanges();
+
+            // Raises PropertyChanged
+
+            RaisePropertyChanged(nameof(Sections));
+
+            // Selects no section
+
+            SelectSection(null);
+        }
+
+        private LessonModel GenerateLessonModel()
+        {
+            var lessonModel = new LessonModel();
+
+            lessonModel.MaterialSections.AddRange(SectionsByType[ContentType.Material]);
+            lessonModel.TestSections.AddRange(SectionsByType[ContentType.Test]);
+
+            return lessonModel;
+        }
+
+        /// <summary>
+        /// Clears all undo and redo actions in actionsSerivce, also raises PropertyChanged of HasChanges.
+        /// </summary>
+        private void ClearChanges()
+        {
+            actionsService.Clear();
+
+            // Updates CanExecute
+
+            Lesson_UndoChanges.RaiseCanExecuteChanged();
+            Lesson_RedoChanges.RaiseCanExecuteChanged();
+        }
+
+        private void AddSectionToSections(Section section)
+        {
+            actionsService.ExecuteAction(new AddToCollectionAction<Section>(Sections, section));
+        }
+
+        private void RaiseHasChanges()
+        {
+            RaisePropertyChanged(nameof(HasChanges));
+        }
+
+        private void SwitchEditable(bool editable)
+        {
+            IsEditable = editable;
+        }
+
+        private void SwitchEditable()
+        {
+            SwitchEditable(!IsEditable);
+        }
+
+        private string BuildHeaderWithHotkey(string defaultHeader, Hotkey hotkey)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(defaultHeader);
+            sb.Append($" ({hotkey})");
+
+            return sb.ToString();
+        }
+
+        #endregion
+
+        #region Hotkeys
+
+        private void SetupHotkeys()
+        {
+            RegisterEditHotkey();
+            RegisterUndoHotkey();
+            RegisterRedoHotkey();
+        }
+
+        private bool TryUndo()
+        {
+            if (!IsEditable) return false;
+
+            return actionsService.TryUndo();
+        }
+
+        private bool TryRedo()
+        {
+            if (!IsEditable) return false;
+
+            return actionsService.TryRedo();
+        }
+
+        private void RegisterEditHotkey()
+        {
+            hotkeysService.RegisterHotkey(Hotkeys.Current.EditHotkey, () => SwitchEditable());
+        }
+
+        private void RegisterUndoHotkey()
+        {
+            hotkeysService.RegisterHotkey(Hotkeys.Current.UndoHotkey, () => TryUndo());
+        }
+
+        private void RegisterRedoHotkey()
+        {
+            hotkeysService.RegisterHotkey(Hotkeys.Current.RedoHotkey, () => TryRedo());
+        }
+
+        #endregion
 
         #region Section
 
@@ -314,128 +517,64 @@ namespace Lessium.ViewModels
             }
         }
 
-        private void SelectSection(Section section)
+        /// <summary>
+        /// Should be used when changing tabs.
+        /// Checks section with manually providen previousSection to avoid wrong comparison.
+        /// </summary>
+        /// <param name="section">New Section</param>
+        /// <param name="previousSection">Previous Section, if provided - will also unsubscribe PagesChanged.</param>
+        private void SelectSection(Section section, Section previousSection = null, bool tabChange = false)
         {
-            if (CurrentSection == section) { return; }
+            // If not tabChange and failed to SetDictionaryProperty (new and old are same), then just returns.
 
-            TryCollapseCurrentSection(); // colapses old selected section
-
-            // Sets CurrentSection
-
-            var prevSection = CurrentSection;
-            var prevPage = CurrentPage;
-
-            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
+            if (!tabChange && !SetDictionaryProperty(ref model.CurrentSection, SelectedContentType, section, null))
             {
-                var newSection = model.CurrentSection[SelectedTab];
-
-                if (newSection == null)
-                {
-                    CurrentSectionID = -1;
-                }
-
-                else
-                {
-                    CurrentSectionID = Sections.IndexOf(section);
-                }
-
-                // Updates previous
-
-                if (prevSection != null)
-                {
-                    model.LastSelectedPage[prevSection] = prevPage;
-                    prevSection.PagesChanged -= OnPagesChanged;
-                }
-
-                // Updates new
-
-                if (newSection != null)
-                {
-                    CurrentPage = model.LastSelectedPage[newSection];
-                    newSection.PagesChanged += OnPagesChanged;
-                }
-
-                // We still should call RaisePropertyChanged, because we bind to them in View.
-                // So when changing Sections, Index and Number could be the same.
-                RaisePropertyChanged(nameof(CurrentPageIndex));
-                RaisePropertyChanged(nameof(CurrentPageNumber));
-
-                section = newSection;
-
+                return;
             }
 
-            // Shows section if not null.
+            // Using logical bool because of SelectionChanged event, which will be fired with old section, due to UI won't be updated yet.
 
-            if (section != null)
-            {
-                ShowSection(section);
-            }
+            currentSectionUpdating = true;
 
-            
+            RaisePropertyCurrentSectionChanged();
+
+            if (previousSection != null)
+                previousSection.PagesChanged -= OnPagesChanged;
+
+            if (section == null)
+                return;
+
+            section.PagesChanged += OnPagesChanged;
+
+            CheckSectionTests.RaiseCanExecuteChanged();
+            testsInfoService.UpdateSection(section);
+            ShowSection(section);
+
+            currentSectionUpdating = false;
         }
 
         /// <summary>
-        /// Should be used when changing tabs.
-        /// Checks section with manually providen previousSection to avoid wrong comprasion.
+        /// Will also call RaisePropertyChanged of CurrentPageIndex and CurrentPageNumber properties.
         /// </summary>
-        /// <param name="section">New Section</param>
-        /// <param name="previousSection">Previous Section (to check with new)</param>
-        private void SelectSection(Section section, Section previousSection)
+        private void RaisePropertyCurrentPageChanged()
         {
-            if (CurrentSection == previousSection) { return; }
-
-            // Updates previous
-
-            if (previousSection != null)
-            {
-                model.LastSelectedPage[previousSection] = previousSection.GetSelectedPage();
-            }
-
-            // Sets CurrentSection
-
-            if (SetDictionaryProperty(ref model.CurrentSection, SelectedTab, section, "CurrentSection"))
-            {
-                var newSection = model.CurrentSection[SelectedTab];
-
-                if (newSection == null)
-                {
-                    CurrentSectionID = -1;
-                }
-
-                else
-                {
-                    CurrentSectionID = Sections.IndexOf(section);
-                }
-
-                // Updates new
-
-                if (newSection != null)
-                {
-                    CurrentPage = model.LastSelectedPage[newSection];
-                }
-
-                section = newSection;
-
-            }
-
-            else
-            {
-                RaisePropertyChanged(nameof(CurrentSection));
-            }
-
-            // We still should call RaisePropertyChanged, because we bind to them in View.
-            // So when changing Sections, Index and Number could be the same.
+            RaisePropertyChanged(nameof(CurrentPage));
             RaisePropertyChanged(nameof(CurrentPageIndex));
             RaisePropertyChanged(nameof(CurrentPageNumber));
+        }
 
-            // Shows section if not null.
+        /// <summary>
+        /// Will execute all RaisePropertyChanged to make all bindings updated.
+        /// </summary>
+        private void RaisePropertyCurrentSectionChanged()
+        {
+            RaisePropertyChanged(nameof(CurrentSection));
+            RaisePropertyChanged(nameof(CurrentSectionID));
+            RaisePropertyChanged(nameof(Pages));
 
-            if (section != null)
-            {
-                ShowSection(section);
-            }
+            CurrentSectionID = Sections.IndexOf(CurrentSection);
 
-
+            RaisePropertyCurrentPageChanged();
         }
 
         #endregion
@@ -447,9 +586,13 @@ namespace Lessium.ViewModels
         private void OnExceedingContent(object sender, ExceedingContentEventArgs e)
         {
             var content = e.ExceedingItem;
-            var oldPage = sender as ContentPage;
+            var oldPage = sender as ContentPageModel;
+
+            // If there is just only one item, will not move it to next Page.
+            if (oldPage.Items.Count == 1) return;
+
             var oldPageIndex = Pages.IndexOf(oldPage);
-            
+
             oldPage.Remove(content);
 
             if (oldPageIndex != Pages.Count - 1) // Not last Page
@@ -463,24 +606,22 @@ namespace Lessium.ViewModels
                 // WPF is not updating element arrangement (positions) if they not visible at window.
                 // To bypass it, we could select next page (make visible) and update it's layout, after that - switch back.
 
-                var pageControl = nextPage.GetPageControl();
                 var oldIndex = CurrentPageIndex;
 
                 CurrentPage = nextPage;
-                pageControl.InvalidateArrange();
-                pageControl.UpdateLayout();
-
                 CurrentPage.ValidatePage();
+
                 CurrentPageIndex = oldIndex;
             }
 
             else
             {
                 // Otherwise, creates a new Page and inserts content to it
-                var newPage = ContentPage.CreateWithPageControlInjection(oldPage);
-                CurrentSection.Add(newPage);
+                var newPage = new ContentPageModel(oldPage.ContentType, DispatcherUtility.Dispatcher);
 
-                newPage.Add(content);
+                CurrentSection.Add(newPage);
+                newPage.Insert(0, content);
+
                 RaisePropertyChanged(nameof(Pages));
             }
         }
@@ -492,15 +633,78 @@ namespace Lessium.ViewModels
         {
             if (e.Action == CollectionChangeAction.Add)
             {
-                e.Page.AddedExceedingContent += OnExceedingContent;
+                foreach (var page in e.Pages)
+                {
+                    page.AddedExceedingContent += OnExceedingContent;
+                }
             }
 
-            else if(e.Action == CollectionChangeAction.Remove)
+            else if (e.Action == CollectionChangeAction.Remove)
             {
-                e.Page.AddedExceedingContent -= OnExceedingContent;
+                foreach (var page in e.Pages)
+                {
+                    page.AddedExceedingContent -= OnExceedingContent;
+                }
             }
-            
+
             UpdateCurrentPageNotFirst();
+        }
+
+        private void OnContentReceived(object sender, SendActionEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case SendActionEventArgs.ContentAction.Add:
+                    AddContentControl(e.Content);
+                    break;
+
+                case SendActionEventArgs.ContentAction.Remove:
+                    RemoveContentControl(e.Content);
+                    break;
+
+                case SendActionEventArgs.ContentAction.Insert:
+                    InsertContentControl(e.Content, e.Position);
+                    break;
+            }
+        }
+
+        private void OnHotkeyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Hotkeys.EditHotkey):
+                    RegisterEditHotkey();
+                    RaisePropertyChanged(nameof(EditHeader));
+                    break;
+
+                case nameof(Hotkeys.UndoHotkey):
+                    RegisterUndoHotkey();
+                    RaisePropertyChanged(nameof(UndoChangesHeader));
+                    break;
+
+                case nameof(Hotkeys.RedoHotkey):
+                    RegisterRedoHotkey();
+                    RaisePropertyChanged(nameof(RedoChangesHeader));
+                    break;
+            }
+        }
+
+        private void OnHotkeyChanging(object sender, SettingChangingEventArgs e)
+        {
+            if (e.Cancel) return;
+
+            var hotkey = (Hotkey)Hotkeys.Current[e.SettingName];
+            hotkeysService.UnregisterHotkey(hotkey);
+        }
+
+        private void OnSettingsClosed(object sender, EventArgs e)
+        {
+            settingsWindow = null;
+        }
+
+        private void OnAboutClosed(object sender, EventArgs e)
+        {
+            aboutWindow = null;
         }
 
         #endregion
@@ -514,17 +718,17 @@ namespace Lessium.ViewModels
         private DelegateCommand Lesson_EditCommand;
         public DelegateCommand Lesson_Edit =>
             Lesson_EditCommand ?? (Lesson_EditCommand = new DelegateCommand(ExecuteLesson_Edit, CanExecuteLesson_Edit)
-            .ObservesProperty(() => ReadOnly)
+            .ObservesProperty(() => IsEditable)
             );
 
         void ExecuteLesson_Edit()
         {
-            ReadOnly = false;
+            SwitchEditable(true);
         }
 
         bool CanExecuteLesson_Edit()
         {
-            return ReadOnly;
+            return !IsEditable;
         }
 
         #endregion
@@ -534,17 +738,17 @@ namespace Lessium.ViewModels
         private DelegateCommand Lesson_StopEditingCommand;
         public DelegateCommand Lesson_StopEditing =>
             Lesson_StopEditingCommand ?? (Lesson_StopEditingCommand = new DelegateCommand(ExecuteLesson_StopEditing, CanExecuteLesson_StopEditing)
-            .ObservesProperty(() => ReadOnly)
+            .ObservesProperty(() => IsEditable)
             );
 
         void ExecuteLesson_StopEditing()
         {
-            ReadOnly = true;
+            SwitchEditable(false);
         }
 
         bool CanExecuteLesson_StopEditing()
         {
-            return !ReadOnly;
+            return IsEditable;
         }
 
         #endregion
@@ -559,7 +763,7 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_UndoChanges()
         {
-            HasChanges = false;
+            TryUndo();
         }
 
         bool CanExecuteLesson_UndoChanges()
@@ -569,24 +773,160 @@ namespace Lessium.ViewModels
 
         #endregion
 
-        #region Lesson_Save
+        #region Lesson_RedoChanges
 
-        private DelegateCommand Lesson_SaveCommand;
-        public DelegateCommand Lesson_Save =>
-            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand(ExecuteLesson_Save, CanExecuteLesson_Save)
-            .ObservesProperty(() => ReadOnly) // We don't check for !bool, because we observe property change, not property value.
-            .ObservesProperty(() => HasChanges)
+        private DelegateCommand Lesson_RedoChangesCommand;
+        public DelegateCommand Lesson_RedoChanges =>
+            Lesson_RedoChangesCommand ?? (Lesson_RedoChangesCommand = new DelegateCommand(ExecuteLesson_RedoChanges, CanExecuteLesson_RedoChanges)
+            .ObservesProperty(() => HasChanges) // Observes HasChanges, because it is callback of actionsService.
             );
 
-        void ExecuteLesson_Save()
+        void ExecuteLesson_RedoChanges()
         {
-            // TODO: Implement save
-            HasChanges = false;
+            TryRedo();
         }
 
-        bool CanExecuteLesson_Save()
+        bool CanExecuteLesson_RedoChanges()
         {
-            return !ReadOnly && HasChanges;
+            return actionsService.UndoneActionsCount > 0; // But we check UndoneActionsCount instead of HasChanges!
+        }
+
+        #endregion
+
+        #region Lesson_Save
+
+        private DelegateCommand<Window> Lesson_SaveCommand;
+        public DelegateCommand<Window> Lesson_Save =>
+            Lesson_SaveCommand ?? (Lesson_SaveCommand = new DelegateCommand<Window>(ExecuteLesson_Save, CanExecuteLesson_Save));
+
+        async void ExecuteLesson_Save(Window window) // Yes, async void ICommand. Why? - https://prismlibrary.com/docs/commanding.html
+        {
+            savingOrLoading = true;
+            var saveDialog = new SaveFileDialog()
+            {
+                CheckPathExists = true,
+                AddExtension = true,
+                Filter = model.LessonFilter,
+                DefaultExt = "lsn",
+            };
+
+            if (saveDialog.ShowDialog(window) == true)
+            {
+                var fileName = saveDialog.FileName;
+                var lessonModel = GenerateLessonModel();
+
+                // New window
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving,
+                    await LsnWriter.CountDataAsync(lessonModel, fileName), IOType.Write);
+                var progress = IOTools.CreateProgressForProgressView(progressView);
+
+                progressView.Show();
+
+                // Awaits until SaveAsync method is completed asynchronously.
+
+                var result = await Task.Run(async () => await LsnWriter.SaveAsync(lessonModel, fileName, progress));
+
+                if (result != IOResult.Successful && result != IOResult.Cancelled)
+                {
+                    MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {result}",
+                        "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                progressView.Close();
+            }
+            savingOrLoading = false;
+        }
+
+        bool CanExecuteLesson_Save(Window window)
+        {
+            return !savingOrLoading;
+        }
+
+        #endregion
+
+        #region Lesson_Load
+
+        private DelegateCommand<Window> Lesson_LoadCommand;
+        public DelegateCommand<Window> Lesson_Load =>
+            Lesson_LoadCommand ?? (Lesson_LoadCommand = new DelegateCommand<Window>(ExecuteLesson_Load, CanExecuteLesson_Load));
+
+        async void ExecuteLesson_Load(Window window) // Yes, async void ICommand. Why? - https://prismlibrary.com/docs/commanding.html
+        {
+            savingOrLoading = true;
+            var loadDialog = new OpenFileDialog()
+            {
+                CheckPathExists = true,
+                AddExtension = true,
+                Filter = model.LessonFilter,
+                DefaultExt = "lsn",
+            };
+
+            if (loadDialog.ShowDialog(window) == true)
+            {
+                Dictionary<ContentType, CountData> countData = null;
+
+                try
+                {
+                    countData = await Task.Run(async () => await LsnReader.CountDataAsync(loadDialog.FileName));
+                }
+
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.ToString());
+                    // CountDataAsync failed, whatever by XmlSchema validation or by some other exception, we just returns.
+                    savingOrLoading = false;
+                    return;
+                }
+
+                // New window
+
+                var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Loading,
+                    countData, IOType.Read);
+                var progress = IOTools.CreateProgressForProgressView(progressView);
+
+                progressView.Show();
+
+                (IOResult, LessonModel) result = (IOResult.Null, null);
+                try
+                {
+                    result = await Task.Run(async () => await LsnReader.LoadAsync(loadDialog.FileName, progress));
+                }
+
+                finally
+                {
+                    // Will be executed whatever LoadAsync was successful or not.
+
+                    progressView.Close();
+                }
+
+                // Code below will be executed only if no exceptions occured during LoadAsync.
+
+                var resultCode = result.Item1;
+                var resultLessonModel = result.Item2;
+
+                if (resultCode == IOResult.Successful && resultLessonModel != null)
+                {
+                    ClearLesson();
+
+                    var materialSections = SectionsByType[ContentType.Material];
+                    var testSections = SectionsByType[ContentType.Test];
+
+                    materialSections.AddRange(resultLessonModel.MaterialSections);
+                    testSections.AddRange(resultLessonModel.TestSections);
+                }
+
+                else if (resultCode != IOResult.Cancelled)
+                {
+                    MessageBox.Show($"Unexpected behavior in saving process occured. Please contact developers. Result = {resultCode}",
+                        "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            savingOrLoading = false;
+        }
+
+        bool CanExecuteLesson_Load(Window window)
+        {
+            return !savingOrLoading;
         }
 
         #endregion
@@ -599,8 +939,11 @@ namespace Lessium.ViewModels
 
         void ExecuteLesson_New()
         {
-            // TODO: Implement new lesson
-            HasChanges = true;
+            var result = MessageBox.Show(model.NewLessonMessageText, model.NewLessonMessageHeader, MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.OK)
+            {
+                ClearLesson();
+            }
         }
 
         #endregion
@@ -614,14 +957,14 @@ namespace Lessium.ViewModels
         private DelegateCommand AddSectionCommand;
         public DelegateCommand AddSection =>
             AddSectionCommand ?? (AddSectionCommand = new DelegateCommand(ExecuteAddSection, CanExecuteAddSection)
-            .ObservesProperty(() => ReadOnly));
+            .ObservesProperty(() => IsEditable));
 
         void ExecuteAddSection()
         {
             int repeatingIndex = 1;
             string sectionTitle = string.Format("{0} {1}", model.NewSection, repeatingIndex.ToString());
 
-            while (Sections.Any(section => section.GetTitle() == sectionTitle))
+            while (Sections.Any(section => section.Title == sectionTitle))
             {
                 // While Sections contains section with Title equal to sectionTitle
 
@@ -630,45 +973,28 @@ namespace Lessium.ViewModels
             }
 
 
-            var sectionType = SelectedTabToSectionType();
-            var newSection = new Section(sectionType);
-            newSection.SetTitle(sectionTitle);
-
-            // Updates IsEditable state of Section
-
-            newSection.SetEditable(!ReadOnly);
-
-            // Adds newSection.SelectedPage to model LastSelectedPage dictionary.
-
-            model.LastSelectedPage.Add(newSection, newSection.GetSelectedPage());
+            var newSection = new Section(SelectedContentType)
+            {
+                Title = sectionTitle
+            };
 
             // Adds newSection to Sections dictionary.
-            Sections.Add(newSection);
+
+            AddSectionToSections(newSection);
 
             if (CurrentSection == null)
             {
                 SelectSection(newSection);
 
                 // Page was added from Section constructor, so we raise handler with this page.
-                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.GetSelectedPage(), CollectionChangeAction.Add));
 
-                // Because we don't use private field for CurrentPage, setting value won't work because it's already same.
-                // To bypass it, we just manually raise PropertyChanged for CurrentPage, CurrentPageIndex and CurrentPageNumber.
-
-                RaisePropertyChanged(nameof(CurrentPage));
-
-                // Also for Index and Number
-
-                RaisePropertyChanged(nameof(CurrentPageIndex));
-                RaisePropertyChanged(nameof(CurrentPageNumber));
+                OnPagesChanged(newSection, new PagesChangedEventArgs(newSection.Pages, CollectionChangeAction.Add));
             }
-
-            HasChanges = true;
         }
 
         bool CanExecuteAddSection()
         {
-            return !ReadOnly;
+            return IsEditable;
         }
 
         #endregion
@@ -677,7 +1003,7 @@ namespace Lessium.ViewModels
 
         private DelegateCommand<Section> RemoveSectionCommand;
         public DelegateCommand<Section> RemoveSection =>
-            RemoveSectionCommand ?? (RemoveSectionCommand = new DelegateCommand<Section>(ExecuteRemoveSection));
+            RemoveSectionCommand ?? (RemoveSectionCommand = new DelegateCommand<Section>(ExecuteRemoveSection, CanExecuteRemoveSection));
 
         void ExecuteRemoveSection(Section section)
         {
@@ -687,11 +1013,12 @@ namespace Lessium.ViewModels
 
             // Remove
 
-            Sections.Remove(section);
+            actionsService.ExecuteAction(new RemoveFromCollectionAction<Section>(Sections, section));
+        }
 
-            // Notify
-
-            HasChanges = true;
+        bool CanExecuteRemoveSection(Section _) // Discard Section, because we don't check it, we check only IsEditable state.
+        {
+            return IsEditable;
         }
 
         #endregion
@@ -704,6 +1031,8 @@ namespace Lessium.ViewModels
 
         void ExecuteTrySelectSection(Section newSection)
         {
+            if (currentSectionUpdating) return;
+
             SelectSection(newSection);
         }
 
@@ -717,48 +1046,36 @@ namespace Lessium.ViewModels
 
         void ExecuteSectionInput()
         {
-            if(Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl)) return;
+
+            if (Keyboard.IsKeyDown(Key.C))
             {
+                if (CurrentSection == null) return;
 
-                if (Keyboard.IsKeyDown(Key.C))
-                {
-                    var serializationInfo = CurrentSection.GetSerializationInfo();
-                    Clipboard.Clear();
-                    Clipboard.SetDataObject(serializationInfo);
+                ClipboardService.CopySerializable(CurrentSection);
 
-                }
+                return;
+            }
 
-                if (Keyboard.IsKeyDown(Key.V))
-                {
-                    IDataObject dataObject = Clipboard.GetDataObject();
-                    var dataType = typeof(SectionSerializationInfo);
-                    if (dataObject.GetDataPresent(dataType))
-                    {
-                        // Retrieves SerializationInfo
+            if (Keyboard.IsKeyDown(Key.V))
+            {
+                // We don't paste if not IsEditable
 
-                        var info = dataObject.GetData(dataType) as SectionSerializationInfo;
+                if (!IsEditable) { return; }
 
-                        // Checks if SelectedTab (as SectionType) is same as SectionType
+                var section = ClipboardService.GetStoredSerializable() as Section;
 
-                        if (SelectedTabToSectionType() == info.sectionType)
-                        {
-                            // Constructs section from SerializationInfo
+                // Checks if SelectedContentType is same as Section's ContentType
 
-                            var section = new Section(info);
+                if (SelectedContentType != section.ContentType) return;
 
-                            // Adds to sections
+                // Adds to Sections
 
-                            Sections.Add(section);
+                AddSectionToSections(section);
 
-                            // Selects copied Section
+                // Selects copied Section
 
-                            SelectSection(section);
-                        }
-
-                        
-                    }
-                }
-
+                SelectSection(section);
             }
         }
 
@@ -776,12 +1093,12 @@ namespace Lessium.ViewModels
         {
             IContentControl control;
 
-            // Instantiation of ContentControl
             switch (MaterialName)
             {
-                case "Text":
-                    control = new Text();
+                case nameof(TextControl):
+                    control = new TextControl();
                     break;
+
                 default:
                     throw new NotImplementedException($"{MaterialName} not supported!");
             }
@@ -802,10 +1119,9 @@ namespace Lessium.ViewModels
         {
             IContentControl control;
 
-            // Instantiation of ContentControl
             switch (TestName)
             {
-                case "SimpleTest":
+                case nameof(SimpleTest):
                     control = new SimpleTest();
                     break;
                 default:
@@ -829,16 +1145,91 @@ namespace Lessium.ViewModels
 
         void ExecuteRemovePage()
         {
-            Pages.Remove(CurrentPage);
-
-            // Back to previous page index
-
-            CurrentPageIndex++;
-
-            HasChanges = true;
+            actionsService.ExecuteAction(new RemoveFromCollectionAction<ContentPageModel>(Pages, CurrentPage)
+            {
+                Callback = () =>
+                {
+                    CurrentPageIndex--;
+                },
+            });
         }
 
         #endregion
+
+        #region CheckSectionTests
+
+        private DelegateCommand CheckSectionTestsCommand;
+        public DelegateCommand CheckSectionTests =>
+            CheckSectionTestsCommand ?? (CheckSectionTestsCommand = new DelegateCommand(ExecuteCheckSectionTests, CanExecuteCheckSectionTests));
+
+        void ExecuteCheckSectionTests()
+        {
+            testsInfoService.CalculateTests();
+
+            TotalTestsCount = testsInfoService.TotalTests;
+            CorrectTestsCount = testsInfoService.CorrectTests;
+        }
+
+        bool CanExecuteCheckSectionTests()
+        {
+            return !IsEditable &&
+                CurrentPage != null &&
+                CurrentPage.ContentType == ContentType.Test;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ShowSettings
+
+        private DelegateCommand ShowSettingsCommand;
+        public DelegateCommand ShowSettings =>
+            ShowSettingsCommand ?? (ShowSettingsCommand = new DelegateCommand(ExecuteShowSettings, CanExecuteShowSettings));
+
+        void ExecuteShowSettings()
+        {
+            // New window
+
+            settingsWindow = new SettingsWindow()
+            {
+                Owner = mainWindow
+            };
+
+            settingsWindow.Closed += OnSettingsClosed;
+            settingsWindow.Show();
+        }
+
+        bool CanExecuteShowSettings()
+        {
+            return settingsWindow == null;
+        }
+
+        #endregion
+
+        #region ShowAbout
+
+        private DelegateCommand ShowAboutCommand;
+        public DelegateCommand ShowAbout =>
+            ShowAboutCommand ?? (ShowAboutCommand = new DelegateCommand(ExecuteShowAbout, CanExecuteShowAbout));
+
+        void ExecuteShowAbout()
+        {
+            // New window
+
+            aboutWindow = new AboutView()
+            {
+                Owner = mainWindow
+            };
+
+            aboutWindow.Closed += OnAboutClosed;
+            aboutWindow.Show();
+        }
+
+        bool CanExecuteShowAbout()
+        {
+            return aboutWindow == null;
+        }
 
         #endregion
 
@@ -862,25 +1253,18 @@ namespace Lessium.ViewModels
             TryCollapseCurrentSection();
 
             Section previousSection = null;
-
             if (CurrentSectionID != -1)
             {
                 previousSection = Sections[CurrentSectionID];
             }
 
-            SelectedTab = param;
+            SelectedContentType = (ContentType)Enum.Parse(typeof(ContentType), param);
 
-            RaisePropertyChanged(nameof(Sections)); // Sections[SelectedTab]
+            RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
 
-            SelectSection(model.LastSelectedSection[param], previousSection);
+            // SelectSection should be used here, see implementation for details.
 
-            // We still should call RaisePropertyChanged, because we bind to ID in View, and when changing tabs, ID could be the same.
-            RaisePropertyChanged(nameof(CurrentSectionID));
-
-            if (CurrentSection != null)
-            {
-                ShowSection(CurrentSection); // Shows (new) CurrentSection based on tab.
-            }
+            SelectSection(model.CurrentSection[SelectedContentType], previousSection, true);
         }
 
         #endregion
@@ -900,22 +1284,22 @@ namespace Lessium.ViewModels
 
         public string EditHeader
         {
-            get { return model.EditHeader; }
+            get { return BuildHeaderWithHotkey(model.EditHeader, Hotkeys.Current.EditHotkey); }
         }
 
         public string StopEditingHeader
         {
-            get { return model.StopEditingHeader; }
+            get { return BuildHeaderWithHotkey(model.StopEditingHeader, Hotkeys.Current.EditHotkey); }
         }
 
         public string UndoChangesHeader
         {
-            get { return model.UndoChangesHeader; }
+            get { return BuildHeaderWithHotkey(model.UndoChangesHeader, Hotkeys.Current.UndoHotkey); }
         }
 
-        public string RecentHeader
+        public string RedoChangesHeader
         {
-            get { return model.RecentHeader; }
+            get { return BuildHeaderWithHotkey(model.RedoChangesHeader, Hotkeys.Current.RedoHotkey); }
         }
 
         public string NewLessonHeader
@@ -938,11 +1322,6 @@ namespace Lessium.ViewModels
             get { return model.CloseLessonHeader; }
         }
 
-        public string PrintLessonHeader
-        {
-            get { return model.PrintLessonHeader; }
-        }
-
         public string ExitHeader
         {
             get { return model.ExitHeader; }
@@ -952,14 +1331,14 @@ namespace Lessium.ViewModels
 
         #region Tabs
 
-        public string MaterialHeader
+        public string Materials
         {
-            get { return model.MaterialHeader; }
+            get { return model.Materials; }
         }
 
-        public string TestsHeader
+        public string Tests
         {
-            get { return model.TestsHeader; }
+            get { return model.Tests; }
         }
 
         #endregion
@@ -987,86 +1366,18 @@ namespace Lessium.ViewModels
 
         #region MaterialControls
 
-        public string AudioHeader
-        {
-            get { return model.AudioHeader; }
-        }
-
-        public string ImageHeader
-        {
-            get { return model.ImageHeader; }
-        }
-
-        public string JokeHeader
-        {
-            get { return model.JokeHeader; }
-        }
-
         public string TextHeader
         {
             get { return model.TextHeader; }
-        }
-        public string VideoHeader
-        {
-            get { return model.VideoHeader; }
         }
 
         #endregion
 
         #region TestControls
 
-        public string ActionsInCaseHeader
-        {
-            get { return model.ActionsInCaseHeader; }
-        }
-
-        public string CompareHeader
-        {
-            get { return model.CompareHeader; }
-        }
-
-        public string DifferencesHeader
-        {
-            get { return model.DifferencesHeader; }
-        }
-        public string LinkTogetherHeader
-        {
-            get { return model.LinkTogetherHeader; }
-        }
-
-        public string MiniGameHeader
-        {
-            get { return model.MiniGameHeader; }
-        }
-
-        public string PrioritiesHeader
-        {
-            get { return model.PrioritiesHeader; }
-        }
-
-        public string SelectCorrectHeader
-        {
-            get { return model.SelectCorrectHeader; }
-        }
-
-        public string SIGameHeader
-        {
-            get { return model.SIGameHeader; }
-        }
-
         public string SimpleTestHeader
         {
             get { return model.SimpleTestHeader; }
-        }
-
-        public string TrickyQuestionHeader
-        {
-            get { return model.TrickyQuestionHeader; }
-        }
-
-        public string TrueFalseHeader
-        {
-            get { return model.TrueFalseHeader; }
         }
 
         #endregion
@@ -1080,10 +1391,13 @@ namespace Lessium.ViewModels
             get { return model.ReadOnlyToolTip; }
         }
 
-        #endregion
+        public string CheckAnswersToolTip
+        {
+            get { return model.CheckAnswersToolTip; }
+        }
 
         #endregion
 
-        
+        #endregion
     }
 }

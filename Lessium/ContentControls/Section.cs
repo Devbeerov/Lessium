@@ -1,142 +1,113 @@
-﻿using System;
+﻿using Lessium.Classes.IO;
+using Lessium.Interfaces;
+using Lessium.Models;
+using Lessium.Properties;
+using Lessium.Utility;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Resources;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Linq;
-using Lessium.ContentControls.Models;
-using System.ComponentModel;
+using System.Xml;
 
 namespace Lessium.ContentControls
 {
-    public class Section : StackPanel
+    [Serializable]
+    public class Section : VirtualizingStackPanel, ILsnSerializable
     {
-        private bool editable = false;
-        private SectionType sectionType;
-
         public const double PageWidth = 795;
         public const double PageHeight = 637;
+
+        private bool setupDone = false;
+        private IDispatcher dispatcher;
+
+        private readonly ObservableCollection<ContentPageModel> pages = new ObservableCollection<ContentPageModel>();
+
+        // Serialization
+
+        private List<ContentPageModel> storedPages;
 
         [Obsolete("Used only in XAML (constructor without parameters). Please use another constructor.", true)]
         public Section() : base()
         {
-            Initialize(SectionType.MaterialSection);
+            // Dispatcher
+
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            // Initialization
+
+            SetupProperties(ContentType.Material);
+            Initialize();
         }
 
-        public Section(SectionType type) : base()
+        public Section(ContentType type, bool initialize = true, IDispatcher dispatcher = null) : base()
         {
-            Initialize(type);
+            // Dispatcher
+
+            this.dispatcher = dispatcher ?? DispatcherUtility.Dispatcher;
+
+            // Initialization
+
+            SetupProperties(type);
+
+            if (initialize)
+            {
+                Initialize();
+            }
         }
 
-        // Custom Serialization
-        public Section(SectionSerializationInfo info) : base()
+        protected Section(SerializationInfo info, StreamingContext context) : base()
         {
-            Initialize(info.sectionType);
+            var type = (ContentType)info.GetValue(nameof(ContentType), typeof(ContentType));
+            var title = info.GetString(nameof(Title));
+            storedPages = info.GetValue(nameof(Pages), typeof(List<ContentPageModel>)) as List<ContentPageModel>;
 
-            SetTitle(info.title);
-            SetEditable(info.editable);
-            pages.AddRange(info.pages);
+            // Dispatcher
+
+            dispatcher = DispatcherUtility.Dispatcher;
+
+            // Setup
+
+            SetupProperties(type);
+            Title = title;
+
+            // Further initialization at OnSerialized method.
         }
 
-        private readonly ObservableCollection<ContentPage> pages = new ObservableCollection<ContentPage>();
+        #region Public CLR Properties
 
-        #region Dependency Properties Methods
-
-        #region Title
-
-        public static string GetTitle(DependencyObject obj)
+        public ContentType ContentType { get; set; }
+        public string Title
         {
-            return (string)obj.GetValue(Title);
+            get { return (string)GetValue(TitleProperty); }
+            set { SetValue(TitleProperty, value); }
         }
 
-        public static void SetTitle(DependencyObject obj, string value)
+        public ObservableCollection<ContentPageModel> Pages
         {
-            obj.SetValue(Title, value);
+            get { return (ObservableCollection<ContentPageModel>)GetValue(PagesProperty); }
+            set { SetValue(PagesProperty, value); }
         }
 
-        public string GetTitle()
+        public ContentPageModel SelectedPage
         {
-            return GetTitle(this);
+            get { return (ContentPageModel)GetValue(SelectedPageProperty); }
+            set { SetValue(SelectedPageProperty, value); }
         }
 
-        public void SetTitle(string title)
+        public int SelectedPageIndex
         {
-            SetTitle(this, title);
+            get { return (int)GetValue(SelectedPageIndexProperty); }
+            set { SetValue(SelectedPageIndexProperty, value); }
         }
-
-        #endregion
-
-        #region Pages
-
-        public static ObservableCollection<ContentPage> GetPages(DependencyObject obj)
-        {
-            return (ObservableCollection<ContentPage>)obj.GetValue(Pages);
-        }
-
-        public static void SetPages(DependencyObject obj, ObservableCollection<ContentPage> pages)
-        {
-            obj.SetValue(Pages, pages);
-        }
-
-        public ObservableCollection<ContentPage> GetPages()
-        {
-            return GetPages(this);
-        }
-
-        public void SetPages(ObservableCollection<ContentPage> pages)
-        {
-            SetPages(this, pages);
-        }
-
-        #endregion
-
-        #region SelectedPage
-
-        public static ContentPage GetSelectedPage(DependencyObject obj)
-        {
-            return (ContentPage)obj.GetValue(SelectedPage);
-        }
-
-        public static void SetSelectedPage(DependencyObject obj, ContentPage page)
-        {
-            obj.SetValue(SelectedPage, page);
-        }
-
-        public ContentPage GetSelectedPage()
-        {
-            return GetSelectedPage(this);
-        }
-
-        public void SetSelectedPage(ContentPage page)
-        {
-            SetSelectedPage(this, page);
-        }
-
-        #endregion
-
-        #region SelectedPageIndex
-
-        public static int GetSelectedPageIndex(DependencyObject obj)
-        {
-            return (int)obj.GetValue(SelectedPageIndex);
-        }
-
-        public static void SetSelectedPageIndex(DependencyObject obj, int index)
-        {
-            obj.SetValue(SelectedPageIndex, index);
-        }
-
-        public int GetSelectedPageIndex()
-        {
-            return GetSelectedPageIndex(this);
-        }
-
-        public void SetSelectedPageIndex(int index)
-        {
-            SetSelectedPageIndex(this, index);
-        }
-
-        #endregion
 
         #endregion
 
@@ -144,32 +115,40 @@ namespace Lessium.ContentControls
 
         #region Private
 
-        private void UpdatePageEditable(ContentPage page)
+        private void SetupProperties(ContentType type)
         {
-            if (page != null)
-            {
-                page.SetEditable(editable);
-            }
+            if (setupDone) throw new InvalidOperationException("SetupProperties method should be called only once!");
+
+            SetIsVirtualizing(this, true);
+            SetVirtualizationMode(this, VirtualizationMode.Recycling);
+
+            ContentType = type;
+            Pages = pages;
+
+            setupDone = true;
         }
 
-        private void UpdatePagesEditable()
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext c)
         {
-            foreach (var page in pages)
-            {
-                UpdatePageEditable(page);
-            }
+            pages.AddRange(storedPages);
+
+            // Initializes with already added pages, so it won't create new page.
+
+            Initialize();
+
+            // Clears and sets to null, so GC will collect List instance.
+
+            storedPages.Clear();
+            storedPages = null;
         }
 
         #endregion
 
         #region Public
 
-        public void Initialize(SectionType sectionType)
+        public void Initialize()
         {
-            // Internal
-
-            this.sectionType = sectionType;
-
             // Visible
 
             Width = double.NaN;
@@ -179,66 +158,50 @@ namespace Lessium.ContentControls
             VerticalAlignment = VerticalAlignment.Top;
             Orientation = Orientation.Vertical;
 
-            // Section should contain at least 1 page.
+            if (pages.Count == 0)
+            {
+                // Section should contain at least 1 page.
 
-            var page = new ContentPage();
-            pages.Add(page);
+                var page = new ContentPageModel(ContentType);
+                pages.Add(page);
+            }
 
-            // Sets Items and pages reference to internal variables.
-
-            SetPages(pages);
-
-            SetSelectedPageIndex(0);
-            SetSelectedPage(page);
-            
+            SelectedPage = pages[0];
         }
 
-        public void Add(ContentPage page)
+        public void Add(ContentPageModel page)
         {
+            if (page.ContentType != this.ContentType)
+            {
+                throw new InvalidOperationException
+("You can only add pages with same ContentType to Section!");
+            }
+
             pages.Add(page);
 
             // Raising event
 
-            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Add);
-            PagesChanged?.Invoke(this, args);
+            var affectedPages = new Collection<ContentPageModel>();
+            affectedPages.Add(page);
 
-            UpdatePageEditable(page);
+            var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Add);
+            PagesChanged?.Invoke(this, args);
         }
 
-        public void Remove(ContentPage page)
+        public void Remove(ContentPageModel page)
         {
             pages.Remove(page);
 
             // Raising event
 
-            var args = new PagesChangedEventArgs(page, CollectionChangeAction.Remove);
+            var affectedPages = new Collection<ContentPageModel>();
+            affectedPages.Add(page);
+
+            var args = new PagesChangedEventArgs(affectedPages, CollectionChangeAction.Remove);
             PagesChanged?.Invoke(this, args);
         }
 
-        public bool GetEditable()
-        {
-            return editable;
-        }
 
-        public void SetEditable(bool editable)
-        {
-            this.editable = editable;
-
-            UpdatePagesEditable();
-        }
-
-        public SectionSerializationInfo GetSerializationInfo()
-        {
-            SectionSerializationInfo info = new SectionSerializationInfo
-            {
-                title = GetTitle(),
-                editable = editable,
-                pages = pages.ToList(), // Linq does copying
-                sectionType = sectionType
-            };
-
-            return info;
-        }
 
         #endregion
 
@@ -252,53 +215,173 @@ namespace Lessium.ContentControls
 
         #region Dependency Properties
 
-        public static readonly DependencyProperty Title =
+        public static readonly DependencyProperty TitleProperty =
             DependencyProperty.RegisterAttached("Title", typeof(string), typeof(Section), new PropertyMetadata(string.Empty));
 
-        public static readonly DependencyProperty Pages =
-            DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPage>),
+        public static readonly DependencyProperty PagesProperty =
+            DependencyProperty.Register("Pages", typeof(ObservableCollection<ContentPageModel>),
                 typeof(Section), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty SelectedPage =
-            DependencyProperty.Register("SelectedPage", typeof(ContentPage),
+        public static readonly DependencyProperty SelectedPageProperty =
+            DependencyProperty.Register("SelectedPage", typeof(ContentPageModel),
                 typeof(Section), new PropertyMetadata(null));
 
         // Won't do anything with Section here. Used in ViewModel to change SelectedPage.
-        public static readonly DependencyProperty SelectedPageIndex =
+        public static readonly DependencyProperty SelectedPageIndexProperty =
             DependencyProperty.Register("SelectedPageIndex", typeof(int),
-                typeof(Section), new PropertyMetadata(null));
+                typeof(Section), new PropertyMetadata(0));
+
+        #endregion
+
+        #region ISerializable
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            dispatcher.Invoke(() =>
+            {
+                info.AddValue(nameof(Title), Title);
+                info.AddValue(nameof(Pages), Pages.ToList());
+            });
+
+            info.AddValue(nameof(ContentType), ContentType);
+        }
+
+        #endregion
+
+        #region ILsnSerializable
+
+        public async Task WriteXmlAsync(XmlWriter writer, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            // Reports to process new Section.
+
+            progress.Report(ProgressType.Section);
+
+            #region Section
+
+            await writer.WriteStartElementAsync("Section");
+
+            await dispatcher.InvokeAsync(async () =>
+            {
+                await writer.WriteAttributeStringAsync("Title", Title);
+            });
+
+            #region Page(s)
+
+            for (int i = 0; i < pages.Count; i++)
+            {
+                if (token.HasValue && token.Value.IsCancellationRequested) { break; }
+
+                var page = pages[i];
+                await page.WriteXmlAsync(writer, progress, token);
+            }
+
+            #endregion
+
+            await writer.WriteEndElementAsync();
+
+            #endregion
+
+
+        }
+
+        public async Task ReadXmlAsync(XmlReader reader, IProgress<ProgressType> progress, CancellationToken? token)
+        {
+            var title = reader.GetAttribute("Title");
+
+            if (title == null)
+            {
+                throw new ArgumentNullException(title);
+            }
+
+            dispatcher.Invoke(() =>
+            {
+                Title = title;
+            });
+
+            // Reports to process new Section.
+
+            progress.Report(ProgressType.Section);
+
+            // After getting all attributes, we can ReadSubtree to read Pages within this Section.
+
+            reader = reader.ReadSubtree();
+
+            // Reads while "Page" elements could be found.
+            while (await reader.ReadToFollowingAsync("Page"))
+            {
+                if (token.HasValue && token.Value.IsCancellationRequested) break;
+                if (reader.NodeType != XmlNodeType.Element) continue;
+
+                var page = new ContentPageModel(this.ContentType);
+
+                await page.ReadXmlAsync(reader, progress, token);
+                Add(page);
+
+            }
+
+            dispatcher.Invoke(() =>
+            {
+                if (Pages.Count == 0)
+                {
+                    throw new InvalidDataException("Section must have at least 1 Page.");
+                }
+            });
+        }
 
         #endregion
     }
 
     public class PagesChangedEventArgs
     {
-        public ContentPage Page { get; private set; }
+        public Collection<ContentPageModel> Pages { get; private set; }
         public CollectionChangeAction Action { get; private set; }
 
-        public PagesChangedEventArgs(ContentPage page, CollectionChangeAction action)
+        public PagesChangedEventArgs(Collection<ContentPageModel> pages, CollectionChangeAction action)
         {
-            Page = page;
+            Pages = pages;
             Action = action;
         }
     }
 
-    [Serializable]
-    public class SectionSerializationInfo
+    public enum ContentType
     {
-        #pragma warning disable S1104 // Fields should not have public accessibility
-
-        public string title;
-        public bool editable;
-        public List<ContentPage> pages; // COPY of ObservableCollection as List!
-
-        public SectionType sectionType;
-
-        #pragma warning restore S1104 // Fields should not have public accessibility
+        Material, Test
     }
 
-    public enum SectionType
+    public static class ContentTypeExtensions
     {
-        MaterialSection, TestSection
+        private static readonly ResourceManager manager = new ResourceManager(typeof(Resources));
+        private static readonly int maxContentTypeValue = Enum.GetValues(typeof(ContentType)).GetUpperBound(0);
+
+        /// <param name="invariantCulture">
+        /// Should be independant culture used or not.
+        /// Otherwise uses CurrentCulture.
+        /// </param>
+        public static string ToTabString(this ContentType type, bool invariantCulture = false)
+        {
+            CultureInfo culture;
+            if (!invariantCulture)
+            {
+                culture = CultureInfo.CurrentCulture;
+            }
+            else
+            {
+                culture = CultureInfo.InvariantCulture;
+            }
+
+            switch (type)
+            {
+                case ContentType.Material:
+                    return manager.GetString("Materials", culture);
+                case ContentType.Test:
+                    return manager.GetString("Tests", culture);
+                default: throw new NotSupportedException($"{type.ToString()} is not supported.");
+            }
+        }
+
+        public static bool IsBeyondMaxValue(this ContentType type)
+        {
+            return (int)type > maxContentTypeValue;
+        }
     }
 }

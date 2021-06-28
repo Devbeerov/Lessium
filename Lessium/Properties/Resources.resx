@@ -117,32 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActionsInCaseHeader" xml:space="preserve">
-    <value>Actions in case</value>
-  </data>
   <data name="AddSectionText" xml:space="preserve">
     <value>Add Section</value>
   </data>
-  <data name="AudioHeader" xml:space="preserve">
-    <value>Audio</value>
-  </data>
   <data name="ButtonAddHeader" xml:space="preserve">
     <value>Add</value>
-    <comment>Buttons</comment>
   </data>
   <data name="ButtonRemoveHeader" xml:space="preserve">
     <value>Remove</value>
   </data>
   <data name="CloseLessonHeader" xml:space="preserve">
-    <value>Close Lesson</value>
-    <comment>Menu</comment>
-  </data>
-  <data name="CompareHeader" xml:space="preserve">
-    <value>Compare</value>
-  </data>
-  <data name="DifferencesHeader" xml:space="preserve">
-    <value>Differences</value>
-    <comment>TestControls</comment>
+    <value>Close</value>
   </data>
   <data name="EditHeader" xml:space="preserve">
     <value>Edit</value>
@@ -150,72 +135,29 @@
   <data name="ExitHeader" xml:space="preserve">
     <value>Exit</value>
   </data>
-  <data name="ImageHeader" xml:space="preserve">
-    <value>Image</value>
-  </data>
-  <data name="JokeHeader" xml:space="preserve">
-    <value>Joke</value>
-  </data>
   <data name="LessonHeader" xml:space="preserve">
     <value>Lesson</value>
-  </data>
-  <data name="LinkTogetherHeader" xml:space="preserve">
-    <value>Link-Together Test</value>
   </data>
   <data name="LoadLessonHeader" xml:space="preserve">
     <value>Load</value>
   </data>
-  <data name="MaterialHeader" xml:space="preserve">
-    <value>Material</value>
-  </data>
-  <data name="MiniGameHeader" xml:space="preserve">
-    <value>Mini-game</value>
-  </data>
   <data name="NewLessonHeader" xml:space="preserve">
-    <value>New Lesson</value>
+    <value>New</value>
   </data>
   <data name="NewSection" xml:space="preserve">
     <value>Section</value>
   </data>
-  <data name="PrintLessonHeader" xml:space="preserve">
-    <value>Print</value>
-  </data>
-  <data name="PrioritiesHeader" xml:space="preserve">
-    <value>Priorities</value>
-  </data>
-  <data name="RecentHeader" xml:space="preserve">
-    <value>Recent</value>
-  </data>
   <data name="SaveLessonHeader" xml:space="preserve">
     <value>Save</value>
-  </data>
-  <data name="SelectCorrectHeader" xml:space="preserve">
-    <value>Select Correct</value>
-  </data>
-  <data name="SIGameHeader" xml:space="preserve">
-    <value>SI Game "Svoya Igra"</value>
   </data>
   <data name="SimpleTestHeader" xml:space="preserve">
     <value>Test</value>
   </data>
-  <data name="TestsHeader" xml:space="preserve">
-    <value>Tests</value>
-  </data>
   <data name="TextHeader" xml:space="preserve">
     <value>Text</value>
-    <comment>MaterialControls</comment>
-  </data>
-  <data name="TrickyQuestionHeader" xml:space="preserve">
-    <value>Tricky Question</value>
-  </data>
-  <data name="TrueFalseHeader" xml:space="preserve">
-    <value>True/False</value>
   </data>
   <data name="UndoChangesHeader" xml:space="preserve">
     <value>Undo</value>
-  </data>
-  <data name="VideoHeader" xml:space="preserve">
-    <value>Video</value>
   </data>
   <data name="AddContentHeader" xml:space="preserve">
     <value>Add</value>
@@ -223,7 +165,6 @@
   <data name="ReadOnlyToolTip" xml:space="preserve">
     <value>Disabled in Read-Only.
 To edit lesson, select "Lesson" at top-left and press "Edit".</value>
-    <comment>ToolTips</comment>
   </data>
   <data name="TextControl_DefaultText" xml:space="preserve">
     <value>Enter text here.</value>
@@ -242,5 +183,74 @@ To edit lesson, select "Lesson" at top-left and press "Edit".</value>
   </data>
   <data name="StopEditingHeader" xml:space="preserve">
     <value>Stop editing</value>
+  </data>
+  <data name="NewLessonMessageHeader" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="NewLessonMessageText" xml:space="preserve">
+    <value>Will create new blank Lesson. All unsaved changes will be lost!</value>
+  </data>
+  <data name="LoadingHeader" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="SavingHeader" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="LessonFilter" xml:space="preserve">
+    <value>Lesson (*.lsn)|*.lsn</value>
+  </data>
+  <data name="Contents" xml:space="preserve">
+    <value>Contents</value>
+  </data>
+  <data name="Pages" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="Sections" xml:space="preserve">
+    <value>Sections</value>
+  </data>
+  <data name="Materials" xml:space="preserve">
+    <value>Materials</value>
+  </data>
+  <data name="Tests" xml:space="preserve">
+    <value>Tests</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="FontSliderHeader" xml:space="preserve">
+    <value>Font Size</value>
+  </data>
+  <data name="Editing" xml:space="preserve">
+    <value>Editing</value>
+  </data>
+  <data name="Generic" xml:space="preserve">
+    <value>Generic</value>
+  </data>
+  <data name="UndoLimitHeader" xml:space="preserve">
+    <value>Undo/Redo Limit</value>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>All rights reserved</value>
+  </data>
+  <data name="RedoChangesHeader" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
+  <data name="CombinationToolTip" xml:space="preserve">
+    <value>To change hotkey, select this field and press new combination (for example: Ctrl + Z)</value>
+  </data>
+  <data name="HotkeyExistError" xml:space="preserve">
+    <value>This shortcut is already being used.</value>
+  </data>
+  <data name="CheckAnswersToolTip" xml:space="preserve">
+    <value>Check Answers</value>
   </data>
 </root>
