@@ -83,7 +83,7 @@ namespace Lessium.Utility
             // find the descendant
             while (await reader.ReadAsync() && reader.Depth > parentDepth)
             {
-                if (reader.NodeType == XmlNodeType.Element && ((object)localName == (object)reader.LocalName))
+                if (reader.NodeType == XmlNodeType.Element && (localName == (object)reader.LocalName))
                 {
                     return true;
                 }
