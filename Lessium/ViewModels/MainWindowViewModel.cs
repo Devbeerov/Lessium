@@ -78,7 +78,7 @@ namespace Lessium.ViewModels
         public bool IsEditable
         {
             get { return model.IsEditable; }
-            set 
+            set
             {
                 if (SetProperty(ref model.IsEditable, value))
                     CheckSectionTests.RaiseCanExecuteChanged();
@@ -538,10 +538,10 @@ namespace Lessium.ViewModels
 
             RaisePropertyCurrentSectionChanged();
 
-            if (previousSection != null) 
+            if (previousSection != null)
                 previousSection.PagesChanged -= OnPagesChanged;
 
-            if (section == null) 
+            if (section == null)
                 return;
 
             section.PagesChanged += OnPagesChanged;
@@ -592,7 +592,7 @@ namespace Lessium.ViewModels
             if (oldPage.Items.Count == 1) return;
 
             var oldPageIndex = Pages.IndexOf(oldPage);
-            
+
             oldPage.Remove(content);
 
             if (oldPageIndex != Pages.Count - 1) // Not last Page
@@ -646,7 +646,7 @@ namespace Lessium.ViewModels
                     page.AddedExceedingContent -= OnExceedingContent;
                 }
             }
-            
+
             UpdateCurrentPageNotFirst();
         }
 
@@ -819,7 +819,7 @@ namespace Lessium.ViewModels
                 var progressView = IOTools.CreateProgressView(window, model.ProgressWindowTitle_Saving,
                     await LsnWriter.CountDataAsync(lessonModel, fileName), IOType.Write);
                 var progress = IOTools.CreateProgressForProgressView(progressView);
-               
+
                 progressView.Show();
 
                 // Awaits until SaveAsync method is completed asynchronously.
@@ -1258,7 +1258,7 @@ namespace Lessium.ViewModels
                 previousSection = Sections[CurrentSectionID];
             }
 
-            SelectedContentType = (ContentType) Enum.Parse(typeof(ContentType), param);
+            SelectedContentType = (ContentType)Enum.Parse(typeof(ContentType), param);
 
             RaisePropertyChanged(nameof(Sections)); // Sections[SelectedContentType]
 

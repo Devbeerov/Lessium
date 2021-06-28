@@ -119,7 +119,7 @@ namespace Lessium.Models
         // For serialization
         protected ContentPageModel(SerializationInfo info, StreamingContext context)
         {
-            dispatcher =  DispatcherUtility.Dispatcher;
+            dispatcher = DispatcherUtility.Dispatcher;
 
             storedItems = info.GetValue(nameof(Items), typeof(List<IContentControl>)) as List<IContentControl>;
         }
@@ -137,7 +137,7 @@ namespace Lessium.Models
         /// <param name="directly">If set to true, will raise SendAction event instead of directly adding.</param>
         public void Add(IContentControl control, bool directly = false)
         {
-            if (!IsContentControlTypeValid(control)) throw new InvalidOperationException ("You can only add ContentControls with equivalent interface!");
+            if (!IsContentControlTypeValid(control)) throw new InvalidOperationException("You can only add ContentControls with equivalent interface!");
 
             // If there's no attached handlers, we will have to do it directly.
 

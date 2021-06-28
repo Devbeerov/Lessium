@@ -13,7 +13,7 @@ using System.Windows.Controls;
 namespace Lessium.Services
 {
     public static class ContentPageControlService
-   {
+    {
         private static readonly UIElementsDistanceConverter distanceConverter = new UIElementsDistanceConverter();
         private static ContentPageControl pageControl;
         private static ContentPageControl PageControl
@@ -79,5 +79,5 @@ namespace Lessium.Services
 
             return (double)distanceConverter.Convert(inputElements, null, Coordinate.Y.ToString(), CultureInfo.InvariantCulture);
         }
-   }
+    }
 }

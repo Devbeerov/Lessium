@@ -198,9 +198,9 @@ namespace Lessium.ContentControls
             ValidateSendActionRegistration(oldPage, contentPage);
 
             if (contentPage == null) // Wrong DataContext (probably MainWindowViewModel) or empty page
-            { 
+            {
                 Items = null;
-                return; 
+                return;
             }
 
             contentPage.Enabled = true;
@@ -340,7 +340,7 @@ namespace Lessium.ContentControls
             typeof(ContentPageControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
         public static readonly DependencyProperty IsEditableProperty =
-            DependencyProperty.Register("IsEditable", typeof(bool), typeof(ContentPageControl), new PropertyMetadata(true, (sender, e) => 
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(ContentPageControl), new PropertyMetadata(true, (sender, e) =>
             {
                 var pageControl = sender as ContentPageControl;
 

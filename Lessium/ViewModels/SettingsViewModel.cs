@@ -128,7 +128,7 @@ namespace Lessium.ViewModels
         public void ExecuteOnSectionChanged(SelectionChangedEventArgs e)
         {
             var localizedString = e.AddedItems[0] as LocalizedString;
-            
+
             SelectedSectionKey = Resources.ResourceManager.GetString(localizedString.Name, CultureInfo.InvariantCulture) ?? null;
         }
 

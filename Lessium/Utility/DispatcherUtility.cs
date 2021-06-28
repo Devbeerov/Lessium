@@ -10,7 +10,7 @@ namespace Lessium.Utility
 
         public static IDispatcher Dispatcher
         {
-            get 
+            get
             {
                 if (dispatcher == null)
                 {

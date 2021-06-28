@@ -8,41 +8,51 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Lessium.Properties {
-    
-    
+namespace Lessium.Properties
+{
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
-    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
+    {
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
+
+        public static Settings Default
+        {
+            get
+            {
                 return defaultInstance;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("12")]
-        public double FontSize {
-            get {
+        public double FontSize
+        {
+            get
+            {
                 return ((double)(this["FontSize"]));
             }
-            set {
+            set
+            {
                 this["FontSize"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public ushort UndoLimit {
-            get {
+        public ushort UndoLimit
+        {
+            get
+            {
                 return ((ushort)(this["UndoLimit"]));
             }
-            set {
+            set
+            {
                 this["UndoLimit"] = value;
             }
         }

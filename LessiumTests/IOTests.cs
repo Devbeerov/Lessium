@@ -132,7 +132,7 @@ namespace LessiumTests
             {
                 Assert.Fail("Exception occured during saving: {0}", e.ToString());
             }
-            
+
             Assert.AreEqual(IOResult.successful, saveResult);
 
             var tempLoadResult = await IOTools.LoadLesson(tempPath);

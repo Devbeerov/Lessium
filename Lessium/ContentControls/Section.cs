@@ -171,8 +171,11 @@ namespace Lessium.ContentControls
 
         public void Add(ContentPageModel page)
         {
-            if (page.ContentType != this.ContentType) { throw new InvalidOperationException
-                     ("You can only add pages with same ContentType to Section!"); }
+            if (page.ContentType != this.ContentType)
+            {
+                throw new InvalidOperationException
+("You can only add pages with same ContentType to Section!");
+            }
 
             pages.Add(page);
 
@@ -198,7 +201,7 @@ namespace Lessium.ContentControls
             PagesChanged?.Invoke(this, args);
         }
 
-        
+
 
         #endregion
 
@@ -257,7 +260,7 @@ namespace Lessium.ContentControls
 
             await writer.WriteStartElementAsync("Section");
 
-            await dispatcher.InvokeAsync(async () => 
+            await dispatcher.InvokeAsync(async () =>
             {
                 await writer.WriteAttributeStringAsync("Title", Title);
             });
@@ -316,7 +319,7 @@ namespace Lessium.ContentControls
 
             }
 
-            dispatcher.Invoke(() => 
+            dispatcher.Invoke(() =>
             {
                 if (Pages.Count == 0)
                 {

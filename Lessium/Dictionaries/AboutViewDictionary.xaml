@@ -4,5 +4,5 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="AboutViewDictionary.Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
-    
+
 </ResourceDictionary>

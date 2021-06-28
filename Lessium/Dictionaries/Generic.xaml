@@ -5,7 +5,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Generic.Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
-    
+
     <!--#region Converters -->
 
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -26,9 +26,9 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <!--#endregion-->
-    
+
     <!--#region Styles -->
 
     <Style x:Key="ContentControlGridFixedWidthStyle" TargetType="{x:Type Grid}">

@@ -40,7 +40,7 @@ namespace Lessium.Models
         /// This could look confusing, but it's simple.
         /// To access section with key "Section 1" in "Materials" we can do this:
         /// Section section = Sections["Materials"]["Section 1"];
-        public Dictionary<ContentType, ObservableCollection<Section>> Sections = 
+        public Dictionary<ContentType, ObservableCollection<Section>> Sections =
             new Dictionary<ContentType, ObservableCollection<Section>>()
             {
                 { ContentType.Material, new ObservableCollection<Section>() },

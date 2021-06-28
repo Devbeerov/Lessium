@@ -224,7 +224,7 @@ namespace Lessium.ContentControls.TestControls
 
         public bool CheckAnswers()
         {
-            if (TrueAnswers.Count != SelectedAnswers.Count) 
+            if (TrueAnswers.Count != SelectedAnswers.Count)
                 return false;
 
             return CheckSelectedAndTrueAnswersMatch();
@@ -239,7 +239,7 @@ namespace Lessium.ContentControls.TestControls
             if (!raiseResizeEvent) { return; }
 
             if (addAnswerButton.Visibility == Visibility.Collapsed) return;
-            
+
             var buttonPos = addAnswerButton.TranslatePoint(default, AnswersItemControl);
             var lineHeight = testQuestion.textBox.CalculateLineHeight();
             var maximumValidPosY = MaxHeight - addAnswerButton.ActualHeight - lineHeight;
@@ -428,5 +428,5 @@ namespace Lessium.ContentControls.TestControls
         }
 
         #endregion
-    } 
+    }
 }

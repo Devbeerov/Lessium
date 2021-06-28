@@ -16,7 +16,7 @@ namespace Lessium.Services
 
         public int TotalTests
         {
-            get 
+            get
             {
                 return totalTests;
             }
@@ -33,9 +33,9 @@ namespace Lessium.Services
 
         public int CorrectTests
         {
-            get 
+            get
             {
-                return correctTests; 
+                return correctTests;
             }
 
             private set

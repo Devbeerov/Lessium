@@ -8,7 +8,7 @@ namespace Lessium.Utility
 {
     public static class WpfExtensions
     {
-        public static T FindParent<T>(this DependencyObject child) where T: class
+        public static T FindParent<T>(this DependencyObject child) where T : class
         {
             var parentObject = VisualTreeHelper.GetParent(child);
 
@@ -17,7 +17,7 @@ namespace Lessium.Utility
             var parent = parentObject as T;
 
             if (parent != null) return parent;
-            
+
             return FindParent<T>(parentObject);
         }
 

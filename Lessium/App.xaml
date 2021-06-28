@@ -4,9 +4,9 @@
 	         xmlns:prism="http://prismlibrary.com/"
              xmlns:local="clr-namespace:Lessium">
     <Application.Resources>
-        
+
         <!-- Resource Dictionaries -->
-        
+
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
 
@@ -16,6 +16,6 @@
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
+
     </Application.Resources>
 </prism:PrismApplication>

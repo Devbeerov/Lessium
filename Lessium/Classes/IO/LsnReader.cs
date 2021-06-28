@@ -206,7 +206,7 @@ namespace Lessium.Classes.IO
             cts = new CancellationTokenSource();
             var token = cts.Token;
             Dictionary<ContentType, CountData> result = new Dictionary<ContentType, CountData>();
- 
+
             using (cts)
             using (XmlReader reader = XmlReader.Create(fileName, settings))
             {

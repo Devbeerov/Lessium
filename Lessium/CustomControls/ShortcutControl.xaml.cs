@@ -27,7 +27,7 @@ namespace Lessium.CustomControls
 
         public Hotkey Hotkey
         {
-            get 
+            get
             {
                 if (ShortcutKeyName == null) return default(Hotkey);
 
@@ -92,7 +92,7 @@ namespace Lessium.CustomControls
             // Now we can be sure that dictionary contains propertyName key and it's list not already have this error, so we add it.
 
             dataErrors[propertyName].Add(error);
-            
+
         }
 
         private void ClearErrors(string propertyName)
@@ -247,7 +247,7 @@ namespace Lessium.CustomControls
         {
             if (propertyName == null) return null;
 
-            if(dataErrors.ContainsKey(propertyName)) return dataErrors[propertyName];
+            if (dataErrors.ContainsKey(propertyName)) return dataErrors[propertyName];
 
             return null;
         }

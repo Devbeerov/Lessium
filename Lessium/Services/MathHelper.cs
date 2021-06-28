@@ -44,7 +44,7 @@ namespace Lessium.Services
         {
             if (value is string coordinateString)
             {
-                switch(coordinateString.ToLower())
+                switch (coordinateString.ToLower())
                 {
                     case "x":
                         return Coordinate.X;

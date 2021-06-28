@@ -8,10 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Lessium.Properties {
+namespace Lessium.Properties
+{
     using System;
-    
-    
+
+
     /// <summary>
     ///   Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
     /// </summary>
@@ -22,446 +23,544 @@ namespace Lessium.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Resources {
-        
+    public class Resources
+    {
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Resources()
+        {
         }
-        
+
         /// <summary>
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
-            get {
-                if (object.ReferenceEquals(resourceMan, null)) {
+        public static global::System.Resources.ResourceManager ResourceManager
+        {
+            get
+            {
+                if (object.ReferenceEquals(resourceMan, null))
+                {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Lessium.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Перезаписывает свойство CurrentUICulture текущего потока для всех
         ///   обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
-            get {
+        public static global::System.Globalization.CultureInfo Culture
+        {
+            get
+            {
                 return resourceCulture;
             }
-            set {
+            set
+            {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на About.
         /// </summary>
-        public static string AboutHeader {
-            get {
+        public static string AboutHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("AboutHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Add.
         /// </summary>
-        public static string AddContentHeader {
-            get {
+        public static string AddContentHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("AddContentHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Add Section.
         /// </summary>
-        public static string AddSectionText {
-            get {
+        public static string AddSectionText
+        {
+            get
+            {
                 return ResourceManager.GetString("AddSectionText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на All rights reserved.
         /// </summary>
-        public static string AllRightsReserved {
-            get {
+        public static string AllRightsReserved
+        {
+            get
+            {
                 return ResourceManager.GetString("AllRightsReserved", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Add.
         /// </summary>
-        public static string ButtonAddHeader {
-            get {
+        public static string ButtonAddHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("ButtonAddHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Remove.
         /// </summary>
-        public static string ButtonRemoveHeader {
-            get {
+        public static string ButtonRemoveHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("ButtonRemoveHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Check Answers.
         /// </summary>
-        public static string CheckAnswersToolTip {
-            get {
+        public static string CheckAnswersToolTip
+        {
+            get
+            {
                 return ResourceManager.GetString("CheckAnswersToolTip", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Close.
         /// </summary>
-        public static string CloseLessonHeader {
-            get {
+        public static string CloseLessonHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("CloseLessonHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на To change hotkey, select this field and press new combination (for example: Ctrl + Z).
         /// </summary>
-        public static string CombinationToolTip {
-            get {
+        public static string CombinationToolTip
+        {
+            get
+            {
                 return ResourceManager.GetString("CombinationToolTip", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Contents.
         /// </summary>
-        public static string Contents {
-            get {
+        public static string Contents
+        {
+            get
+            {
                 return ResourceManager.GetString("Contents", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Answer.
         /// </summary>
-        public static string DefaultAnswerHeader {
-            get {
+        public static string DefaultAnswerHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("DefaultAnswerHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Click twice to edit..
         /// </summary>
-        public static string DoubleClickToEditTooltip {
-            get {
+        public static string DoubleClickToEditTooltip
+        {
+            get
+            {
                 return ResourceManager.GetString("DoubleClickToEditTooltip", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Edit.
         /// </summary>
-        public static string EditHeader {
-            get {
+        public static string EditHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("EditHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Editing.
         /// </summary>
-        public static string Editing {
-            get {
+        public static string Editing
+        {
+            get
+            {
                 return ResourceManager.GetString("Editing", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Exit.
         /// </summary>
-        public static string ExitHeader {
-            get {
+        public static string ExitHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("ExitHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Font Size.
         /// </summary>
-        public static string FontSliderHeader {
-            get {
+        public static string FontSliderHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("FontSliderHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Generic.
         /// </summary>
-        public static string Generic {
-            get {
+        public static string Generic
+        {
+            get
+            {
                 return ResourceManager.GetString("Generic", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на This shortcut is already being used..
         /// </summary>
-        public static string HotkeyExistError {
-            get {
+        public static string HotkeyExistError
+        {
+            get
+            {
                 return ResourceManager.GetString("HotkeyExistError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Lesson (*.lsn)|*.lsn.
         /// </summary>
-        public static string LessonFilter {
-            get {
+        public static string LessonFilter
+        {
+            get
+            {
                 return ResourceManager.GetString("LessonFilter", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Lesson.
         /// </summary>
-        public static string LessonHeader {
-            get {
+        public static string LessonHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("LessonHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Loading....
         /// </summary>
-        public static string LoadingHeader {
-            get {
+        public static string LoadingHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("LoadingHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Load.
         /// </summary>
-        public static string LoadLessonHeader {
-            get {
+        public static string LoadLessonHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("LoadLessonHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Materials.
         /// </summary>
-        public static string Materials {
-            get {
+        public static string Materials
+        {
+            get
+            {
                 return ResourceManager.GetString("Materials", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на New.
         /// </summary>
-        public static string NewLessonHeader {
-            get {
+        public static string NewLessonHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("NewLessonHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Are you sure?.
         /// </summary>
-        public static string NewLessonMessageHeader {
-            get {
+        public static string NewLessonMessageHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("NewLessonMessageHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Will create new blank Lesson. All unsaved changes will be lost!.
         /// </summary>
-        public static string NewLessonMessageText {
-            get {
+        public static string NewLessonMessageText
+        {
+            get
+            {
                 return ResourceManager.GetString("NewLessonMessageText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Section.
         /// </summary>
-        public static string NewSection {
-            get {
+        public static string NewSection
+        {
+            get
+            {
                 return ResourceManager.GetString("NewSection", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Pages.
         /// </summary>
-        public static string Pages {
-            get {
+        public static string Pages
+        {
+            get
+            {
                 return ResourceManager.GetString("Pages", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Disabled in Read-Only.
         ///To edit lesson, select &quot;Lesson&quot; at top-left and press &quot;Edit&quot;..
         /// </summary>
-        public static string ReadOnlyToolTip {
-            get {
+        public static string ReadOnlyToolTip
+        {
+            get
+            {
                 return ResourceManager.GetString("ReadOnlyToolTip", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Redo.
         /// </summary>
-        public static string RedoChangesHeader {
-            get {
+        public static string RedoChangesHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("RedoChangesHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Save.
         /// </summary>
-        public static string SaveLessonHeader {
-            get {
+        public static string SaveLessonHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("SaveLessonHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Saving....
         /// </summary>
-        public static string SavingHeader {
-            get {
+        public static string SavingHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("SavingHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Sections.
         /// </summary>
-        public static string Sections {
-            get {
+        public static string Sections
+        {
+            get
+            {
                 return ResourceManager.GetString("Sections", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Settings.
         /// </summary>
-        public static string SettingsHeader {
-            get {
+        public static string SettingsHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("SettingsHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Shortcuts.
         /// </summary>
-        public static string Shortcuts {
-            get {
+        public static string Shortcuts
+        {
+            get
+            {
                 return ResourceManager.GetString("Shortcuts", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Enter question here..
         /// </summary>
-        public static string SimpleTestControl_DefaultText {
-            get {
+        public static string SimpleTestControl_DefaultText
+        {
+            get
+            {
                 return ResourceManager.GetString("SimpleTestControl_DefaultText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Test.
         /// </summary>
-        public static string SimpleTestHeader {
-            get {
+        public static string SimpleTestHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("SimpleTestHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Stop editing.
         /// </summary>
-        public static string StopEditingHeader {
-            get {
+        public static string StopEditingHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("StopEditingHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Tests.
         /// </summary>
-        public static string Tests {
-            get {
+        public static string Tests
+        {
+            get
+            {
                 return ResourceManager.GetString("Tests", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Enter text here..
         /// </summary>
-        public static string TextControl_DefaultText {
-            get {
+        public static string TextControl_DefaultText
+        {
+            get
+            {
                 return ResourceManager.GetString("TextControl_DefaultText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Text borders visible only at editing..
         /// </summary>
-        public static string TextControl_Tooltip {
-            get {
+        public static string TextControl_Tooltip
+        {
+            get
+            {
                 return ResourceManager.GetString("TextControl_Tooltip", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Text.
         /// </summary>
-        public static string TextHeader {
-            get {
+        public static string TextHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("TextHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Undo.
         /// </summary>
-        public static string UndoChangesHeader {
-            get {
+        public static string UndoChangesHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("UndoChangesHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Undo/Redo Limit.
         /// </summary>
-        public static string UndoLimitHeader {
-            get {
+        public static string UndoLimitHeader
+        {
+            get
+            {
                 return ResourceManager.GetString("UndoLimitHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Ищет локализованную строку, похожую на Version.
         /// </summary>
-        public static string Version {
-            get {
+        public static string Version
+        {
+            get
+            {
                 return ResourceManager.GetString("Version", resourceCulture);
             }
         }

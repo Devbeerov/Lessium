@@ -42,5 +42,5 @@ namespace Lessium.UndoableActions.Generic
             UndoCallback?.Invoke();
         }
     }
-    
+
 }

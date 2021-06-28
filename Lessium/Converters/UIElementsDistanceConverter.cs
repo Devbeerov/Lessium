@@ -32,7 +32,7 @@ namespace Lessium.Converters
             }
 
             var converter = TypeDescriptor.GetConverter(typeof(Coordinate));
-            var coordinate = (Coordinate) converter.ConvertFrom(coordinateString);
+            var coordinate = (Coordinate)converter.ConvertFrom(coordinateString);
 
             return MathHelper.DistanceBetweenElements(first, second, coordinate);
         }

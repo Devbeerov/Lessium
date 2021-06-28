@@ -152,7 +152,7 @@ namespace Lessium.Classes.IO
 
             foreach (var page in pages)
             {
-                if(token.IsCancellationRequested) { break; }
+                if (token.IsCancellationRequested) { break; }
 
                 data.AddPage(sectionIndex, pageIndex, page.Items.Count);
                 pageIndex++;

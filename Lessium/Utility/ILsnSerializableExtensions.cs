@@ -11,10 +11,10 @@ namespace Lessium.Utility
         /// <typeparam name="T"></typeparam>
         /// <param name="serializable"></param>
         /// <returns></returns>
-        public static T CloneSerializable<T>(this T serializable) where T: ILsnSerializable
+        public static T CloneSerializable<T>(this T serializable) where T : ILsnSerializable
         {
             var serializableObject = new DataObject(DataFormats.Serializable, serializable);
-            var newSerializable = (T) serializableObject.GetData(DataFormats.Serializable);
+            var newSerializable = (T)serializableObject.GetData(DataFormats.Serializable);
 
             return newSerializable;
         }

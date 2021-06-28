@@ -12,9 +12,9 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!--#region Converters -->
-    
+
     <!--#region Custom -->
-    
+
     <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
     <converters:NotNullConverter x:Key="NotNullConverter" />
     <converters:VisibilityAndConverter x:Key="VisibilityAndConverter" />
@@ -34,9 +34,9 @@
     </converters:ConverterChain>
 
     <!--#endregion-->
-    
+
     <!--#endregion-->
-    
+
     <!--#region Styles -->
 
     <Style x:Key="CurrentSectionStyle" TargetType="{x:Type controls:Section}">
@@ -115,7 +115,7 @@
     <!--#endregion-->
 
     <!--#region Templates -->
-    
+
     <!--#region Control Templates -->
 
     <ControlTemplate x:Key="AddSectionButton" TargetType="Button">
@@ -144,7 +144,7 @@
     </ControlTemplate>
 
     <!--#endregion-->
-    
+
     <!--#region Item Templates -->
 
     <DataTemplate x:Key="SectionTemplate">
@@ -180,7 +180,7 @@
     </DataTemplate>
 
     <!--#endregion-->
-    
+
     <!--#endregion-->
 
 </ResourceDictionary>

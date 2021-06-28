@@ -68,7 +68,7 @@ namespace Lessium.Utility.Behaviors
             var maxHeight = CalculateMaxHeight();
             var lineHeight = AssociatedObject.CalculateLineHeight();
 
-            return (int) Math.Floor(maxHeight / lineHeight);
+            return (int)Math.Floor(maxHeight / lineHeight);
         }
 
         private void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
@@ -82,7 +82,7 @@ namespace Lessium.Utility.Behaviors
                 return;
             }
             if (IsFitMaxHeight()) return;
-            
+
             e.Handled = true;
 
             int prevCaret = AssociatedObject.CaretIndex; // Caret before removing everything past MaxLine

@@ -81,8 +81,8 @@ namespace Lessium.ContentControls.MaterialControls
         public bool IsEditable
         {
             get { return (bool)GetValue(IsEditableProperty); }
-            set 
-            { 
+            set
+            {
                 SetValue(IsEditableProperty, value);
             }
         }
@@ -154,9 +154,9 @@ namespace Lessium.ContentControls.MaterialControls
         }
 
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(TextControl), 
+            DependencyProperty.Register("Text", typeof(string), typeof(TextControl),
                 new FrameworkPropertyMetadata(Properties.Resources.TextControl_DefaultText));
-        
+
         public static readonly DependencyProperty UsesCutBehaviorProperty =
             DependencyProperty.Register("UsesCutBehavior", typeof(bool), typeof(TextControl), new PropertyMetadata(true,
                 new PropertyChangedCallback(OnCutBehaviorUseChanged)));
